@@ -1,4 +1,5 @@
 # AutoIntern-3
 
-Jannick
+To install the KiGit tool:
+    uv pip install -e .
 

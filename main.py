@@ -1,6 +1,17 @@
-def main():
-    print("Hello from autointern-3!")
+import typer
 
+app = typer.Typer()
+
+
+@app.command()
+def diff():
+    """Shows the KiGit diff"""
+    pass
+
+@app.command()
+def status():
+    """Shows the KiGit status"""
+    pass
 
 if __name__ == "__main__":
-    main()
+    app()
