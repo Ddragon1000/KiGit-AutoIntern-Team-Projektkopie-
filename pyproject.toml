@@ -1,9 +1,11 @@
 [project]
-name = "autointern-3"
+name = "KiGit"
 version = "0.1.0"
-description = "Add your description here"
+description = "CLI Tool to easily identify changes made in KiCad Projects working with Git"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "typer>=0.25.1",
 ]
+[projects.scripts]
+kigit = "main:app"
