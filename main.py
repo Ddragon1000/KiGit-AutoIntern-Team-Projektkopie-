@@ -6,12 +6,12 @@ from rich.table import Table
 
 app = typer.Typer()
 console = Console()
+project_root = Path(__file__).parent
 
 @app.command()
-def diff():
+def diff(path = (project_root / "tmp" / "tmp.txt")):
     """Shows the KiGit diff"""
-    project_root = Path(__file__).parent
-    stats = count_changes(str(project_root / "tmp" / "tmp.txt"))
+    stats = count_changes(str(path))
     table = Table(title="Difference in Wires and Tracks")
     table.add_column("changed", justify="center", style="white")
     table.add_column("removed", justify="center", style="red")
