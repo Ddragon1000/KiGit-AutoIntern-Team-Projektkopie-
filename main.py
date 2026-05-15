@@ -16,9 +16,10 @@ def diff(path = (project_root / "tmp" / "tmp.txt")):
     table.add_column("changed", justify="center", style="white")
     table.add_column("removed", justify="center", style="red")
     table.add_column("added", justify="center", style="green")
+    table.add_column("modified", justify="center", style="green")
 
-    table.add_row("wires", str(stats.wire_removed), str(stats.wire_added))
-    table.add_row("segments", str(stats.track_removed), str(stats.track_added))
+    table.add_row("wires", str(stats.wire_removed), str(stats.wire_added), str(stats.wire_modified))
+    table.add_row("segments", str(stats.track_removed), str(stats.track_added), str(stats.track_modified))
     #plan:
     #call git command (from git control script)
     #parse git ouput into parser
