@@ -241,11 +241,6 @@ def count_changes(diff_path: str) -> DiffStats:
     for hunk in hunks:
         collected = collect_kicad_blocks(hunk.lines)
 
-        for dl in collected:
-            t = classify_kicad_line(dl.content)
-            if t in KICAD_TYPES:
-                print(f"KIND: {dl.kind} | TYPE: {t} | START: {dl.content[:50].strip()}")
-
         hunk_collected = DiffHunk(lines=collected)
         cs = pair_changes(hunk_collected)
 
