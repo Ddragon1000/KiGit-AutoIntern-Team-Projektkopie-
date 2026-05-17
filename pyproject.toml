@@ -5,6 +5,7 @@ description = "CLI Tool to easily identify changes made in KiCad Projects workin
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "lark>=1.3.1",
     "typer>=0.25.1",
 ]
 [projects.scripts]
