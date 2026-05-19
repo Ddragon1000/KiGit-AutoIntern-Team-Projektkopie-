@@ -15,13 +15,15 @@ TMP_DIR = os.path.join(os.path.expanduser("~"), ".kigit", "tmp")
 @app.command()
 def diff(
         file: str = typer.Argument(..., help="Path to KiCad File"),
-        commit: str = typer.Argument(None, help="Commit-Hash (optional)")
+        commit: str = typer.Argument(None, help="Commit-Hash (optional)"),
+        debug: bool = typer.Option(False, help="enables Debug options")
         ):
     """Shows the KiGit diff"""
-    gitDiff(file, commit)
+    gitDiff(file, commit, debug)
     pure_name = os.path.basename(file).replace(".", "_")
     path = os.path.join(TMP_DIR, f"tmp_{pure_name}.txt")
-    print(f"[DEBUG] suche datei: {path}")
+    if debug:
+        print(f"[DEBUG] suche datei: {path}")
     try:
         stats = count_changes(str(path))
     except (UnexpectedEOF, UnexpectedInput):
@@ -30,6 +32,8 @@ def diff(
     except FileNotFoundError:
         print(f"[ERROR] the tmp file  {path} was not found")
         return 1
+    if debug:
+        print(f"[DEBUG] {stats}")
 
     table = Table(title="Difference in Wires and Tracks")
     table.add_column("changed", justify="center", style="white")

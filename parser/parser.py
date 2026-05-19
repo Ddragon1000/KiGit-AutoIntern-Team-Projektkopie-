@@ -140,35 +140,12 @@ def pair_changes(hunk: DiffHunk) -> ChangeSet:
     #=> modified (b,b), removed(c)
     #flush is jsut to clear the buffer (buf)
     cs = ChangeSet()
-    removed_buf: list[str] = []
-    added_buf: list[str] = []
-
-    def flush():
-        r, a = len(removed_buf), len(added_buf)
-        paired = min(r, a)
-        for i in range(paired):
-            cs.modified.append((removed_buf[i], added_buf[i]))
-        for line in removed_buf[paired:]:
-            cs.removed.append(line)
-        for line in added_buf[paired:]:
-            cs.added.append(line)
-        removed_buf.clear()
-        added_buf.clear()
 
     for dl in hunk.lines:
-        if dl.kind == "modified_block":
-            flush()
-            cs.modified.append((dl.content, dl.content))
+        if dl.kind == "added":
+            cs.added.append(dl.content)
         elif dl.kind == "removed":
-            if added_buf:
-                flush()
-            removed_buf.append(dl.content)
-        elif dl.kind == "added":
-            added_buf.append(dl.content)
-        else:
-            flush()
-
-    flush()
+            cs.removed.append(dl.content)
     return cs
 
 def collect_kicad_blocks(lines: list[DiffLine]) -> list[DiffLine]:
@@ -202,12 +179,8 @@ def collect_kicad_blocks(lines: list[DiffLine]) -> list[DiffLine]:
             else:
                 result.append(dl)
         else:
-            #inside block if +/- then block is modified
-            if dl.kind == "added" and current_kind in ("context", "removed"):
-                current_kind = "modified_block"
-            elif dl.kind == "removed" and current_kind in ("context", "added"):
-                current_kind = "modified_block"
-            elif dl.kind in ("added", "removed") and current_kind == "context":
+            #inside block if +/- then block is modified_block
+            if dl.kind in ("added", "removed"):
                 current_kind = dl.kind
 
             buffer.append(content)
@@ -224,15 +197,27 @@ def collect_kicad_blocks(lines: list[DiffLine]) -> list[DiffLine]:
                 buffer = []
                 current_kind = None
                 current_type = None
+    if buffer:
+        full_content = "\n".join(buffer)
+        if current_kind is not None:
+            result.append(DiffLine(kind=current_kind, content=full_content))
 
     return result
 
+def norm_diff(diff_text: str) -> str:
+    return re.sub(
+        r'^(new|deleted) file mode \d+\n',
+        '',
+        diff_text,
+        flags=re.MULTILINE
+        )
 
 def count_changes(diff_path: str) -> DiffStats:
     #simple counting function adapted to new grammar logic
     with open(diff_path, "r", encoding="utf-8") as f:
         diff_text = f.read()
-
+    
+    diff_text = norm_diff(diff_text)
     tree = diff_parser.parse(diff_text)
     hunks = DiffTransformer().transform(tree)
 
@@ -244,19 +229,6 @@ def count_changes(diff_path: str) -> DiffStats:
         hunk_collected = DiffHunk(lines=collected)
         cs = pair_changes(hunk_collected)
 
-        for old, new in cs.modified:
-            t_old = classify_kicad_line(old)
-            t_new = classify_kicad_line(new)
-            if t_old == t_new == "wire":
-                stats.wire_modified += 1
-            elif t_old == t_new == "segment":
-                stats.track_modified += 1
-            elif t_old == "wire":
-                stats.wire_removed += 1
-                if t_new == "segment": stats.track_added += 1
-            elif t_new == "wire":
-                stats.wire_added += 1
-
         for line in cs.added:
             t = classify_kicad_line(line)
             if t == "wire": stats.wire_added += 1
@@ -265,6 +237,6 @@ def count_changes(diff_path: str) -> DiffStats:
         for line in cs.removed:
             t = classify_kicad_line(line)
             if t== "wire": stats.wire_removed += 1
-            elif t == "segment": stats.wire_removed += 1
+            elif t == "segment": stats.track_removed += 1
 
     return stats

@@ -10,5 +10,5 @@ Requires-Dist: typer>=0.25.1
 # AutoIntern-3
 
 To install the KiGit tool:
-    uv pip install -e .
+    uv tool install .
 

@@ -8,14 +8,15 @@ ROOT = os.getcwd()
 TMP_DIR = os.path.join(os.path.expanduser("~"), ".kigit", "tmp")
 
 
-def gitDiff(f: str, commit: str = None):
+def gitDiff(f: str, commit: str = None, debug: bool = False):
     if commit:
         cmd = ["git", "diff", commit, "--", f]
     else:
         cmd = ["git", "diff", f]
     
-    print(f"[DEBUG] cwd: {ROOT}")
-    print(f"[DEBUG] cmd: {' '.join(cmd)}")
+    if debug:    
+        print(f"[DEBUG] cwd: {ROOT}")
+        print(f"[DEBUG] cmd: {' '.join(cmd)}")
 
     try:
         diff = subprocess.run(
@@ -28,8 +29,9 @@ def gitDiff(f: str, commit: str = None):
     except subprocess.CalledProcessError as e:
         print(f"[Git-ERROR] The command failed: {e.stderr}", file=sys.stderr)
     
-    print(f"[DEBUG] stdout länge: {len(diff.stdout)}")
-    print(f"[DEBUG] stderr: {diff.stderr}")
+    if debug:
+        print(f"[DEBUG] stdout length: {len(diff.stdout)}")
+        print(f"[DEBUG] stderr: {diff.stderr}")
 
     os.makedirs(TMP_DIR, exist_ok=True)
     filename = os.path.basename(f).replace(".", "_")
