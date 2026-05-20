@@ -34,6 +34,7 @@ def get_keyword(path: str) -> str | None:
 #if we are in a wire block -> if only added parts -> added
 #						   -> if added and removed -> modified
 #						   -> if only removed -> removed
+#						   -> if removed and added -> modified
 def count_elements(patched_file: unidiff.PatchedFile, keyword: str) -> DiffRes:
 	"""Counting added, removed and modified elements of one specific keyword of a patched file"""
 	result = DiffRes()
