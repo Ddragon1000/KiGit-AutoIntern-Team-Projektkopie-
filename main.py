@@ -1,8 +1,8 @@
 import typer
 import os
 from lark.exceptions import UnexpectedEOF, UnexpectedInput
-from parser.parser import count_changes
-from parser.parser import DiffStats
+#from parser.parser import count_changes
+#from parser.parser import DiffStats
 from rich.console import Console
 from rich.table import Table
 from scripts.Git_Commands import gitDiff
@@ -38,18 +38,14 @@ def diff(
 
     table = Table(title="Difference in Wires and Tracks")
     table.add_column("changed", justify="center", style="white")
-    table.add_column("removed", justify="center", style="red")
     table.add_column("added", justify="center", style="green")
-    table.add_column("modified", justify="center", style="green")
+    table.add_column("removed", justify="center", style="red")
+    table.add_column("modified", justify="center", style="blue")
 
-    table.add_row("wires",
-                  str(stats.wire_removed),
-                  str(stats.wire_added),
-                  str(stats.wire_modified))
-    table.add_row("segments",
-                  str(stats.track_removed),
-                  str(stats.track_added),
-                  str(stats.track_modified))
+    table.add_row(f"{stats[0].filetype}",
+                  str(stats[0].result.added),
+                  str(stats[0].result.removed),
+                  str(stats[0].result.changed))
     console.print(table)
 
 

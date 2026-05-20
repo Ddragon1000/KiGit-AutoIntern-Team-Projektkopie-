@@ -44,12 +44,12 @@ class KiCadDiffParser:
 			if match is None:
 				continue #unknown file -> ignore
 
-			label, keyword = match
+			keyword = match
 			result = self._count_elements(patched_file, keyword)
 
 			self.parse_results.append(ParseRes(
 				filename=patched_file.path,
-				filetype=label,
+				filetype=keyword,
 				result=result
 			))
 
