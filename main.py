@@ -6,6 +6,7 @@ from parser.parser import DiffStats
 from rich.console import Console
 from rich.table import Table
 from scripts.Git_Commands import gitDiff
+from parser.new_parser import KiCadDiffParser
 
 app = typer.Typer()
 console = Console()
@@ -22,16 +23,16 @@ def diff(
     gitDiff(file, commit, debug)
     pure_name = os.path.basename(file).replace(".", "_")
     path = os.path.join(TMP_DIR, f"tmp_{pure_name}.txt")
+    parser = KiCadDiffParser(str(path))
     if debug:
         print(f"[DEBUG] suche datei: {path}")
-    try:
-        stats = count_changes(str(path))
-    except (UnexpectedEOF, UnexpectedInput):
-        print("[INFO] Git-diff was empty or unvalid. No changes to parse")
-        stats = DiffStats()
-    except FileNotFoundError:
-        print(f"[ERROR] the tmp file  {path} was not found")
-        return 1
+    
+    stats = parser.parse(str(path))
+
+    if not stats:
+        typer.echo("No KiCad-Files found in Diff")
+        raise typer.Exit(1)
+
     if debug:
         print(f"[DEBUG] {stats}")
 
