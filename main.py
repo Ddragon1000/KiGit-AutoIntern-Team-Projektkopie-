@@ -36,11 +36,11 @@ def diff(
     if debug:
         print(f"[DEBUG] {stats}")
 
-    table = Table(title="Difference in Wires and Tracks")
+    table = Table(title="kigit diff")
     table.add_column("changed", justify="center", style="white")
     table.add_column("added", justify="center", style="green")
     table.add_column("removed", justify="center", style="red")
-    table.add_column("modified", justify="center", style="blue")
+    table.add_column("modified", justify="center", style="yellow")
 
     table.add_row(f"{stats[0].filetype}",
                   str(stats[0].result.added),

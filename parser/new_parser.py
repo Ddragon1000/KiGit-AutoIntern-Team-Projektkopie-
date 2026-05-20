@@ -98,7 +98,7 @@ class KiCadDiffParser:
 					elif line.is_removed:
 						has_removed = True
 				
-					if depth <= 0:
+					if depth <= 1:
 						if has_added and has_removed:
 							result.changed += 1
 						in_block = False

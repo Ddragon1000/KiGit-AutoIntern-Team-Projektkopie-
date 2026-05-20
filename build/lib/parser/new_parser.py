@@ -21,6 +21,7 @@ class ParseRes:
 	result: DiffRes
 
 class KiCadDiffParser:
+
 	#Registry for what file the parser is used
 	#easily add new filetypes if necessary later
 	FILE_PARSERS: dict[str, str] = {
@@ -40,11 +41,10 @@ class KiCadDiffParser:
 		patch = unidiff.PatchSet.from_filename(diff_path, encoding="utf-8")
 
 		for patched_file in patch:
-			match = self._get_parser(patched_file.path)
-			if match is None:
+			keyword = self._get_parser(patched_file.path)
+			if keyword is None:
 				continue #unknown file -> ignore
 
-			keyword = match
 			result = self._count_elements(patched_file, keyword)
 
 			self.parse_results.append(ParseRes(
@@ -98,10 +98,9 @@ class KiCadDiffParser:
 					elif line.is_removed:
 						has_removed = True
 				
-					if depth <= 0:
+					if depth <= 1:
 						if has_added and has_removed:
 							result.changed += 1
 						in_block = False
 
 		return result
-
