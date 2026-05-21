@@ -52,6 +52,7 @@ def diff(
 @app.command()
 def status():
     """Shows the KiGit status"""
+    #änderungen ja/nein
     # plan:
     # call git command (from git control script)
     # parse git output into parser
