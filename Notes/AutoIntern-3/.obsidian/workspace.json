@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Overview.md",
+                "file": "Jannick/Notes for Team Meeting (Jannick).md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Overview"
+              "title": "Notes for Team Meeting (Jannick)"
             }
           }
         ],
@@ -200,8 +200,9 @@
   },
   "active": "f60487f0fca40b88",
   "lastOpenFiles": [
-    "Team Meetings/Sat. 23.05.2026.md",
     "Overview.md",
+    "Jannick/Notes for Team Meeting (Jannick).md",
+    "Team Meetings/Sat. 23.05.2026.md",
     "Sat. 23.05.2026.md",
     "Scrum Meetings/Sprint 1 Review.md",
     "Scrum Meetings/Sprint 2 Preperation.md",
