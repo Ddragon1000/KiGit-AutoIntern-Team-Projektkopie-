@@ -1,0 +1,2 @@
+[console_scripts]
+kigit = main:app

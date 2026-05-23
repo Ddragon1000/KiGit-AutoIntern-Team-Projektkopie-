@@ -1,0 +1,12 @@
+README.md
+main.py
+pyproject.toml
+KiGit.egg-info/PKG-INFO
+KiGit.egg-info/SOURCES.txt
+KiGit.egg-info/dependency_links.txt
+KiGit.egg-info/entry_points.txt
+KiGit.egg-info/requires.txt
+KiGit.egg-info/top_level.txt
+parser/parser.py
+scripts/Git_Commands.py
+tests/test_main.py
