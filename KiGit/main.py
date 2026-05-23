@@ -1,11 +1,12 @@
 import typer
 import os
 from lark.exceptions import UnexpectedEOF, UnexpectedInput
-from parser.parser import count_changes
-from parser.parser import DiffStats
+#from parser.parser import count_changes
+#from parser.parser import DiffStats
 from rich.console import Console
 from rich.table import Table
 from scripts.Git_Commands import gitDiff
+from parser.new_parser import KiCadDiffParser
 
 app = typer.Typer()
 console = Console()
@@ -15,42 +16,43 @@ TMP_DIR = os.path.join(os.path.expanduser("~"), ".kigit", "tmp")
 @app.command()
 def diff(
         file: str = typer.Argument(..., help="Path to KiCad File"),
-        commit: str = typer.Argument(None, help="Commit-Hash (optional)")
+        commit: str = typer.Argument(None, help="Commit-Hash (optional)"),
+        debug: bool = typer.Option(False, help="enables Debug options")
         ):
     """Shows the KiGit diff"""
-    gitDiff(file, commit)
+    gitDiff(file, commit, debug)
     pure_name = os.path.basename(file).replace(".", "_")
     path = os.path.join(TMP_DIR, f"tmp_{pure_name}.txt")
-    print(f"[DEBUG] suche datei: {path}")
-    try:
-        stats = count_changes(str(path))
-    except (UnexpectedEOF, UnexpectedInput):
-        print("[INFO] Git-diff was empty or unvalid. No changes to parse")
-        stats = DiffStats()
-    except FileNotFoundError:
-        print(f"[ERROR] the tmp file  {path} was not found")
-        return 1
+    parser = KiCadDiffParser(str(path))
+    if debug:
+        print(f"[DEBUG] suche datei: {path}")
+    
+    stats = parser.parse(str(path))
 
-    table = Table(title="Difference in Wires and Tracks")
+    if not stats:
+        typer.echo("No KiCad-Files found in Diff")
+        raise typer.Exit(1)
+
+    if debug:
+        print(f"[DEBUG] {stats}")
+
+    table = Table(title="kigit diff")
     table.add_column("changed", justify="center", style="white")
-    table.add_column("removed", justify="center", style="red")
     table.add_column("added", justify="center", style="green")
-    table.add_column("modified", justify="center", style="green")
+    table.add_column("removed", justify="center", style="red")
+    table.add_column("modified", justify="center", style="yellow")
 
-    table.add_row("wires",
-                  str(stats.wire_removed),
-                  str(stats.wire_added),
-                  str(stats.wire_modified))
-    table.add_row("segments",
-                  str(stats.track_removed),
-                  str(stats.track_added),
-                  str(stats.track_modified))
+    table.add_row(f"{stats[0].filetype}",
+                  str(stats[0].result.added),
+                  str(stats[0].result.removed),
+                  str(stats[0].result.changed))
     console.print(table)
 
 
 @app.command()
 def status():
     """Shows the KiGit status"""
+    #änderungen ja/nein
     # plan:
     # call git command (from git control script)
     # parse git output into parser
