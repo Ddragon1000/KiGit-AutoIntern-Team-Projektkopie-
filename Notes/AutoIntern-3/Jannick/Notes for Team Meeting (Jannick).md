@@ -7,3 +7,5 @@
 	- pytin package pip (for review sending for tabea)
 - [ ] can someone lend me a hand? maybe for git commands change so I have less 
 - [ ] how do we continue?
+
+## For Tue. 26.05.2026

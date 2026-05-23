@@ -93,7 +93,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 283.5
   },
   "right": {
     "id": "8e2ecd421f39755e",
@@ -200,11 +200,14 @@
   },
   "active": "0e6c3afbef98bffc",
   "lastOpenFiles": [
-    "Jannick/Notes for Team Meeting (Jannick).md",
     "Overview.md",
-    "Scrum Meetings/Sprint 2 Preperation.md",
-    "Scrum Meetings/Sprint 1 Review.md",
+    "Scrum Meetings/Sprint 2 Preparation.md",
     "Team Meetings/Sat. 23.05.2026.md",
+    "Reviews/Reviews Overview.md",
+    "Reviews",
+    "Scrum Meetings/Sprint 1 Review.md",
+    "Jannick/Notes for Tasks.md",
+    "Jannick/Notes for Team Meeting (Jannick).md",
     "Sat. 23.05.2026.md",
     "Scrum Meetings",
     "Team Meetings",

@@ -11,6 +11,7 @@ This is a overview of the current state of our project.
 (since Sprint 2)
 Team Meetings are held every Tuesday and Saturday at 10:00. on discord.
 - [[Sat. 23.05.2026]]
+- [[Tue. 26.05.2026]]
 
 ## Sprint Meetings
 (since End Sprint 1)
@@ -18,12 +19,15 @@ Team Meetings are held every Tuesday and Saturday at 10:00. on discord.
 Sprint Meetings are held after every Sprint (Wednesday after three weeks).
 ### 20.05.2026
 - [[Sprint 1 Review]]
-- [[Sprint 2 Preperation]]
+- [[Sprint 2 Preparation]]
 ### 9.06.2026
-
+- [[Sprint 2 Review]]
+- [[Sprint 3 Preparation]]
 ### 30.06.2026
-
+- [[Sprint 3 Review]]
+- [[Sprint 4 Preparation]]
 ### 21.07.2026
-
+- [[Sprint 4 Review]]
+- [[Final Presentation Fair Preparation]]
 ## Final Presentation Fair
 (04.09.2026 14:00)
