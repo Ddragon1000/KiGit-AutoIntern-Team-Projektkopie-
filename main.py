@@ -1,12 +1,10 @@
 import typer
 import os
 from lark.exceptions import UnexpectedEOF, UnexpectedInput
-#from parser.parser import count_changes
-#from parser.parser import DiffStats
 from rich.console import Console
 from rich.table import Table
 from scripts.Git_Commands import gitDiff
-from parser.new_parser import KiCadDiffParser
+from parser.diff_parser import KiCadDiffParser
 
 app = typer.Typer()
 console = Console()
