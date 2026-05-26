@@ -15,3 +15,8 @@ kigit = "main:app"
 py-modules = ["main"]
 [tool.setuptools.packages.find]
 include = ["parser*", "scripts*"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]
