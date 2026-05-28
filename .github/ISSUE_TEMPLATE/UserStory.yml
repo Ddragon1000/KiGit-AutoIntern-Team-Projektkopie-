@@ -9,7 +9,8 @@ body:
     id: User_Story
     attributes:
       label: "User Story"
-      value: "**Brief Description**
+      value: |
+**Brief Description**
 
 As a user of [user] I would like to [do what]
 
@@ -45,5 +46,4 @@ As a user of [user] I would like to [do what]
 - [ ] All Acceptance criteria are fulfilled
 - [ ] The changes are committed
 - [ ] The changes are merged into the main branch
-- [ ] The changes are documented"
-render: Markdown
+- [ ] The changes are documented
