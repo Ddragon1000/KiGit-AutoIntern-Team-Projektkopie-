@@ -137,3 +137,6 @@ wheels = [
 [[package]]
 name = "mkdocs"
 version = "1.6.1"
+
+[[package]]
+name = "mkdocstrings-python"
