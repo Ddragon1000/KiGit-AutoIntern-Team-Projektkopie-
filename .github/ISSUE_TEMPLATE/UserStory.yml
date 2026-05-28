@@ -8,7 +8,7 @@ body:
   - type: textarea
     id: User_Story
     attributes:
-      label: true
+      label: "User Story"
       value: "**Brief Description**
 
 As a user of [user] I would like to [do what]
