@@ -1,17 +1,26 @@
-# Welcome to MkDocs
+# Welcome to Kigit
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+Kigit.
 
-## Commands
+## How to install
+* `pip install kigit`
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+## Brief overview of commands
+
+* `kigit gitDiff` - .
+* `kigit gitStatus` - .
 
 ## Project layout
 
-    mkdocs.yml    # The configuration file.
-    docs/
+    mkdocs.yml    # The configuration file of MkDocs.
+    docs/         # MkDocs Documentation pages
         index.md  # The documentation homepage.
         ...       # Other markdown pages, images and other files.
+    parser/
+        parser.py
+    scripts/
+        Git_Commands.py
+    tests/
+        Git_Commands_tests.py
+        test_main.py
+    main.py
