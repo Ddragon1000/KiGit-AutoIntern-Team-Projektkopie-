@@ -3,7 +3,6 @@ description: Create a User Story.
 title: "[User Story]: "
 labels: ["User Story"]
 projects: ["AutoIntern-3"]
-assignees:
 type: User Story
 body:
   - type: markdown

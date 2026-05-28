@@ -1,0 +1,12 @@
+site_name: Kigit Documentation
+docs_dir: ./docs
+
+theme:
+  name: readthedocs
+  highlightjs: true
+  hljs_languages:
+    - python3
+  locale: en_US
+
+nav:
+  - Home: index.md
