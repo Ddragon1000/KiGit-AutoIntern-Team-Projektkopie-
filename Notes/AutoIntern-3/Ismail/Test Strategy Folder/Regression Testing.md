@@ -1,0 +1,4 @@
+For modified code not to break existing functionality of the program, it is important to test the modified code in its layer. Also before modifying code in different layers simultaneously, it should be done in only one layer. So that we can test it if it even works correctly in its layer. That should be done via unit or component testing. After that there should be a test where the whole system is executed and tested to ensure functionality overall.
+
+Definition of Done: 
+A coding task is then completed if it is reviewed by another teammate and can pass a number of test cases that can represent correctness of the code. (We will discuss in a meeting on which number/percentage we will settle on)
