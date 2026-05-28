@@ -6,8 +6,9 @@ projects: ["AutoIntern-3"]
 type: User Story
 body:
   - type: textarea
-    id: User Story
+    id: User_Story
     attributes:
+      label: true
       value: "**Brief Description**
 
 As a user of [user] I would like to [do what]
