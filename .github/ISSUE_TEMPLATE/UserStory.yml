@@ -1,70 +1,46 @@
 name: User Story
-description: Create a User Story.
+description: Create a User Story
 title: "[User Story]: "
 labels: ["User Story"]
 projects: ["AutoIntern-3"]
 type: User Story
 body:
-  - type: markdown
+  - type: textarea
+    id: User_Story
     attributes:
+      label: "User Story"
       value: |
-        Thanks for taking the time to fill out this bug report!
-  - type: input
-    id: contact
-    attributes:
-      label: Contact Details
-      description: How can we get in touch with you if we need more info?
-      placeholder: ex. email@example.com
-    validations:
-      required: false
-  - type: textarea
-    id: what-happened
-    attributes:
-      label: What happened?
-      description: Also tell us, what did you expect to happen?
-      placeholder: Tell us what you see!
-      value: "A bug happened!"
-    validations:
-      required: true
-  - type: dropdown
-    id: version
-    attributes:
-      label: Version
-      description: What version of our software are you running?
-      options:
-        - 1.0.2 (Default)
-        - 1.0.3 (Edge)
-      default: 0
-    validations:
-      required: true
-  - type: dropdown
-    id: browsers
-    attributes:
-      label: What browsers are you seeing the problem on?
-      multiple: true
-      options:
-        - Firefox
-        - Chrome
-        - Safari
-        - Microsoft Edge
-  - type: textarea
-    id: logs
-    attributes:
-      label: Relevant log output
-      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
-      render: shell
-  - type: checkboxes
-    id: terms
-    attributes:
-      label: Code of Conduct
-      description: By submitting this issue, you agree to follow our [Code of Conduct](https://example.com).
-      options:
-        - label: I agree to follow this project's Code of Conduct
-          required: true
-  - type: upload
-    id: screenshots
-    attributes:
-      label: Upload screenshots
-      description: If applicable, add screenshots to help explain your problem.
-    validations:
-      required: false
+        **Brief Description**
+
+        As a user of `user` I would like to `do what`
+
+
+        **Functional Requirement**
+
+        * Works from a technical point of view
+
+
+        **Non-Functional Requirement**
+
+        * Readability, User friendly, etc.
+
+
+        **Criteria to be accepted**
+
+        - [ ] Working Implementation
+        - [ ] Documented
+
+
+        **Definition of Ready**
+
+        - [ ] Everyone understood the purpose of this ticket
+        - [ ] The ticket was assigned a workload by the team
+        - [ ] Everything required to start this task is in place
+
+
+        **Definition of Done**
+
+        - [ ] All Acceptance criteria are fulfilled
+        - [ ] The changes are committed
+        - [ ] The changes are merged into the main branch
+        - [ ] The changes are documented
