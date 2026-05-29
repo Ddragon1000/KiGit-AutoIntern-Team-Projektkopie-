@@ -46,7 +46,6 @@ def diff(
                   str(stats[0].result.changed))
     console.print(table)
 
-
 @app.command()
 def status():
     """Shows the KiGit status"""
