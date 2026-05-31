@@ -6,12 +6,13 @@ This is a overview of the current state of our project.
 - [GitHub Repository (kicad_diff_test)](https://github.com/skunkforce/kicad_diff_test)
 - [Python Documentary](https://docs.python.org/3.12/)
 - [Markdown Guide](https://www.markdownguide.org/basic-syntax/)
+- [GitPython](https://gitpython.readthedocs.io/en/stable/)
 
 ## Team Meetings
 (since Sprint 2)
 Team Meetings are held every Tuesday and Saturday at 10:00. on discord.
 - [[Sat. 23.05.2026]]
-- [[Tue. 26.05.2026]]
+- [[Sat. 29.05.2026]]
 
 ## Sprint Meetings
 (since End Sprint 1)
