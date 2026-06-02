@@ -1,4 +1,3 @@
-README.md
 main.py
 pyproject.toml
 KiGit.egg-info/PKG-INFO
@@ -9,4 +8,5 @@ KiGit.egg-info/requires.txt
 KiGit.egg-info/top_level.txt
 parser/diff_parser.py
 scripts/Git_Commands.py
+scripts/commands_prot.py
 tests/test_main.py
