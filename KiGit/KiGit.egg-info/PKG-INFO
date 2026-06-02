@@ -1,0 +1,10 @@
+Metadata-Version: 2.4
+Name: KiGit
+Version: 0.1.0
+Summary: CLI Tool to easily identify changes made in KiCad Projects working with Git
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: lark>=1.3.1
+Requires-Dist: pytest>=9.0.3
+Requires-Dist: typer>=0.25.1
+Requires-Dist: unidiff>=0.7.5

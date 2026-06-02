@@ -1,0 +1,46 @@
+name: User Story
+description: Create a User Story
+title: "[User Story]: "
+labels: ["User Story"]
+projects: ["AutoIntern-3"]
+type: User Story
+body:
+  - type: textarea
+    id: User_Story
+    attributes:
+      label: "User Story"
+      value: |
+        **Brief Description**
+
+        As a user of `user` I would like to `do what`
+
+
+        **Functional Requirement**
+
+        * Works from a technical point of view
+
+
+        **Non-Functional Requirement**
+
+        * Readability, User friendly, etc.
+
+
+        **Criteria to be accepted**
+
+        - [ ] Working Implementation
+        - [ ] Documented
+
+
+        **Definition of Ready**
+
+        - [ ] Everyone understood the purpose of this ticket
+        - [ ] The ticket was assigned a workload by the team
+        - [ ] Everything required to start this task is in place
+
+
+        **Definition of Done**
+
+        - [ ] All Acceptance criteria are fulfilled
+        - [ ] The changes are committed
+        - [ ] The changes are merged into the main branch
+        - [ ] The changes are documented
