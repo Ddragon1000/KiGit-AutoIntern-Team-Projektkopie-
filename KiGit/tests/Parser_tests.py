@@ -21,9 +21,6 @@ def create_temp_diff(content: str) -> str: # da Parser Dateipfad erwartet, dazu 
 
     return temp.name # Pfad zurückgeben
 
-# Parametrisierter Test:
-# pytest führt dieselbe Testfunktion mehrfach aus.
-# Jeder Tupel-Eintrag in der Liste entspricht einem separaten Testfall.
 @pytest.mark.parametrize( # Parametrisierte Tests, Jeder Tupel ein Seperater test
     "diff_content,expected_added,expected_removed,expected_modified",
     [
@@ -118,6 +115,7 @@ def create_temp_diff(content: str) -> str: # da Parser Dateipfad erwartet, dazu 
         ),
     ]
 )
+
 def test_parser_cases(
     diff_content,
     expected_added,
