@@ -2,7 +2,7 @@ import typer
 import os
 from rich.console import Console
 from rich.table import Table
-from scripts.Git_Commands import gitDiff
+from scripts.old_Git_Commands import gitDiff
 from parser.diff_parser import KiCadDiffParser
 from scripts.commands import GitManager
 
@@ -62,7 +62,8 @@ def status():
 def quick_status():
     """shows dirtyness of git repo"""
     gitmanager = GitManager(cwd)
-    console.print(gitmanager.get_change_status)
+    status = gitmanager.get_change_status()
+    print("There have been changes" if status else "No changes at the moment")
 
 if __name__ == "__main__":
     app()

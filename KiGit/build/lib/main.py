@@ -62,7 +62,8 @@ def status():
 def quick_status():
     """shows dirtyness of git repo"""
     gitmanager = GitManager(cwd)
-    console.print(gitmanager.get_change_status)
+    status = gitmanager.get_change_status()
+    print("There have been changes" if status else "No changes at the moment")
 
 if __name__ == "__main__":
     app()
