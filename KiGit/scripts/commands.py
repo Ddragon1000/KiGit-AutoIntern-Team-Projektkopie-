@@ -8,6 +8,7 @@ class GitManager:
 			self.repo = Repo(path)
 		except (InvalidGitRepositoryError, NoSuchPathError) as e:
 			raise ValueError(f"Invalid Git-Repository under path: {path}") from e
+
 	def get_change_status(self) -> bool:
 		"""Returns True, if there are unsaved changes (incl. untracked files)"""
 		return self.repo.is_dirty(untracked_files=True)
