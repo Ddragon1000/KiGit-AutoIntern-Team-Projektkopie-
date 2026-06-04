@@ -5,13 +5,14 @@ class GitManager:
 	def __init__(self, path: str):
 		"""Init the Repository and catch errors if path is invalid"""
 		try:
-			self.repo = Repo(path)
+			self.repo = Repo(path, search_parent_directories=True)
 		except (InvalidGitRepositoryError, NoSuchPathError) as e:
 			raise ValueError(f"Invalid Git-Repository under path: {path}") from e
 
 	def get_change_status(self) -> bool:
 		"""Returns True, if there are unsaved changes (incl. untracked files)"""
-		return self.repo.is_dirty(untracked_files=True)
+		
+		return self.repo.is_dirty(untracked_files=True) == True
 	
 	def diff(self, commit: str = "HEAD", file: str = None) -> str:
 		"""Generates a diff"""

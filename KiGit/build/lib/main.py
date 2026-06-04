@@ -1,6 +1,5 @@
 import typer
 import os
-from lark.exceptions import UnexpectedEOF, UnexpectedInput
 from rich.console import Console
 from rich.table import Table
 from scripts.Git_Commands import gitDiff
@@ -9,7 +8,6 @@ from scripts.commands import GitManager
 
 app = typer.Typer()
 console = Console()
-TMP_DIR = os.path.join(os.path.expanduser("~"), ".kigit", "tmp")
 cwd = os.getcwd()
 
 
@@ -20,17 +18,10 @@ def diff(
         debug: bool = typer.Option(False, help="enables Debug options")
         ):
     """Shows the KiGit diff"""
-    gitDiff(file, commit, debug)
-
-    pure_name = os.path.basename(file).replace(".", "_")
-    path = os.path.join(TMP_DIR, f"tmp_{pure_name}.txt")
     
     gitmanager = GitManager(cwd)
 
     parser = KiCadDiffParser()
-
-    if debug:
-        print(f"[DEBUG] suche datei: {path}")
     
     stats = parser.parse(gitmanager.diff(commit, file))
 
@@ -66,6 +57,12 @@ def status():
     # --> maybe add functionality of detecting KiCad Projects
     pass
 
+#_ wird zu - in CLI
+@app.command()
+def quick_status():
+    """shows dirtyness of git repo"""
+    gitmanager = GitManager(cwd)
+    console.print(gitmanager.get_change_status)
 
 if __name__ == "__main__":
     app()
