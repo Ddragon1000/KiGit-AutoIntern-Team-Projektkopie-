@@ -36,7 +36,7 @@ class KiCadDiffParser:
 		self.parse_results: list[ParseRes] = []
 
 	#main parser
-	def parse(self, diff_str: str) -> dict[str, DiffRes]:
+	def parse(self, diff_str: str) -> list[ParseRes]:
 		"""Reading unified diff file and returns DiffRes for each filetype"""
 		diff_stream = io.StringIO(diff_str)
 		patch = unidiff.PatchSet(diff_stream)

@@ -76,13 +76,6 @@ def diff(
                         str(entry.result.added),
                         str(entry.result.removed),
                         str(entry.result.changed))
-            
-        
-
-    #table.add_row(f"{stats[0].filetype}",
-    #              str(stats[0].result.added),
-    #              str(stats[0].result.removed),
-    #              str(stats[0].result.changed))
     console.print(table)
 
 @app.command()
