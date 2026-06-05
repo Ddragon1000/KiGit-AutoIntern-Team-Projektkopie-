@@ -7,14 +7,14 @@
 ## Protocol:
 
 ### Progress on Documentation:
-Dennis worked on a working half automatic documentation site working on a localhost server.
-It is important for everyone working on code to properly comment out is functions, classes in fact everything, correctly, so that the automatic part of the documentation part is documented automatically.
+Dennis worked on a functioning half automatic documentation site working on a localhost server.
+It is important for everyone working on code to properly comment out its functions, classes, in fact everything correctly, so that the automatic part of the documentation is documented automatically.
 
 ### Progress on the new Git Library:
-Jannick looked at the GitPython library. It will very simplify the way we worked before. With a small class holding methods which do the work of communicating with Git. For further interest look at [[Overview]] at the linked documentation page.
+Jannick looked at the GitPython library. It will greatly simplify the way we worked before. With a small class holding the methods which do the work of communicating with Git. For further interest look at the [[Overview]] at the linked documentation page.
 
 ### Summary of AutoIntern Meeting by Dennis:
-Overall was the Meeting with the AutoIntern Crew very exiting and interesting, as Dennis said. It brought many ideas and perspectives on how to further work on our project. 
+Overall the meeting with the AutoIntern crew was very exciting and interesting, as Dennis said. It brought many ideas and perspectives on how to further work on our project. 
 These are the most important points:
 - Output of KiGit should be on **one page** of a console, so no scrolling is needed
 - Information should be reduced to the most important, e.g. if there are changes in files, the first command should only say, *hey there were changed*, with another command showing what exactly changed
