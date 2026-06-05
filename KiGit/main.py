@@ -1,31 +1,29 @@
 import typer
 import os
-from lark.exceptions import UnexpectedEOF, UnexpectedInput
 from rich.console import Console
 from rich.table import Table
-from scripts.Git_Commands import gitDiff
+from scripts.old_Git_Commands import gitDiff
 from parser.diff_parser import KiCadDiffParser
+from scripts.commands import GitManager
 
 app = typer.Typer()
 console = Console()
-TMP_DIR = os.path.join(os.path.expanduser("~"), ".kigit", "tmp")
+cwd = os.getcwd()
 
 
 @app.command()
 def diff(
-        file: str = typer.Argument(..., help="Path to KiCad File"),
-        commit: str = typer.Argument(None, help="Commit-Hash (optional)"),
+        file: str = typer.Argument(None, help="Path to KiCad File"),
+        commit: str = typer.Argument("HEAD", help="Commit-Hash (optional)"),
         debug: bool = typer.Option(False, help="enables Debug options")
         ):
     """Shows the KiGit diff"""
-    gitDiff(file, commit, debug)
-    pure_name = os.path.basename(file).replace(".", "_")
-    path = os.path.join(TMP_DIR, f"tmp_{pure_name}.txt")
-    parser = KiCadDiffParser(str(path))
-    if debug:
-        print(f"[DEBUG] suche datei: {path}")
     
-    stats = parser.parse(str(path))
+    gitmanager = GitManager(cwd)
+
+    parser = KiCadDiffParser()
+    
+    stats = parser.parse(gitmanager.diff(commit, file))
 
     if not stats:
         typer.echo("No KiCad-Files found in Diff")
@@ -59,6 +57,13 @@ def status():
     # --> maybe add functionality of detecting KiCad Projects
     pass
 
+#_ wird zu - in CLI
+@app.command()
+def quick_status():
+    """shows dirtyness of git repo"""
+    gitmanager = GitManager(cwd)
+    status = gitmanager.get_change_status()
+    print("There have been changes" if status else "No changes at the moment")
 
 if __name__ == "__main__":
     app()
