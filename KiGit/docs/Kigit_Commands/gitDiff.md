@@ -2,7 +2,7 @@
 
 ## How to use
 
-`kigit gitDiff`
+`kigit diff`
 
 <!--path.to.module based on the path from the mkdocs.yml file-->
 
