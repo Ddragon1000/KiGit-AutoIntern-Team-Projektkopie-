@@ -1,10 +1,14 @@
 import typer
 import os
+import re
 from rich.console import Console
 from rich.table import Table
 from scripts.old_Git_Commands import gitDiff
 from parser.diff_parser import KiCadDiffParser
 from scripts.commands import GitManager
+from typing import List
+from typing import Annotated, Optional
+
 
 app = typer.Typer()
 console = Console()
@@ -13,12 +17,29 @@ cwd = os.getcwd()
 
 @app.command()
 def diff(
-        file: str = typer.Argument(None, help="Path to KiCad File"),
-        commit: str = typer.Argument("HEAD", help="Commit-Hash (optional)"),
+        args: Annotated[Optional[List[str]], typer.Argument(help="[commit] [file] or [file] or [commit]")] = None,
+        show_filename: bool = typer.Option(False, help="Shows corresponding Filename in result"),
         debug: bool = typer.Option(False, help="enables Debug options")
         ):
     """Shows the KiGit diff"""
+
+    #default values
+    commit = "HEAD"
+    file = None
     
+    if args:
+        if len(args) == 1:
+            val = args[0]
+            if re.search(r"\.kicad_.*$", val) or "/" in val:
+                file = val
+            else:
+                commit = val
+                file = None
+        elif len(args) == 2:
+            commit = args[0]
+            file = args[1]
+
+    #object creation
     gitmanager = GitManager(cwd)
 
     parser = KiCadDiffParser()
@@ -33,28 +54,55 @@ def diff(
         print(f"[DEBUG] {stats}")
 
     table = Table(title="kigit diff")
-    table.add_column("changed", justify="center", style="white")
-    table.add_column("added", justify="center", style="green")
-    table.add_column("removed", justify="center", style="red")
-    table.add_column("modified", justify="center", style="yellow")
+    table.add_column("Part", justify="center", style="white")
+    table.add_column("Added", justify="center", style="green")
+    table.add_column("Removed", justify="center", style="red")
+    table.add_column("Modified", justify="center", style="yellow")
+    if show_filename:
+        table.add_column("Filename", justify="center", style="white")
 
-    table.add_row(f"{stats[0].filetype}",
-                  str(stats[0].result.added),
-                  str(stats[0].result.removed),
-                  str(stats[0].result.changed))
+    if debug:
+        print(stats[0].filetype)
+    
+    for entry in stats:
+        if show_filename:
+            table.add_row(f"{entry.filetype}",
+                        str(entry.result.added),
+                        str(entry.result.removed),
+                        str(entry.result.changed),
+                        str(entry.filename))
+        else:
+            table.add_row(f"{entry.filetype}",
+                        str(entry.result.added),
+                        str(entry.result.removed),
+                        str(entry.result.changed))
     console.print(table)
 
 @app.command()
 def status():
     """Shows the KiGit status"""
-    #änderungen ja/nein
-    # plan:
-    # call git command (from git control script)
-    # parse git output into parser
-    # print parsed text out
-    # Idea: git status says if valid repo
-    # but what if valid repo is not a KiCad Project?
-    # --> maybe add functionality of detecting KiCad Projects
+
+    gitmanager = GitManager(cwd)
+
+    gitstatus = gitmanager.status()
+
+    if gitstatus:
+        status_array = gitstatus.splitlines()
+
+        table = Table(title="kigit status")
+        table.add_column("Staging Area", justify="center")
+        table.add_column("Working Directory", justify="center")
+        table.add_column("File", justify="center")
+
+        for line in status_array:
+            table.add_row(str(line[0]),
+                          str(line[1]),
+                          str(line[2:]))
+            
+        console.print(table)
+    else:
+        print("No current updates at the moment.")
+
     pass
 
 #_ wird zu - in CLI
