@@ -1,4 +1,5 @@
-# AutoIntern-3
+# KiGit Tool
+*AutoIntern-3*
 ## Install
 ### With a Wheel File
 `uv tool install <path to .whl>`
