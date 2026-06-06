@@ -1,0 +1,7 @@
+We decided to implement both unit and integration tests. Integration tests are used to capture faulty user input, so that the program is executed without fault. Currently we stick to the idea that integration tests are mainly used for the CLI and Git Layer. On the other hand unit tests are used to check the programs behavior and output. For unit test, we distributed it evenly, so we plan to use unit testing on the parser layer, git layer and cli layer. For this project it is also important to implement mock tests, to check if parser and git function correctly with given data or to use real-time data.
+
+We think that both dynamic and static testing is needed, but we lay more focus on dynamic testing. Static testing is connected to our review log on github, where another person will check the work of another. Dynamic Testing will be given and should be executed if changes are made, to check for correct behavior.
+
+For testing methods, we think that white-box testing is most effective for the parser, because the parser layer is the most fundamental part of the project. Black-Box testing should be sufficient for the CLI and Git Layer.
+
+Non-functional-requirements are tested via one-time checks.
