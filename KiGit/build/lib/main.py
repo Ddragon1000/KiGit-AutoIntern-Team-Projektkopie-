@@ -3,7 +3,6 @@ import os
 import re
 from rich.console import Console
 from rich.table import Table
-from scripts.old_Git_Commands import gitDiff
 from parser.diff_parser import KiCadDiffParser
 from scripts.commands import GitManager
 from typing import List
@@ -17,7 +16,7 @@ cwd = os.getcwd()
 
 @app.command()
 def diff(
-        args: Annotated[Optional[List[str]], typer.Argument(help="[commit] [file] or [file] or [commit]")] = None,
+        args: Annotated[Optional[List[str]], typer.Argument(help="commit file or file or commit")] = None,
         show_filename: bool = typer.Option(False, help="Shows corresponding Filename in result"),
         debug: bool = typer.Option(False, help="enables Debug options")
         ):
@@ -102,8 +101,6 @@ def status():
         console.print(table)
     else:
         print("No current updates at the moment.")
-
-    pass
 
 #_ wird zu - in CLI
 @app.command()
