@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import io
 import unidiff
 
 @dataclass
@@ -31,14 +32,14 @@ class KiCadDiffParser:
 		#".kicad_pcb": "via"
 	}
 
-	def __init__(self, diff_path: str):
-		self.diff_path = diff_path
+	def __init__(self):
 		self.parse_results: list[ParseRes] = []
 
 	#main parser
-	def parse(self, diff_path: str) -> dict[str, DiffRes]:
+	def parse(self, diff_str: str) -> list[ParseRes]:
 		"""Reading unified diff file and returns DiffRes for each filetype"""
-		patch = unidiff.PatchSet.from_filename(diff_path, encoding="utf-8")
+		diff_stream = io.StringIO(diff_str)
+		patch = unidiff.PatchSet(diff_stream)
 
 		for patched_file in patch:
 			keyword = self._get_parser(patched_file.path)
@@ -86,7 +87,7 @@ class KiCadDiffParser:
 						result.removed += 1
 					else:
 						in_block = True
-						depth = 1
+						depth = 2
 						has_added = False
 						has_removed = False
 				elif in_block:
