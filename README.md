@@ -1,5 +1,8 @@
 # AutoIntern-3
-
-To install the KiGit tool:
-    uv pip install -e .
-
+## Install
+### With a Wheel File
+`uv tool install <path to .whl>`
+### In Project Folder KiGit
+`uv tool install .`
+## Updating
+Just use `--reinstall` at the end of one of the commands above
