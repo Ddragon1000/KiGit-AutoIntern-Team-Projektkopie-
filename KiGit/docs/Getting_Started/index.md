@@ -14,7 +14,10 @@ Kigit's main distinction between existing tools is...
 More differences can be found [here](./why_kigit.md). 
 
 ## How to install
-* `pip install kigit`
+#### With a Wheel File
+* `uv tool install <path to .whl>`
+####In Project Folder KiGit
+* `uv tool install .`
 
 ## Brief overview of commands
 
