@@ -21,8 +21,8 @@ More differences can be found [here](./why_kigit.md).
 
 ## Brief overview of commands
 
-* [`kigit diff`](../Kigit_Commands/gitDiff.md) - .
-* [`kigit status`](../Kigit_Commands/gitStatus.md) - .
+* [`kigit diff`](../Kigit_Commands/kigit Diff.md) - .
+* [`kigit status`](../Kigit_Commands/kigit Status.md) - .
 
 ## Supported file types and components
 * [`kicad_sch`](../Supported_File_Types/kicad_sch.md)
