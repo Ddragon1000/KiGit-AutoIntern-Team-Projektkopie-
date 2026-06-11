@@ -18,8 +18,8 @@ nav:
     - Welcome to Kigit: ./Getting_Started/index.md
     - Why Kigit?: ./Getting_Started/why_kigit.md
   - Kigit Commands:
-    - gitDiff: ./Kigit_Commands/gitDiff.md
-    - gitStatus: ./Kigit_Commands/gitStatus.md
+    - kigit Diff: ./Kigit_Commands/kigit Diff.md
+    - kigit Status: ./Kigit_Commands/kigit Status.md
   - Supported File Types:
     - kicad_sch: ./Supported_File_Types/kicad_sch.md
     - kicad_pcb: ./Supported_File_Types/kicad_pcb.md
