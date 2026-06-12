@@ -20,6 +20,9 @@ nav:
   - Kigit Commands:
     - kigit Diff: ./Kigit_Commands/kigit Diff.md
     - kigit Status: ./Kigit_Commands/kigit Status.md
+    - Internal git commands: 
+      - git Diff: ./Kigit_Commands/Internal_git_commands/git Diff.md
+      - git Status: ./Kigit_Commands/Internal_git_commands/git Status.md
   - Supported File Types:
     - kicad_sch: ./Supported_File_Types/kicad_sch.md
     - kicad_pcb: ./Supported_File_Types/kicad_pcb.md

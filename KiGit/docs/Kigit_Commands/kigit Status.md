@@ -16,19 +16,8 @@ This is the function that is called and outputs the current status when using `k
 ::: main.status
 <br />
 
-##The status function that generates the git status output
-This is the function that is used internally to generate the git status output, that is then parsed and used with the kigit status function. 
-
-::: scripts.commands.GitManager.status
-<br />
-
 ##Kigit quick_status function
-This is the quick_status function that simply outputs whether changes are currently uncommited or not, used with `kigit quick-status`.
+This is the quick_status function that simply outputs whether changes within the repository are currently uncommited or not, used with `kigit quick-status`.
 
 :::main.quick_status
 <br />
-
-##The function that generates the is_dirty output
-This is the function that returns whether there have been changes made in the git repository or not, which is then used by the kigit quick_status function. 
-
-:::scripts.commands.GitManager.get_change_status
