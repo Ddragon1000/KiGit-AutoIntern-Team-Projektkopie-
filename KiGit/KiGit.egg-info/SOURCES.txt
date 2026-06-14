@@ -10,5 +10,4 @@ parser/diff_parser.py
 scripts/DiffBody.py
 scripts/GPDC.py
 scripts/commands.py
-scripts/old_Git_Commands.py
 tests/test_main.py

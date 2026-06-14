@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 import os
 
-from Git_Commands import gitStatus, TMP_DIR
+from Git_Commands import status, TMP_DIR
 from Git_Commands import gitDiff, TMP_DIR
 
 class TestGitStatus(unittest.TestCase):
