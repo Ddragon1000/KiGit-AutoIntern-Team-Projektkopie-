@@ -14,7 +14,7 @@ Kigit's main distinction between existing tools is...
 More differences can be found [here](./why_kigit.md). 
 
 ## How to install
-<<<<<<< HEAD
+
 #### With a Wheel File
 * `uv tool install <path to .whl>`
 ####In Project Folder KiGit
@@ -24,14 +24,6 @@ More differences can be found [here](./why_kigit.md).
 
 * [`kigit diff`](../Kigit_Commands/kigit Diff.md) - .
 * [`kigit status`](../Kigit_Commands/kigit Status.md) - .
-=======
-* `pip install kigit`
-
-## Brief overview of commands
-
-* [`kigit gitDiff`](../Kigit_Commands/gitDiff.md) - .
-* [`kigit gitStatus`](../Kigit_Commands/gitStatus.md) - .
->>>>>>> main
 
 ## Supported file types and components
 * [`kicad_sch`](../Supported_File_Types/kicad_sch.md)
