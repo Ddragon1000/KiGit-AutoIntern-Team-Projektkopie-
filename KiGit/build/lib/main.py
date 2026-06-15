@@ -46,7 +46,7 @@ def diff(
     stats = parser.parse(gitmanager.diff(commit, file))
 
     if not stats:
-        typer.echo("No KiCad changes detected. (Comparison is clean)")
+        typer.echo("No KiCad file changes detected")
         raise typer.Exit(1)
 
     if debug:
