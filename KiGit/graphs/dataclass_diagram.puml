@@ -4,14 +4,14 @@
 
 class DiffRes {
     - changes : list[BasicChange]
-    + getAdded() : list[BasicChange]
-    + getRemoved() : list[BasicChange]
+    + getAdded() : list[ComponentAdded]
+    + getRemoved() : list[ComponentRemoved]
     + getModified() : list[BasicChange]
-    + onlyAdded() : Boolean
 }
 
 class BasicChange {
     - reference : String
+    - rows : tuple
 }
 
 class ComponentMoved {
