@@ -21,4 +21,5 @@ include = ["parser*", "scripts*"]
 [dependency-groups]
 dev = [
     "pytest>=9.0.3",
+    "ruff>=0.15.17",
 ]

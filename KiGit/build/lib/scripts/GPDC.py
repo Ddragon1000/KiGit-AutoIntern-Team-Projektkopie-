@@ -24,5 +24,3 @@ class GPDC:
 	
 	def get_attributes(self):
 		return self.attributes
-	
-	

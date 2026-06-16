@@ -2,8 +2,8 @@ import unittest
 from unittest.mock import patch, MagicMock
 import os
 
-from Git_Commands import status, TMP_DIR
-from Git_Commands import gitDiff, TMP_DIR
+from Git_Commands import TMP_DIR
+from Git_Commands import gitDiff
 
 class TestGitStatus(unittest.TestCase):
 
@@ -26,7 +26,7 @@ class TestGitStatus(unittest.TestCase):
         self.assertTrue(os.path.exists(filepath))
 
         # Inhalt prüfen
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             content = f.read()
 
         self.assertIn("On branch main", content)
@@ -50,12 +50,12 @@ class TestGitDiff(unittest.TestCase):
 
         filepath = os.path.join(
             TMP_DIR,
-            "tmp_test.txt.txt"
+            "tmp_test.txt.txt",
         )
 
         self.assertTrue(os.path.exists(filepath))
 
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             content = f.read()
 
         self.assertIn("diff --git", content)

@@ -51,13 +51,13 @@ class KiCadDiffParser:
 			self.parse_results.append(ParseRes(
 				filename=patched_file.path,
 				filetype=keyword,
-				result=result
+				result=result,
 			))
 
 		return self.parse_results
 
 	def _get_parser(self, path: str) -> str | None:
-		"""return the S-Expression keyword for filepath"""
+		"""Return the S-Expression keyword for filepath"""
 		for extension, keyword in self.FILE_PARSERS.items():
 			if path.endswith(extension):
 				return keyword
@@ -98,7 +98,7 @@ class KiCadDiffParser:
 						has_added = True
 					elif line.is_removed:
 						has_removed = True
-				
+
 					if depth <= 1:
 						if has_added and has_removed:
 							result.changed += 1

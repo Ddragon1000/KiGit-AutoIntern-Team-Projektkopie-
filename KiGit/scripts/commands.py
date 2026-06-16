@@ -2,6 +2,7 @@ from git import Repo, InvalidGitRepositoryError, NoSuchPathError
 
 class GitManager:
 	"""Used for seemless connection between KiGit and the current Git Repository"""
+
 	def __init__(self, path: str):
 		"""Init the Repository and catch errors if path is invalid"""
 		try:
@@ -11,9 +12,8 @@ class GitManager:
 
 	def get_change_status(self) -> bool:
 		"""Returns True, if there are unsaved changes (incl. untracked files)"""
-		
-		return self.repo.is_dirty(untracked_files=True) == True 
-	
+		return self.repo.is_dirty(untracked_files=True) == True
+
 	def diff(self, commit: str = "HEAD", file: str = None) -> str:
 		"""Generates a diff"""
 		args = [commit]

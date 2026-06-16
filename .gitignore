@@ -1,8 +1,10 @@
-.venv
+.venv/
 __pycache__/
 *.pyc
 .tmp
 
 build/
 *.egg-info
-Kigit.egg-info
+Kigit.egg-info/
+
+.idea/

@@ -9,9 +9,9 @@ class DiffBody:
 
 	def get_num_added(self):
 		return len(self.added_objects)
-	
+
 	def get_num_removed(self):
 		return len(self.removed_objects)
-	
+
 	def get_num_modified(self):
 		return len(self.modified_objects)

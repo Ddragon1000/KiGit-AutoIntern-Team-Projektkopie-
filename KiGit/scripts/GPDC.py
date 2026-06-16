@@ -1,6 +1,5 @@
 class GPDC:
-	"""
-	General-Purpose-DataClass
+	"""General-Purpose-DataClass
 	used to store some data for a specific type
 	"""
 
@@ -15,12 +14,12 @@ class GPDC:
 
 	def get_name(self):
 		return self.name
-	
+
 	def get_type(self):
 		return self.type
-	
+
 	def get_modified(self):
 		return self.modified
-	
+
 	def get_attributes(self):
 		return self.attributes
