@@ -14,9 +14,11 @@ class GitManager:
 		
 		return self.repo.is_dirty(untracked_files=True) == True 
 	
-	def diff(self, commit: str = "HEAD", file: str = None) -> str:
+	def diff(self, commit1: str = "HEAD", commit2: str = None, file: str = None) -> str:
 		"""Generates a diff"""
-		args = [commit]
+		args = [commit1]
+		if commit2:
+			args.append(commit2)
 		if file:
 			args.extend(["--", file])
 
