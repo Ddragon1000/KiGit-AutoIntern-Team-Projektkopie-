@@ -96,7 +96,7 @@ class KiCadDiffParser:
 
 					if line.is_added:
 						has_added = True
-					elif line.is_removed:
+					if line.is_removed:
 						has_removed = True
 				
 					if depth <= 1:

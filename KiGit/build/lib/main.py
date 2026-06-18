@@ -37,7 +37,7 @@ def diff(
     """Show changes between commits, commit and working tree and more for KiCad files"""
 
     #default values
-    commit = "HEAD"
+    commit = ["HEAD", None]
     file = None
     
     if args:
@@ -46,18 +46,23 @@ def diff(
             if re.search(r"\.kicad_.*$", val) or "/" in val:
                 file = val
             else:
-                commit = val
+                commit[0] = val
                 file = None
         elif len(args) == 2:
-            commit = args[0]
-            file = args[1]
+            val = args[1]
+            if re.search(r"\.kicad_.*$", val) or "/" in val:
+                commit[0] = args[0]
+                file = val
+            else:
+                commit[0] = args[0]
+                commit[1] = args[1]
 
     #object creation
     gitmanager = GitManager(cwd)
 
     parser = KiCadDiffParser()
     
-    stats = parser.parse(gitmanager.diff(commit, file))
+    stats = parser.parse(gitmanager.diff(commit[0], commit[1], file))
 
     if not stats:
         typer.echo("No KiCad-Files found in Diff")
