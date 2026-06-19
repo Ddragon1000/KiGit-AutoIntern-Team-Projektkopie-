@@ -2,13 +2,17 @@ from dataclasses import dataclass
 import io
 import unidiff
 
+# File `AutoIntern-3\KiGit\parser\diff_parser.py` is part of an implicit namespace package. Add an `__init__.py`
+# Missing docstring in public module
+# Missing docstring in public class
+
 @dataclass
 class DiffRes:
 	added: int = 0
 	removed: int = 0
 	changed: int = 0
 
-	def __str__(self):
+	def __str__(self) -> str:
 		return(
 			f"Added: 	{self.added}\n"
 			f"Removed: 	{self.removed}\n"
@@ -25,6 +29,8 @@ class KiCadDiffParser:
 
 	#Registry for what file the parser is used
 	#easily add new filetypes if necessary later
+
+	#Mutable default value for class attribute
 	FILE_PARSERS: dict[str, str] = {
 		".kicad_sch": "wire",
 		".kicad_pcb": "segment",
@@ -67,6 +73,8 @@ class KiCadDiffParser:
 	#if we are in a wire block -> if only added parts -> added
 	#						   -> if added and removed -> modified
 	#						   -> if only removed -> removed
+
+	#`_count_elements` is too complex (11 > 10)
 	def _count_elements(self, patched_file: unidiff.PatchedFile, keyword: str) -> DiffRes:
 		"""Counting added, removed and modified elements of one specific keyword of a patched file"""
 		result = DiffRes()

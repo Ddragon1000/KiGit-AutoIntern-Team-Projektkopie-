@@ -7,18 +7,22 @@ from parser.diff_parser import KiCadDiffParser
 from scripts.commands import GitManager
 from typing import Annotated
 
+#missing docstring in public module
 
 app = typer.Typer()
 console = Console()
+#`os.getcwd()` should be replaced by `Path.cwd()`
 cwd = os.getcwd()
 
-
+#Boolean-typed positional argument in function definition debug:
+#Boolean positional value in function call typer.Option(False, ...)
+#same with show_filename: ... (False, ...)
 @app.command()
 def diff(
         args: Annotated[list[str] | None, typer.Argument(help="commit file or file or commit")] = None,
         show_filename: bool = typer.Option(False, help="Shows corresponding Filename in result"),
         debug: bool = typer.Option(False, help="enables Debug options"),
-        ):
+        ) -> None:
     """Shows the KiGit diff"""
     #default values
     commit = "HEAD"
@@ -32,6 +36,7 @@ def diff(
             else:
                 commit = val
                 file = None
+        #removemagic value 2
         elif len(args) == 2:
             commit = args[0]
             file = args[1]
@@ -76,7 +81,7 @@ def diff(
     console.print(table)
 
 @app.command()
-def status():
+def status() -> None:
     """Shows the KiGit status"""
     gitmanager = GitManager(cwd)
 
@@ -101,7 +106,7 @@ def status():
 
 #_ wird zu - in CLI
 @app.command()
-def quick_status():
+def quick_status() -> None:
     """Shows dirtyness of git repo"""
     gitmanager = GitManager(cwd)
     status = gitmanager.get_change_status()
