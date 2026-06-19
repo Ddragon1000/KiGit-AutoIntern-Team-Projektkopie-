@@ -26,6 +26,7 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install pytest
           pip install -r KiGit/KiGit.egg-info/requires.txt
 
       - name: Run Tests
