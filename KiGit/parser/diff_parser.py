@@ -11,13 +11,13 @@ import kigit_globals
 class DiffRes:
 	added: int = 0
 	removed: int = 0
-	changed: int = 0
+	modified: int = 0
 
 	def __str__(self) -> str:
 		return(
 			f"Added: 	{self.added}\n"
 			f"Removed: 	{self.removed}\n"
-			f"Modified: {self.changed}\n"
+			f"Modified: {self.modified}\n"
 		)
 
 @dataclass
@@ -105,7 +105,7 @@ class KiCadDiffParser:
 
 					if depth <= 1:
 						if has_added and has_removed:
-							result.changed += 1
+							result.modified += 1
 						in_block = False
 
 		return result
