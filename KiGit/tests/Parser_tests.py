@@ -133,16 +133,12 @@ def test_parser_cases(
 
     parser = KiCadDiffParser()
 
-    results = parser.parse(diff_content)
-
-    assert len(results) == 1
-
-    result = results[0].result
+    result = parser.parse(diff_content)
 
     # Prüfen, ob die Anzahl erkannter Elemente stimmt
-    assert result.added == expected_added
-    assert result.removed == expected_removed
-    assert result.changed == expected_modified
+    assert len(result.getAdded()) == expected_added
+    assert len(result.getRemoved()) == expected_removed
+    assert len(result.getModified()) == expected_modified
 
 
 def test_unknown_file_ignored(): # Testet, ob Datein mit "unbekannter" Endung ignoriert werden
@@ -157,15 +153,99 @@ def test_unknown_file_ignored(): # Testet, ob Datein mit "unbekannter" Endung ig
 
     parser = KiCadDiffParser()
 
-    results = parser.parse(diff_content)
+    result = parser.parse(diff_content)
 
-    assert results == []
+    assert result.isEmpty()
 
 
 def test_empty_diff(): # Testet Parser bei leerer Datei
 
     parser = KiCadDiffParser()
 
-    results = parser.parse("")
+    result = parser.parse("")
 
-    assert results == []
+    assert result.isEmpty()
+
+
+def test_multiple_segments_added():
+    # Zwei vollständige Segment-Blöcke wurden hinzugefügt.
+    # Erwartung: added = 2
+
+    diff_content = """diff --git a/test.kicad_pcb b/test.kicad_pcb
+--- a/test.kicad_pcb
++++ b/test.kicad_pcb
+@@ -1,0 +1,8 @@
++(segment
++  (start 0 0)
++  (end 10 10)
++)
++(segment
++  (start 20 20)
++  (end 30 30)
++)
+"""
+
+    parser = KiCadDiffParser()
+
+    result = parser.parse(diff_content)
+
+    assert len(result.getAdded()) == 2
+    assert len(result.getRemoved()) == 0
+    assert len(result.getModified()) == 0
+
+
+def test_multiple_files():
+    # Ein Segment und ein Wire wurden hinzugefügt.
+    # Erwartung: added = 2
+
+    diff_content = """diff --git a/board.kicad_pcb b/board.kicad_pcb
+--- a/board.kicad_pcb
++++ b/board.kicad_pcb
+@@ -1,0 +1,4 @@
++(segment
++  (start 0 0)
++  (end 10 10)
++)
+diff --git a/schematic.kicad_sch b/schematic.kicad_sch
+--- a/schematic.kicad_sch
++++ b/schematic.kicad_sch
+@@ -1,0 +1,5 @@
++(wire
++  (pts
++    (xy 0 0) (xy 10 10)
++  )
++)
+"""
+
+    parser = KiCadDiffParser()
+
+    result = parser.parse(diff_content)
+
+    assert len(result.getAdded()) == 2
+    assert len(result.getRemoved()) == 0
+    assert len(result.getModified()) == 0
+
+def test_mixed_changes_same_file():
+    # Ein Segment wurde hinzugefügt und eines entfernt.
+    # Erwartung: added = 1, removed = 1
+
+    diff_content = """diff --git a/test.kicad_pcb b/test.kicad_pcb
+--- a/test.kicad_pcb
++++ b/test.kicad_pcb
+@@ -1,4 +1,4 @@
+-(segment
+-  (start 0 0)
+-  (end 10 10)
+-)
++(segment
++  (start 20 20)
++  (end 30 30)
++)
+"""
+
+    parser = KiCadDiffParser()
+
+    result = parser.parse(diff_content)
+
+    assert len(result.getAdded()) == 1
+    assert len(result.getRemoved()) == 1
