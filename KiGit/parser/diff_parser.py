@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import io
 import unidiff
+import kigit_globals
 
 # File `AutoIntern-3\KiGit\parser\diff_parser.py` is part of an implicit namespace package. Add an `__init__.py`
 # Missing docstring in public module
@@ -30,14 +31,6 @@ class KiCadDiffParser:
 	#Registry for what file the parser is used
 	#easily add new filetypes if necessary later
 
-	#Mutable default value for class attribute
-	FILE_PARSERS: dict[str, str] = {
-		".kicad_sch": "wire",
-		".kicad_pcb": "segment",
-		#later e.g.:
-		#".kicad_pcb": "via"
-	}
-
 	def __init__(self):
 		self.parse_results: list[ParseRes] = []
 
@@ -55,16 +48,17 @@ class KiCadDiffParser:
 			result = self._count_elements(patched_file, keyword)
 
 			self.parse_results.append(ParseRes(
-				filename=patched_file.path,
-				filetype=keyword,
-				result=result,
+				filename = patched_file.path,
+				filetype = keyword,
+				result = result,
 			))
 
 		return self.parse_results
 
+	#self is not used: [PLR6301]: Method `_get_parser` could be a function, class method, or static method
 	def _get_parser(self, path: str) -> str | None:
 		"""Return the S-Expression keyword for filepath"""
-		for extension, keyword in self.FILE_PARSERS.items():
+		for extension, keyword in kigit_globals.FILE_PARSERS.items():
 			if path.endswith(extension):
 				return keyword
 		return None
@@ -74,7 +68,9 @@ class KiCadDiffParser:
 	#						   -> if added and removed -> modified
 	#						   -> if only removed -> removed
 
+	#self is not used: [PLR6301]: Method `_count_elements` could be a function, class method, or static method
 	#`_count_elements` is too complex (11 > 10)
+	#Consider adding `@typing.override` if this method overrides a method from a superclass
 	def _count_elements(self, patched_file: unidiff.PatchedFile, keyword: str) -> DiffRes:
 		"""Counting added, removed and modified elements of one specific keyword of a patched file"""
 		result = DiffRes()

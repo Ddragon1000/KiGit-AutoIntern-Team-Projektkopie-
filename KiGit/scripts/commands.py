@@ -5,13 +5,14 @@ from git import Repo, InvalidGitRepositoryError, NoSuchPathError
 
 class GitManager:
 
-	"""Used for seemless connection between KiGit and the current Git Repository"""
+	"""Used for seamless connection between KiGit and the current Git Repository"""
 
 	def __init__(self, path: str) -> None:
 		"""Init the Repository and catch errors if path is invalid"""
 		try:
 			self.repo = Repo(path, search_parent_directories=True)
 		except (InvalidGitRepositoryError, NoSuchPathError) as e:
+			#Exception must not use an f-string literal, assign to variable first
 			raise ValueError(f"Invalid Git-Repository under path: {path}") from e
 
 	def get_change_status(self) -> bool:
@@ -21,7 +22,7 @@ class GitManager:
 
 #PEP 484 prohibits implicit `Optional`
 #Convert to `T | None`
-	def diff(self, commit: str = "HEAD", file: str = None) -> str:
+	def diff(self, commit: str = "HEAD", file: str | None = None) -> str:
 		"""Generates a diff"""
 		args = [commit]
 		if file:
@@ -38,4 +39,5 @@ class GitManager:
 		try:
 			return self.repo.git.status("-s")
 		except Exception as e:
+			#Do not catch blind exception: `Exception`
 			return f"[ERROR] generating status: {e}"

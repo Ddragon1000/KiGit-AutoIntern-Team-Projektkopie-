@@ -54,7 +54,9 @@ select = ["ERA001", "ANN001", "ANN002", "ANN003", "ANN201", "ANN202", "ANN204", 
 "E402", "E501", "E701", "E702", "E703", "E711", "E712", "E713", "E714", "E721", "E722", "E731", "E741", "E742", "E743", 
 "E902", "W291", "W292", "W293", "W391", "W505", "W605", "DOC", "D", "F", "PGH003", "PGH005", "PLC", "PLE", "PLR", "PLW", "UP",
 "FURB", "RUF", "TRY"]
-ignore = ["D400", "D401", "D415", "W391", "DOC", "S404", "D211", "D212"]
+ignore = ["D400", "D401", "D415", "W391", "S404", "D211", "D212", "E501"]
+extend-select = ["DOC"] #DOC is currently in preview, so we need to enable preview features
+preview = true
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]

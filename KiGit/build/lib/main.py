@@ -5,27 +5,29 @@ from rich.console import Console
 from rich.table import Table
 from parser.diff_parser import KiCadDiffParser
 from scripts.commands import GitManager
-from typing import List
-from typing import Annotated, Optional
+from typing import Annotated
 
+#missing docstring in public module
 
 app = typer.Typer()
 console = Console()
+#`os.getcwd()` should be replaced by `Path.cwd()`
 cwd = os.getcwd()
 
-
+#Boolean-typed positional argument in function definition debug:
+#Boolean positional value in function call typer.Option(False, ...)
+#same with show_filename: ... (False, ...)
 @app.command()
 def diff(
-        args: Annotated[Optional[List[str]], typer.Argument(help="commit file or file or commit")] = None,
+        args: Annotated[list[str] | None, typer.Argument(help="commit file or file or commit")] = None,
         show_filename: bool = typer.Option(False, help="Shows corresponding Filename in result"),
-        debug: bool = typer.Option(False, help="enables Debug options")
-        ):
+        debug: bool = typer.Option(False, help="enables Debug options"),
+        ) -> None:
     """Shows the KiGit diff"""
-
     #default values
     commit = "HEAD"
     file = None
-    
+
     if args:
         if len(args) == 1:
             val = args[0]
@@ -34,6 +36,7 @@ def diff(
             else:
                 commit = val
                 file = None
+        #removemagic value 2
         elif len(args) == 2:
             commit = args[0]
             file = args[1]
@@ -42,7 +45,7 @@ def diff(
     gitmanager = GitManager(cwd)
 
     parser = KiCadDiffParser()
-    
+
     stats = parser.parse(gitmanager.diff(commit, file))
 
     if not stats:
@@ -62,7 +65,7 @@ def diff(
 
     if debug:
         print(stats[0].filetype)
-    
+
     for entry in stats:
         if show_filename:
             table.add_row(f"{entry.filetype}",
@@ -78,9 +81,8 @@ def diff(
     console.print(table)
 
 @app.command()
-def status():
+def status() -> None:
     """Shows the KiGit status"""
-
     gitmanager = GitManager(cwd)
 
     gitstatus = gitmanager.status()
@@ -97,15 +99,15 @@ def status():
             table.add_row(str(line[0]),
                           str(line[1]),
                           str(line[2:]))
-            
+
         console.print(table)
     else:
         print("No current updates at the moment.")
 
 #_ wird zu - in CLI
 @app.command()
-def quick_status():
-    """shows dirtyness of git repo"""
+def quick_status() -> None:
+    """Shows dirtyness of git repo"""
     gitmanager = GitManager(cwd)
     status = gitmanager.get_change_status()
     print("There have been changes" if status else "No changes at the moment")

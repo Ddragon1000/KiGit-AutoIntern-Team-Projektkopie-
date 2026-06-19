@@ -107,10 +107,10 @@ def status() -> None:
 #_ wird zu - in CLI
 @app.command()
 def quick_status() -> None:
-    """Shows dirtyness of git repo"""
+    """Shows dirtiness of git repo"""
     gitmanager = GitManager(cwd)
-    status = gitmanager.get_change_status()
-    print("There have been changes" if status else "No changes at the moment")
+    quickstatus = gitmanager.get_change_status()
+    print("There have been changes" if quickstatus else "No changes at the moment")
 
 if __name__ == "__main__":
     app()
