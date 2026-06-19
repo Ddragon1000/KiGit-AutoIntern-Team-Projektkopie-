@@ -1,19 +1,8 @@
 from dataclasses import dataclass
 import io
 import unidiff
-
-@dataclass
-class DiffRes:
-	added: int = 0
-	removed: int = 0
-	changed: int = 0
-
-	def __str__(self):
-		return(
-			f"Added: 	{self.added}\n"
-			f"Removed: 	{self.removed}\n"
-			f"Modified: {self.changed}\n"
-		)
+from scripts.DiffRes import DiffRes
+from scripts.BasicChange import *
 
 @dataclass
 class ParseRes:
@@ -33,28 +22,23 @@ class KiCadDiffParser:
 	}
 
 	def __init__(self):
-		self.parse_results: list[ParseRes] = []
+		self.diffres = DiffRes(changes=[])
 
 	#main parser
-	def parse(self, diff_str: str) -> list[ParseRes]:
+	def parse(self, diff_str: str) -> DiffRes:
 		"""Reading unified diff file and returns DiffRes for each filetype"""
 		diff_stream = io.StringIO(diff_str)
 		patch = unidiff.PatchSet(diff_stream)
+
 
 		for patched_file in patch:
 			keyword = self._get_parser(patched_file.path)
 			if keyword is None:
 				continue #unknown file -> ignore
 
-			result = self._count_elements(patched_file, keyword)
+			self._count_elements(patched_file, keyword)
 
-			self.parse_results.append(ParseRes(
-				filename=patched_file.path,
-				filetype=keyword,
-				result=result
-			))
-
-		return self.parse_results
+		return self.diffres
 
 	def _get_parser(self, path: str) -> str | None:
 		"""return the S-Expression keyword for filepath"""
@@ -67,9 +51,8 @@ class KiCadDiffParser:
 	#if we are in a wire block -> if only added parts -> added
 	#						   -> if added and removed -> modified
 	#						   -> if only removed -> removed
-	def _count_elements(self, patched_file: unidiff.PatchedFile, keyword: str) -> DiffRes:
+	def _count_elements(self, patched_file: unidiff.PatchedFile, keyword: str):
 		"""Counting added, removed and modified elements of one specific keyword of a patched file"""
-		result = DiffRes()
 
 		for hunk in patched_file:
 			in_block = False
@@ -82,9 +65,9 @@ class KiCadDiffParser:
 
 				if f"({keyword}" in stripped and not in_block:
 					if line.is_added:
-						result.added += 1
+						self.diffres.addChange(ComponentAdded(keyword, patched_file.path))
 					elif line.is_removed:
-						result.removed += 1
+						self.diffres.addChange(ComponentRemoved(keyword, patched_file.path))
 					else:
 						in_block = True
 						depth = 2
@@ -101,7 +84,7 @@ class KiCadDiffParser:
 				
 					if depth <= 1:
 						if has_added and has_removed:
-							result.changed += 1
+							self.diffres.addChange(ComponentModified(keyword, patched_file.path))
 						in_block = False
 
-		return result
+		return True
