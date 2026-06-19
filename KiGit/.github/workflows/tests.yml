@@ -1,0 +1,33 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+      - marcel
+
+  pull_request:
+    branches:
+      - marcel
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requires.txt
+
+      - name: Run Tests
+        run: |
+          pytest tests/Parser_tests.py
