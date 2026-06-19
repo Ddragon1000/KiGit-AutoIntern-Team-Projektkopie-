@@ -6,8 +6,9 @@ KiGit.egg-info/dependency_links.txt
 KiGit.egg-info/entry_points.txt
 KiGit.egg-info/requires.txt
 KiGit.egg-info/top_level.txt
+parser/__init__.py
 parser/diff_parser.py
-scripts/DiffBody.py
-scripts/GPDC.py
+scripts/BasicChange.py
+scripts/DiffRes.py
 scripts/commands.py
 tests/test_main.py
