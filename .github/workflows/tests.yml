@@ -31,4 +31,4 @@ jobs:
 
       - name: Run Tests
         run: |
-          pytest tests/Parser_tests.py
+          pytest KiGit/tests/Parser_tests.py
