@@ -80,8 +80,6 @@ class KiCadDiffParser:
 			for line in hunk:
 				stripped = line.value.strip()
 
-				if stripped.find("@"):
-					continue
 				if f"({keyword}" in stripped and not in_block:
 					if line.is_added:
 						result.added += 1
