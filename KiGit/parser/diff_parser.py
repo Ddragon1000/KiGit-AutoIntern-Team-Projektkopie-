@@ -91,7 +91,7 @@ class KiCadDiffParser:
 						result.removed += 1
 					else:
 						in_block = True
-						depth = 2
+						depth = 2 #Still don't like that but idk how to properly change that
 						has_added = False
 						has_removed = False
 				elif in_block:

@@ -7,6 +7,8 @@ from parser.diff_parser import KiCadDiffParser
 from scripts.commands import GitManager
 from typing import Annotated
 
+#import pathlib
+
 #missing docstring in public module
 
 app = typer.Typer()
@@ -29,6 +31,7 @@ def diff(
     file = None
 
     if args:
+        #remove magic values ==1 and ==2 ?
         if len(args) == 1:
             val = args[0]
             if re.search(r"\.kicad_.*$", val) or "/" in val:
@@ -36,7 +39,6 @@ def diff(
             else:
                 commit = val
                 file = None
-        #removemagic value 2
         elif len(args) == 2:
             commit = args[0]
             file = args[1]

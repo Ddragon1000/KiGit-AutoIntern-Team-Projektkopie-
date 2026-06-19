@@ -18,6 +18,7 @@ class GitManager:
 	def get_change_status(self) -> bool:
 		"""Returns True, if there are unsaved changes (incl. untracked files)"""
 		#Avoid equality comparisons to `True`; use `self.repo.is_dirty(untracked_files=True):` for truth checks
+		#or maybe something like isTrue()?
 		return self.repo.is_dirty(untracked_files=True) == True
 
 #PEP 484 prohibits implicit `Optional`

@@ -31,7 +31,8 @@ def test_wires_line_values() -> None:
 
     #Replace for loop with list comprehension
     for col in wires_line:
-        if col != "":
+        # `col != ""` can be simplified to `col` as an empty string is falsy
+        if col:
             wires_box.append(col.strip())   #only takes important values and adds them without empty spaces
 
     assert wires_box[0] == "wires"     #checks if value of table is equal to expected value
@@ -56,7 +57,7 @@ def test_segments_line_values() -> None: #Same execution as above
 
     #Replace for loop with list comprehension to create a transformed list
     for col in segments_line:
-        # `col != ""` can be simplified to `col` as an empty string is falsey
+        # `col != ""` can be simplified to `col` as an empty string is falsy
         if col:
             segments_box.append(col.strip())
 

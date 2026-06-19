@@ -91,3 +91,7 @@ docstring-code-format = true
 # This only has an effect when the `docstring-code-format` setting is
 # enabled.
 docstring-code-line-length = 80 #"dynamic"
+
+[lint.pydocstyle]
+# Use Google-style docstrings.
+convention = "google"
