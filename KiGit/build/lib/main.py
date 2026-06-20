@@ -45,7 +45,7 @@ def diff(
     
     stats = parser.parse(gitmanager.diff(commit, file))
 
-    if not stats:
+    if stats.isEmpty():
         typer.echo("No KiCad file changes detected")
         raise typer.Exit(1)
 
@@ -59,22 +59,23 @@ def diff(
     table.add_column("Modified", justify="center", style="yellow")
     if show_filename:
         table.add_column("Filename", justify="center", style="white")
-
-    if debug:
-        print(stats[0].filetype)
     
-    for entry in stats:
-        if show_filename:
-            table.add_row(f"{entry.filetype}",
-                        str(entry.result.added),
-                        str(entry.result.removed),
-                        str(entry.result.changed),
-                        str(entry.filename))
-        else:
-            table.add_row(f"{entry.filetype}",
-                        str(entry.result.added),
-                        str(entry.result.removed),
-                        str(entry.result.changed))
+    if not show_filename:
+        for components in stats.groupByComponent():
+            table.add_row(str(components.changes[0].reference),
+                          str(len(components.getAdded())),
+                          str(len(components.getRemoved())),
+                          str(len(components.getModified())))
+    else:
+        for components in stats.filterFile():
+            for entry in components.groupByComponent():
+                table.add_row(str(entry.changes[0].reference),
+                              str(len(entry.getAdded())),
+                              str(len(entry.getRemoved())),
+                              str(len(entry.getModified())),
+                              str(entry.changes[0].origin))
+
+
     console.print(table)
 
 @app.command()
