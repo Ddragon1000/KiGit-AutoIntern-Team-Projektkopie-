@@ -2,12 +2,8 @@ name: Run Tests
 
 on:
   push:
-    branches:
-      - marcel
 
   pull_request:
-    branches:
-      - marcel
 
 jobs:
   test:
