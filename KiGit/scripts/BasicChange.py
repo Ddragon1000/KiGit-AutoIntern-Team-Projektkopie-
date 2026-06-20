@@ -4,6 +4,7 @@ from dataclasses import dataclass
 class BasicChange:      #Basic-Class for changes
     reference: str
     origin: str
+    component: str
 
 #specific Changes that will be created and appended to DiffRes
 @dataclass

@@ -43,7 +43,13 @@ def diff(
 
     parser = KiCadDiffParser()
     
-    stats = parser.parse(gitmanager.diff(commit, file))
+    diff_result = gitmanager.diff(commit, file)
+
+    if isinstance(diff_result, str):
+        print(f"[ERROR] Git: {diff_result}")
+        raise typer.Exit(1)
+    else:
+        stats = parser.parse(diff_result, working_tree_dir=gitmanager.repo.working_tree_dir)
 
     if stats.isEmpty():
         typer.echo("No KiCad file changes detected")

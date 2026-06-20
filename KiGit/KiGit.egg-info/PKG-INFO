@@ -7,5 +7,6 @@ Description-Content-Type: text/markdown
 Requires-Dist: gitpython>=3.1.50
 Requires-Dist: mkdocs>=1.6.1
 Requires-Dist: mkdocstrings-python>=2.0.4
+Requires-Dist: sexpdata>=1.0.2
 Requires-Dist: typer>=0.25.1
 Requires-Dist: unidiff>=0.7.5

@@ -1,4 +1,5 @@
-from git import Repo, InvalidGitRepositoryError, NoSuchPathError
+from git import Repo, InvalidGitRepositoryError, NoSuchPathError, DiffIndex
+from pathlib import Path
 
 class GitManager:
 	"""Used for seemless connection between KiGit and the current Git Repository"""
@@ -14,14 +15,13 @@ class GitManager:
 		
 		return self.repo.is_dirty(untracked_files=True) == True 
 	
-	def diff(self, commit: str = "HEAD", file: str = None) -> str:
+	def diff(self, commit: str = "HEAD", file: str = None) -> "DiffIndex | str":
 		"""Generates a diff"""
-		args = [commit]
-		if file:
-			args.extend(["--", file])
+
+		path_filter = (Path(file)) if file else None
 
 		try:
-			return self.repo.git.diff(*args)
+			return self.repo.commit(commit).diff(other=None, paths=path_filter)
 		except Exception as e:
 			return f"[ERROR] generating diff: {e}"
 
