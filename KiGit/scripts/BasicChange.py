@@ -21,7 +21,7 @@ class ComponentModified(BasicChange):
 
 @dataclass
 class ComponentMoved(ComponentModified):
-    positions : tuple
+    coordinates : tuple
 
 @dataclass
 class ComponentValueChanged(ComponentModified):

@@ -112,7 +112,12 @@ class KiCadDiffParser:
 				if old_pts[0] == new_pts[0] and old_pts[1] != new_pts[1]:
 					ref_string = sexpdata.dumps(new_el)
 
-					self.diffres.addChange(BasicChange.ComponentModified(reference=keyword, origin=path, component=ref_string))
+					self.diffres.addChange(BasicChange.ComponentMoved(
+						reference=keyword,
+						origin=path,
+						component=ref_string,
+						coordinates=(old_pts, new_pts)
+					))
 					matched_old.append(old_el)
 					matched_new.append(new_el)
 					break
