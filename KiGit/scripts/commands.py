@@ -21,10 +21,12 @@ class GitManager:
 		path_filter = (Path(file)) if file else None
 
 
+		
 		try:
-			return self.repo.commit(commit1).diff(other=None, paths=path_filter)
+			return self.repo.commit(commit1).diff(other=commit2, paths=path_filter)
 		except Exception as e:
 			return f"[ERROR] generating diff: {e}"
+
 
 	def status(self):
 		"""Returns a short status"""
