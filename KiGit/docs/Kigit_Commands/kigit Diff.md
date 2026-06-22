@@ -1,12 +1,14 @@
 # kigit Diff
 
 ## How to use
-There are four different ways to use kigit diff:
+There are numerous ways to use kigit diff:
 
 * In order to check uncommited changes to the last commit, use: `kigit diff`
 * In order to check uncommited changes of a certain file to the last commit, use: `kigit diff <filename>`
 * In order to check the latest commit to an earlier commit, use: `kigit diff <commit>`
 * In order to check the changes of only a certain file within the latest commit to the file within an earlier commit, use: `kigit diff <commit> <filename>`
+* In order to check the changes between two specific commits, use: `kigit diff <commit> <commit>`
+* You can also check changes between branches, tags, or a combination of tags, branches and commits, by using `kigit diff <commit/branch/tag> <commit/branch/tag>`, or simply `kigit diff <commit/branch/tag>`
 
 <!--path.to.module based on the path from the mkdocs.yml file-->
 
