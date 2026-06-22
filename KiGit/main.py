@@ -68,7 +68,7 @@ def diff(
 
     parser = KiCadDiffParser()
     
-    diff_result = gitmanager.diff(commit, file)
+    diff_result = gitmanager.diff(commit[0], commit[1], file)
 
     if isinstance(diff_result, str):
         print(f"[ERROR] Git: {diff_result}")
