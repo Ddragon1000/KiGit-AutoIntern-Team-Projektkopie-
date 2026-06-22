@@ -56,6 +56,10 @@ def diff(
             else:
                 commit[0] = args[0]
                 commit[1] = args[1]
+        else:
+            commit[0] = args[0]
+            commit[1] = args[1]
+            file = args[2]
 
     #object creation
     gitmanager = GitManager(cwd)
