@@ -58,13 +58,17 @@ def diff(
             else:
                 commit[0] = args[0]
                 commit[1] = args[1]
+        elif len(args) == 3:
+            commit[0] = args[0]
+            commit[1] = args[1]
+            file = args[2]
 
     #object creation
     gitmanager = GitManager(cwd)
 
     parser = KiCadDiffParser()
     
-    diff_result = gitmanager.diff(commit, file)
+    diff_result = gitmanager.diff(commit[0], commit[1], file)
 
     if isinstance(diff_result, str):
         print(f"[ERROR] Git: {diff_result}")
@@ -107,9 +111,6 @@ def diff(
         console.print(table)
     else:
         table = Table(title="KiGit Diff Detail Screen")
-        """
-        Format: xy XY
-        """
         table.add_column("Part", justify="center")
         match detail.lower():
             case "modified":
