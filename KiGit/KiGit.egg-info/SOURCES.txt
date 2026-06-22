@@ -9,5 +9,6 @@ KiGit.egg-info/top_level.txt
 parser/diff_parser.py
 scripts/BasicChange.py
 scripts/DiffRes.py
+scripts/DiffResRenderer.py
 scripts/commands.py
 tests/test_main.py

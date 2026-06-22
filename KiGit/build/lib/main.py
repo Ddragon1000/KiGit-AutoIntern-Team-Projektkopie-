@@ -7,6 +7,7 @@ from parser.diff_parser import KiCadDiffParser
 from scripts.commands import GitManager
 from typing import List
 from typing import Annotated, Optional
+import scripts.DiffResRenderer as r
 
 
 app = typer.Typer()
@@ -18,7 +19,8 @@ cwd = os.getcwd()
 def diff(
         args: Annotated[Optional[List[str]], typer.Argument(help="commit file or file or commit")] = None,
         show_filename: bool = typer.Option(False, help="Shows corresponding Filename in result"),
-        debug: bool = typer.Option(False, help="enables Debug options")
+        debug: bool = typer.Option(False, help="enables Debug options"),
+        output: r.OutputFormat = typer.Option(r.OutputFormat.TABLE, "--output", "-o", help="Output Format")
         ):
     """Shows the KiGit diff"""
 
@@ -52,31 +54,13 @@ def diff(
     if debug:
         print(f"[DEBUG] {stats}")
 
-    table = Table(title="kigit diff")
-    table.add_column("Part", justify="center", style="white")
-    table.add_column("Added", justify="center", style="green")
-    table.add_column("Removed", justify="center", style="red")
-    table.add_column("Modified", justify="center", style="yellow")
-    if show_filename:
-        table.add_column("Filename", justify="center", style="white")
-    
-    if not show_filename:
-        for components in stats.groupByComponent():
-            table.add_row(str(components.changes[0].reference),
-                          str(len(components.getAdded())),
-                          str(len(components.getRemoved())),
-                          str(len(components.getModified())))
-    else:
-        for components in stats.filterFile():
-            for entry in components.groupByComponent():
-                table.add_row(str(entry.changes[0].reference),
-                              str(len(entry.getAdded())),
-                              str(len(entry.getRemoved())),
-                              str(len(entry.getModified())),
-                              str(entry.changes[0].origin))
-
-
-    console.print(table)
+    if output == r.OutputFormat.TABLE:
+        r.render_diff(stats, r.TableDiffRenderer(show_filename))
+    elif output == r.OutputFormat.JSON:
+        r.render_diff(stats, r.JsonDiffRenderer())
+    elif output == r.OutputFormat.HTML:
+        r.render_diff(stats, r.HTMLDiffRenderer(show_filename))
+       
 
 @app.command()
 def status():
