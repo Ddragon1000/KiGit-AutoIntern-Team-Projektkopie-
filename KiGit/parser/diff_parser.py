@@ -1,14 +1,9 @@
+import sexpdata
 from dataclasses import dataclass
-import io
-import unidiff
 from scripts.DiffRes import DiffRes
-from scripts.BasicChange import *
-
-@dataclass
-class ParseRes:
-	filename: str
-	filetype: str
-	result: DiffRes
+import scripts.BasicChange as BasicChange
+from git.diff import DiffIndex
+from pathlib import Path
 
 class KiCadDiffParser:
 
@@ -25,66 +20,115 @@ class KiCadDiffParser:
 		self.diffres = DiffRes(changes=[])
 
 	#main parser
-	def parse(self, diff_str: str) -> DiffRes:
+	def parse(self, diff_index: DiffIndex, working_tree_dir: str = None) -> DiffRes:
 		"""Reading unified diff file and returns DiffRes for each filetype"""
-		diff_stream = io.StringIO(diff_str)
-		patch = unidiff.PatchSet(diff_stream)
 
-
-		for patched_file in patch:
-			keyword = self._get_parser(patched_file.path)
-			if keyword is None:
+		for diff in diff_index:
+			path = diff.b_path or diff.a_path
+			keyword = self._get_keyword(path)
+			if not keyword:
 				continue #unknown file -> ignore
+			#get blobs from gitpython
+			old_text = diff.a_blob.data_stream.read().decode("utf-8") if diff.a_blob else ""
+			if diff.b_blob:
+				new_text = diff.b_blob.data_stream.read().decode("utf-8")
+			elif diff.deleted_file:
+				new_text = ""
+			elif working_tree_dir and diff.b_path:
+				new_text = Path(working_tree_dir, diff.b_path).read_text(encoding="utf-8")
+			else:
+				new_text = ""
+			
+			#parse python lists
+			old_sexp = sexpdata.loads(old_text) if old_text else []
+			new_sexp = sexpdata.loads(new_text) if new_text else []
 
-			self._count_elements(patched_file, keyword)
+			#filter relevant elements
+			key_symbol = sexpdata.Symbol(keyword)
+			old_elements = [item for item in old_sexp if isinstance(item, list) and item[0] == key_symbol]
+			new_elements = [item for item in new_sexp if isinstance(item, list) and item[0] == key_symbol]
+
+			#compare symnatic for added, removed, modified
+			self._compare_elements(old_elements, new_elements, keyword, path)
 
 		return self.diffres
 
-	def _get_parser(self, path: str) -> str | None:
+	def _get_keyword(self, path: str) -> str | None:
 		"""return the S-Expression keyword for filepath"""
 		for extension, keyword in self.FILE_PARSERS.items():
 			if path.endswith(extension):
 				return keyword
 		return None
+	
+	def _extract_coordinates(self, elements_list) -> list[tuple[float, float]]:
+		"""
+		Helperfunction: Extracts all (xy X Y) coords from elements
+		"""
+		coords = []
+
+		def search_xy(item):
+			if isinstance(item, list):
+				if len(item) >= 3 and item[0] == sexpdata.Symbol('xy'):
+					try:
+						coords.append((float(item[1]), float(item[2])))
+					except (ValueError, TypeError):
+						pass
+				else:
+					for sub_item in item:
+						search_xy(sub_item)
+		
+		search_xy(elements_list)
+		return coords
 
 	#counting logic
 	#if we are in a wire block -> if only added parts -> added
 	#						   -> if added and removed -> modified
 	#						   -> if only removed -> removed
-	def _count_elements(self, patched_file: unidiff.PatchedFile, keyword: str):
+	def _compare_elements(self, old_elems, new_elems, keyword, path):
 		"""Counting added, removed and modified elements of one specific keyword of a patched file"""
 
-		for hunk in patched_file:
-			in_block = False
-			depth = 0
-			has_added = False
-			has_removed = False
+		#preselection whats identical is not important
+		unmatched_old = [e for e in old_elems if e not in new_elems]
+		unmatched_new = [e for e in new_elems if e not in old_elems]
 
-			for line in hunk:
-				stripped = line.value.strip()
+		matched_old = []
+		matched_new = []
 
-				if f"({keyword}" in stripped and not in_block:
-					if line.is_added:
-						self.diffres.addChange(ComponentAdded(keyword, patched_file.path))
-					elif line.is_removed:
-						self.diffres.addChange(ComponentRemoved(keyword, patched_file.path))
-					else:
-						in_block = True
-						depth = 2
-						has_added = False
-						has_removed = False
-				elif in_block:
-					depth += stripped.count("(")
-					depth -= stripped.count(")")
+		#get modified
+		for old_el in unmatched_old:
+			old_pts = self._extract_coordinates(old_el)
+			if len(old_pts) < 2:
+				continue
 
-					if line.is_added:
-						has_added = True
-					elif line.is_removed:
-						has_removed = True
+			for new_el in unmatched_new:
+				if new_el in matched_new:
+					continue
 				
-					if depth <= 1:
-						if has_added and has_removed:
-							self.diffres.addChange(ComponentModified(keyword, patched_file.path))
-						in_block = False
+				new_pts = self._extract_coordinates(new_el)
+				if len(new_pts) < 2:
+					continue
+				
+				#if starting point equal but not end -> moidified
+				if old_pts[0] == new_pts[0] and old_pts[1] != new_pts[1]:
+					ref_string = sexpdata.dumps(new_el)
 
-		return True
+					self.diffres.addChange(BasicChange.ComponentMoved(
+						reference=keyword,
+						origin=path,
+						component=ref_string,
+						coordinates=(old_pts, new_pts)
+					))
+					matched_old.append(old_el)
+					matched_new.append(new_el)
+					break
+
+		#everything else should be deleted or added
+		for old_el in unmatched_old:
+			if old_el not in matched_old:
+				ref_string = sexpdata.dumps(old_el)
+				self.diffres.addChange(BasicChange.ComponentRemoved(reference=keyword, origin=path, component=ref_string))
+
+		for new_el in unmatched_new:
+			if new_el not in matched_new:
+				ref_string = sexpdata.dumps(new_el)
+				self.diffres.addChange(BasicChange.ComponentAdded(reference=keyword, origin=path, component=ref_string))	
