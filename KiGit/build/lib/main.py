@@ -88,9 +88,6 @@ def diff(
         console.print(table)
     else:
         table = Table(title="KiGit Diff Detail Screen")
-        """
-        Format: xy XY
-        """
         table.add_column("Part", justify="center")
         match detail.lower():
             case "modified":
