@@ -20,7 +20,6 @@ class GitManager:
 
 		path_filter = (Path(file)) if file else None
 
-
 		
 		try:
 			return self.repo.commit(commit1).diff(other=commit2, paths=path_filter)
