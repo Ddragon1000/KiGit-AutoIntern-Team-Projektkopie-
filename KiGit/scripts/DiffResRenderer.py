@@ -21,29 +21,21 @@ class JsonDiffRenderer(DiffResRenderer):
 
         summary = {
             "total_changes": len(dr.changes),
-            "added": len(dr.getAdded()),
-            "removed": len(dr.getRemoved()),
-            "modified": len(dr.getModified())
+            "files": {}
         }
-    
-        files_dict = {}
 
         for components in dr.filterFile():
             filename = components.changes[0].origin
-            file_changes = [
-                self._serialize_change(change)
-                for change in components.changes
-            ]
-            
-            files_dict[filename] = file_changes
 
+            summary["files"][filename] = {
+                "file_changes": len(components.changes),
+                "added": len(dr.getAdded()),
+                "removed": len(dr.getRemoved()),
+                "modified": len(dr.getModified())
+            }
 
-        total = {
-            "summary": summary,
-            "files": files_dict
-        }
-
-        return json.dumps(total, indent=2, ensure_ascii=False)
+        
+        return json.dumps({"summary": summary}, indent=2, ensure_ascii=False)
     
     def _serialize_change(self, change : bc.BasicChange) -> dict[str, object]:
         name = change.__class__.__name__
@@ -59,8 +51,21 @@ class JsonDiffRenderer(DiffResRenderer):
             "type": type,
             "element": change.reference
         }
-           
+    
+    def detailed_render(self, dr: d.DiffRes) -> str:
+        files_dict = {}
 
+        for components in dr.filterFile():
+            filename = components.changes[0].origin
+            file_changes = [
+                self._serialize_change(change)
+                for change in components.changes
+            ]
+            
+            files_dict[filename] = file_changes
+        
+        return json.dumps({"files": files_dict}, indent=2, ensure_ascii=False)
+           
 class HTMLDiffRenderer(DiffResRenderer):
 
     def __init__(self, s_f):
@@ -120,9 +125,31 @@ class TableDiffRenderer(DiffResRenderer):
 def render_diff(dr : d.DiffRes, renderer : DiffResRenderer):
     output = renderer.render(dr)
 
-    if isinstance(output, str):
+    if isinstance(renderer,HTMLDiffRenderer):
+
+        import webbrowser
+        import os
+
+        filename = "kigit_report.html"
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(output)
+
+        webbrowser.open("file://" + os.path.realpath(filename))
+
+    elif isinstance(renderer, JsonDiffRenderer):
         print(output)
-    else:
+        
+        from rich.prompt import Confirm
+        if Confirm.ask("Do you want to download a detailed JSON-file?"):
+            detailed = renderer.detailed_render(dr)
+
+            filename = "kigit_diff.json"
+            with open(filename, "w", encoding="utf-8") as f:
+                f.write(detailed)
+            
+            print(f"Downloaded succesfully under current working directory with the name: {filename}")
+
+    elif isinstance(renderer, TableDiffRenderer):
         from rich.console import Console
         Console().print(output)
 
