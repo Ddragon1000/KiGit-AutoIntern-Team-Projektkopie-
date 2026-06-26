@@ -1,76 +1,131 @@
 import sys
 from pathlib import Path
+import io
 
-# Dadurch kann "from parser.new_parser import KiCadDiffParser" überhaupt funktionieren
+# Dadurch kann "from parser.diff_parser import KiCadDiffParser" überhaupt funktionieren
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-import pytest # für Tests
-from parser.diff_parser import KiCadDiffParser # um Parser zu bekommen
+import pytest
+
+from parser.diff_parser import KiCadDiffParser
+import scripts.BasicChange as BasicChange
+
+
+class FakeBlob:
+    def __init__(self, text):
+        self.data_stream = io.BytesIO(text.encode())
+
+
+class FakeDiff:
+    def __init__(
+        self,
+        path,
+        old_text="",
+        new_text="",
+        deleted=False
+    ):
+        self.a_path = path
+        self.b_path = path
+
+        self.a_blob = FakeBlob(old_text) if old_text else None
+        self.b_blob = FakeBlob(new_text) if new_text else None
+
+        self.deleted_file = deleted
 
 
 @pytest.mark.parametrize( # Parametrisierte Tests, Jeder Tupel ein Seperater test
-    "diff_content,expected_added,expected_removed,expected_modified",
+   "path,old_text,new_text,expected_added,expected_removed,expected_modified",
     [
+
         # SEGMENT TESTS (.kicad_pcb)
 
         # Ein vollständiger Segment-Block wurde hinzugefügt.
         # Erwartung: added = 1
         (
-            """diff --git a/test.kicad_pcb b/test.kicad_pcb
---- a/test.kicad_pcb
-+++ b/test.kicad_pcb
-@@ -1,0 +1,4 @@
-+(segment
-+  (start 0 0)
-+  (end 10 10)
-+)
+            "test.kicad_pcb",
+
+            "",
+
+            """
+(kicad_pcb
+  (segment
+    (start (xy 0 0))
+    (end (xy 10 10))
+  )
+)
 """,
+
             1, 0, 0
         ),
 
         # Ein vollständiger Segment-Block wurde entfernt.
         # Erwartung: removed = 1
         (
-            """diff --git a/test.kicad_pcb b/test.kicad_pcb
---- a/test.kicad_pcb
-+++ b/test.kicad_pcb
-@@ -1,4 +0,0 @@
--(segment
--  (start 0 0)
--  (end 10 10)
--)
+            "test.kicad_pcb",
+
+            """
+(kicad_pcb
+  (segment
+    (start (xy 0 0))
+    (end (xy 10 10))
+  )
+)
 """,
+
+            "",
+
             0, 1, 0
         ),
 
-        # Innerhalb eines vorhandenen Segments wurde ein Wert geändert.
-        # Erwartung: changed = 1
+        # Innerhalb eines vorhandenen Segments wurde eine Koordinate geändert.
+        # Erwartung: modified = 1
         (
-            """diff --git a/test.kicad_pcb b/test.kicad_pcb
---- a/test.kicad_pcb
-+++ b/test.kicad_pcb
-@@ -1,4 +1,4 @@
- (segment
--  (start 0 0)
-+  (start 1 1)
-   (end 10 10)
- )
+            "test.kicad_pcb",
+
+            """
+(kicad_pcb
+  (segment
+    (start (xy 0 0))
+    (end (xy 10 10))
+  )
+)
 """,
+
+            """
+(kicad_pcb
+  (segment
+    (start (xy 1 1))
+    (end (xy 10 10))
+  )
+)
+""",
+
             0, 0, 1
         ),
 
-        # gleich wie oben, Test um zu schauen ob Modified Segments einen fehler hatte
+        # Gleich wie oben, Endpunkt wurde geändert.
+        # Erwartung: modified = 1
         (
-            """diff --git a/test.kicad_pcb b/test.kicad_pcb
---- a/test.kicad_pcb
-+++ b/test.kicad_pcb
-@@ -1,4 +1,4 @@
- (segment
-   (start 0 0)
--  (end 10 10)
-+  (end 20 20)
- )
+            "test.kicad_pcb",
+
+            """
+(kicad_pcb
+  (segment
+    (start (xy 0 0))
+    (end (xy 10 10))
+  )
+)
 """,
+
+            """
+(kicad_pcb
+  (segment
+    (start (xy 0 0))
+    (end (xy 20 20))
+  )
+)
+""",
+
             0, 0, 1
         ),
 
@@ -78,54 +133,79 @@ from parser.diff_parser import KiCadDiffParser # um Parser zu bekommen
 
         # Ein kompletter Wire-Block wurde hinzugefügt.
         (
-            """diff --git a/test.kicad_sch b/test.kicad_sch
---- a/test.kicad_sch
-+++ b/test.kicad_sch
-@@ -1,0 +1,5 @@
-+(wire
-+  (pts
-+    (xy 0 0) (xy 10 10)
-+  )
-+)
+            "test.kicad_sch",
+
+            "",
+
+            """
+(kicad_sch
+  (wire
+    (pts
+      (xy 0 0)
+      (xy 10 10)
+    )
+  )
+)
 """,
+
             1, 0, 0
         ),
 
         # Ein kompletter Wire-Block wurde entfernt.
         (
-            """diff --git a/test.kicad_sch b/test.kicad_sch
---- a/test.kicad_sch
-+++ b/test.kicad_sch
-@@ -1,5 +0,0 @@
--(wire
--  (pts
--    (xy 0 0) (xy 10 10)
--  )
--)
+            "test.kicad_sch",
+
+            """
+(kicad_sch
+  (wire
+    (pts
+      (xy 0 0)
+      (xy 10 10)
+    )
+  )
+)
 """,
+
+            "",
+
             0, 1, 0
         ),
 
         # Eine Koordinate innerhalb eines Wire-Blocks wurde geändert.
         (
-            """diff --git a/test.kicad_sch b/test.kicad_sch
---- a/test.kicad_sch
-+++ b/test.kicad_sch
-@@ -1,5 +1,5 @@
- (wire
-   (pts
--    (xy 0 0) (xy 10 10)
-+    (xy 1 1) (xy 10 10)
-   )
- )
+            "test.kicad_sch",
+
+            """
+(kicad_sch
+  (wire
+    (pts
+      (xy 0 0)
+      (xy 10 10)
+    )
+  )
+)
 """,
+
+            """
+(kicad_sch
+  (wire
+    (pts
+      (xy 1 1)
+      (xy 10 10)
+    )
+  )
+)
+""",
+
             0, 0, 1
         ),
     ]
-)
+) 
 
 def test_parser_cases(
-    diff_content,
+    path,
+    old_text,
+    new_text,
     expected_added,
     expected_removed,
     expected_modified
@@ -133,36 +213,47 @@ def test_parser_cases(
 
     parser = KiCadDiffParser()
 
-    result = parser.parse(diff_content)
+    diff_index = [
+        FakeDiff(
+            path=path,
+            old_text=old_text,
+            new_text=new_text
+        )
+    ]
+
+    result = parser.parse(diff_index)
 
     # Prüfen, ob die Anzahl erkannter Elemente stimmt
     assert len(result.getAdded()) == expected_added
     assert len(result.getRemoved()) == expected_removed
     assert len(result.getModified()) == expected_modified
 
-
-def test_unknown_file_ignored(): # Testet, ob Datein mit "unbekannter" Endung ignoriert werden
-
-    diff_content = """diff --git a/test.txt b/test.txt
---- a/test.txt
-+++ b/test.txt
-@@ -1 +1 @@
--test
-+test2
-"""
+def test_unknown_file_ignored():
+    # Testet, ob Dateien mit "unbekannter" Endung ignoriert werden
 
     parser = KiCadDiffParser()
 
-    result = parser.parse(diff_content)
+    diff_index = [
+        FakeDiff(
+            path="test.txt",
+            old_text="test",
+            new_text="test2"
+        )
+    ]
+
+    result = parser.parse(diff_index)
 
     assert result.isEmpty()
 
 
-def test_empty_diff(): # Testet Parser bei leerer Datei
+def test_empty_diff():
+    # Testet Parser bei leerer Datei
 
     parser = KiCadDiffParser()
 
-    result = parser.parse("")
+    diff_index = []
+
+    result = parser.parse(diff_index)
 
     assert result.isEmpty()
 
@@ -171,23 +262,28 @@ def test_multiple_segments_added():
     # Zwei vollständige Segment-Blöcke wurden hinzugefügt.
     # Erwartung: added = 2
 
-    diff_content = """diff --git a/test.kicad_pcb b/test.kicad_pcb
---- a/test.kicad_pcb
-+++ b/test.kicad_pcb
-@@ -1,0 +1,8 @@
-+(segment
-+  (start 0 0)
-+  (end 10 10)
-+)
-+(segment
-+  (start 20 20)
-+  (end 30 30)
-+)
-"""
-
     parser = KiCadDiffParser()
 
-    result = parser.parse(diff_content)
+    diff_index = [
+        FakeDiff(
+            path="test.kicad_pcb",
+            old_text="",
+            new_text="""
+(kicad_pcb
+  (segment
+    (start (xy 0 0))
+    (end (xy 10 10))
+  )
+  (segment
+    (start (xy 20 20))
+    (end (xy 30 30))
+  )
+)
+"""
+        )
+    ]
+
+    result = parser.parse(diff_index)
 
     assert len(result.getAdded()) == 2
     assert len(result.getRemoved()) == 0
@@ -198,54 +294,72 @@ def test_multiple_files():
     # Ein Segment und ein Wire wurden hinzugefügt.
     # Erwartung: added = 2
 
-    diff_content = """diff --git a/board.kicad_pcb b/board.kicad_pcb
---- a/board.kicad_pcb
-+++ b/board.kicad_pcb
-@@ -1,0 +1,4 @@
-+(segment
-+  (start 0 0)
-+  (end 10 10)
-+)
-diff --git a/schematic.kicad_sch b/schematic.kicad_sch
---- a/schematic.kicad_sch
-+++ b/schematic.kicad_sch
-@@ -1,0 +1,5 @@
-+(wire
-+  (pts
-+    (xy 0 0) (xy 10 10)
-+  )
-+)
-"""
-
     parser = KiCadDiffParser()
 
-    result = parser.parse(diff_content)
+    diff_index = [
+        FakeDiff(
+            path="board.kicad_pcb",
+            new_text="""
+(kicad_pcb
+  (segment
+    (start (xy 0 0))
+    (end (xy 10 10))
+  )
+)
+"""
+        ),
+        FakeDiff(
+            path="schematic.kicad_sch",
+            new_text="""
+(kicad_sch
+  (wire
+    (pts
+      (xy 0 0)
+      (xy 10 10)
+    )
+  )
+)
+"""
+        )
+    ]
+
+    result = parser.parse(diff_index)
 
     assert len(result.getAdded()) == 2
     assert len(result.getRemoved()) == 0
     assert len(result.getModified()) == 0
 
-def test_mixed_changes_same_file():
-    # Ein Segment wurde hinzugefügt und eines entfernt.
-    # Erwartung: added = 1, removed = 1
 
-    diff_content = """diff --git a/test.kicad_pcb b/test.kicad_pcb
---- a/test.kicad_pcb
-+++ b/test.kicad_pcb
-@@ -1,4 +1,4 @@
--(segment
--  (start 0 0)
--  (end 10 10)
--)
-+(segment
-+  (start 20 20)
-+  (end 30 30)
-+)
-"""
+def test_mixed_changes_same_file():
+    # Ein Segment wurde verändert.
+    # Erwartung: modified = 1
 
     parser = KiCadDiffParser()
 
-    result = parser.parse(diff_content)
+    diff_index = [
+        FakeDiff(
+            path="test.kicad_pcb",
+            old_text="""
+(kicad_pcb
+  (segment
+    (start (xy 0 0))
+    (end (xy 10 10))
+  )
+)
+""",
+            new_text="""
+(kicad_pcb
+  (segment
+    (start (xy 20 20))
+    (end (xy 30 30))
+  )
+)
+"""
+        )
+    ]
 
-    assert len(result.getAdded()) == 1
-    assert len(result.getRemoved()) == 1
+    result = parser.parse(diff_index)
+
+    assert len(result.getAdded()) == 0
+    assert len(result.getRemoved()) == 0
+    assert len(result.getModified()) == 1
