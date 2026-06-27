@@ -1,0 +1,31 @@
+@startuml Difftastic
+
+rectangle Difftastic{
+ (compare directories) as (UC1)
+ (compare files) as (UC2)
+ (integration into git) as (UC3)
+ (analyze merge conflict) as (UC4)
+ 
+}
+
+Actor User as Man1
+Actor File_System as Man2
+Actor Git as Man3
+
+Man3 -up-> UC1
+Man2 -up-> UC2
+Man3 -up-> UC3
+Man3 -up-> UC4
+
+left to right direction 
+
+Man1 --> UC1
+Man1 --> UC2
+Man1 --> UC3
+Man1 --> UC4
+
+UC1 .> UC2 : include 
+UC3 .> UC2 : include 
+UC4 .> UC2 : include 
+
+@enduml
