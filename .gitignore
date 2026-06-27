@@ -4,6 +4,6 @@ __pycache__/
 .tmp
 
 build/
-*.egg-info/
-
+*.egg-info
+KiGit.egg-info/
 out/
