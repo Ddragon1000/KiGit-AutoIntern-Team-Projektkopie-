@@ -233,7 +233,7 @@ def render_diff(dr : d.DiffRes, renderer : DiffResRenderer):
             print(f"Downloaded succesfully under current working directory with the name: {filename}")
 
     elif isinstance(renderer, TableDiffRenderer):
-        renderer.render_paginated(dr,3)
+        renderer.render_paginated(dr)
 
 
 def call_status():
