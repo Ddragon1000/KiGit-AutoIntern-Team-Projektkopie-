@@ -1,0 +1,44 @@
+@startuml "Component Diagram KiGit"
+title KiGit - Component Diagram
+
+'left to right direction
+
+actor "User (Terminal)" as user
+
+package "KiGit" {
+	component [main.py] as main <<CLI Entrypoint>> {
+		note top of main
+			chooses command:
+			- if 'status': calls commands.py
+			- if 'quick-status' : calls commands.py
+			- if 'diff': calls commands.py -> diff_parser.py
+		end note
+	}
+	component [commands.py] as commands <<Git Adapter>>
+	component [diff_parser.py] as parser <<Parser>>
+
+	package "Data Models" {
+		component [diffres.py] as diffres <<Data Class>>
+		component [basicchange.py] as basicchange <<Data Class>>
+	}
+}
+
+cloud "System / Environment" {
+	[Git Repository] as gitrepo
+	() "GitPython Library" as gitpy
+}
+
+user --> main : starts command (e.g. kigit diff)
+
+main --> commands : get diff()
+commands --> gitpy : retrieves rawdata
+gitpy -- gitrepo
+
+main --> parser : ""only if 'diff'""\nhands over DiffIndex to parse data
+
+parser ..> diffres : created and filled
+parser ..> basicchange : used for DiffRes
+
+parser ..> main : returnes ready DiffRes object(s)
+
+@enduml
