@@ -7,6 +7,10 @@ from parser.diff_parser import KiCadDiffParser
 from scripts.commands import GitManager
 from typing import List
 from typing import Annotated, Optional
+import scripts.DiffResRenderer as r
+
+
+app = typer.Typer()
 import scripts.BasicChange as bc
 
 
@@ -33,6 +37,7 @@ cwd = os.getcwd()
 def diff(
         args: Annotated[Optional[List[str]], typer.Argument(help="commit file or file or commit")] = None,
         show_filename: bool = typer.Option(False, help="Shows corresponding Filename in result"),
+        output: r.OutputFormat = typer.Option(r.OutputFormat.TABLE, "--output", "-o", help="Output Format")
         detail: str = typer.Option("", "--detail", help="Filters detail screen"),
         debug: bool = typer.Option(False, help="enables Debug options")
         ):
