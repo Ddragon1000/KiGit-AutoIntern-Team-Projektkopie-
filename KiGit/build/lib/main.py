@@ -64,29 +64,7 @@ def diff(
 
 @app.command()
 def status():
-    """Shows the KiGit status"""
-
-    gitmanager = GitManager(cwd)
-
-    gitstatus = gitmanager.status()
-
-    if gitstatus:
-        status_array = gitstatus.splitlines()
-
-        table = Table(title="kigit status")
-        table.add_column("Staging Area", justify="center")
-        table.add_column("Working Directory", justify="center")
-        table.add_column("File", justify="center")
-
-        for line in status_array:
-            table.add_row(str(line[0]),
-                          str(line[1]),
-                          str(line[2:]))
-            
-        console.print(table)
-    else:
-        print("No current updates at the moment.")
-
+    r.call_status()
 #_ wird zu - in CLI
 @app.command()
 def quick_status():

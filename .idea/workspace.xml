@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9be2ee0d-5a0b-4d26-b825-f2bcca9aedb3" name="Changes" comment="demonstrative version" />
+    <list default="true" id="9be2ee0d-5a0b-4d26-b825-f2bcca9aedb3" name="Changes" comment="demonstrative version">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/KiGit/KiGit.egg-info/SOURCES.txt" beforeDir="false" afterPath="$PROJECT_DIR$/KiGit/KiGit.egg-info/SOURCES.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/KiGit/build/lib/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/KiGit/build/lib/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/KiGit/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/KiGit/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/KiGit/scripts/DiffResRenderer.py" beforeDir="false" afterPath="$PROJECT_DIR$/KiGit/scripts/DiffResRenderer.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
