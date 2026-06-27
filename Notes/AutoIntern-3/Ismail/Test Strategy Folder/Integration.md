@@ -1,0 +1,3 @@
+In our opinion, writing tests together with implementation, can help achieving better results, because it allows good structure of code and also helps designing/implementing code more solid and efficient. Then the finalized test cases can already be used for modified code etc.
+
+Our main idea is to test code, locally when code is finished or modified. Later on we think it makes it easier if we integrate a automated build on Github, that runs tests, if code is committed, so that others may know, if it can be merged. 

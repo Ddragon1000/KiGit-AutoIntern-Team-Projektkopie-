@@ -14,100 +14,105 @@ theme:
   locale: en_US
 
 nav:
-  - Getting Started:
-      - Welcome to Kigit: ./Getting_Started/index.md
-      - Why Kigit?: ./Getting_Started/why_kigit.md
+  - Getting Started: 
+    - Welcome to Kigit: ./Getting_Started/index.md
+    - Why Kigit?: ./Getting_Started/why_kigit.md
   - Kigit Commands:
-      - gitDiff: ./Kigit_Commands/gitDiff.md
-      - gitStatus: ./Kigit_Commands/gitStatus.md
+    - kigit Diff: ./Kigit_Commands/kigit Diff.md
+    - kigit Status: ./Kigit_Commands/kigit Status.md
+    - Internal git commands: 
+      - git Diff: ./Kigit_Commands/Internal_git_commands/git Diff.md
+      - git Status: ./Kigit_Commands/Internal_git_commands/git Status.md
   - Supported File Types:
-      - kicad_sch: ./Supported_File_Types/kicad_sch.md
-      - kicad_pcb: ./Supported_File_Types/kicad_pcb.md
+    - kicad_sch: ./Supported_File_Types/kicad_sch.md
+    - kicad_pcb: ./Supported_File_Types/kicad_pcb.md
   - Miscellaneous:
-      - Releases: ./Miscellaneous/releases.md
-      - License: ./Miscellaneous/license.md
+    - Releases: ./Miscellaneous/releases.md
+    - License: ./Miscellaneous/license.md
 
 #not_in_nav:
 #  - Developer_Stuff:
 
 plugins:
-  - mkdocstrings:
-      handlers:
-        python:
-          # Where to find your sources, see "Finding modules".
-          paths: [.]
+- mkdocstrings:
+    handlers:
+      python:
 
-          # Load object inventories to enable cross-references to other projects.
-          #inventories:
-          #- https://docs.python.org/3/objects.inv
-          # Also load inventories of your dependencies, generally served at
-          # https://docs-url-for-your-dependency/objects.inv.
+        # Where to find your sources, see "Finding modules".
+        paths: [.]
 
-          options:
-            # DOCSTRINGS -------------------------------------------------------------
-            docstring_options:
-              # Discard first line of `__init__` method docstrings,
-              # useful when merging such docstrings into their parent class'.
-              ignore_init_summary: true
+        # Load object inventories to enable cross-references to other projects.
+        #inventories:
+        #- https://docs.python.org/3/objects.inv
+        # Also load inventories of your dependencies, generally served at
+        # https://docs-url-for-your-dependency/objects.inv.
 
-            # Tables are generally too large, lists will fix this.
-            docstring_section_style: list
+        options:
 
-            # CROSS-REFERENCES -------------------------------------------------------
+          # DOCSTRINGS -------------------------------------------------------------
+          docstring_options:
+            # Discard first line of `__init__` method docstrings,
+            # useful when merging such docstrings into their parent class'.
+            ignore_init_summary: true
 
-            # Enable cross-references in signatures.
-            signature_crossrefs: true
+          # Tables are generally too large, lists will fix this.
+          docstring_section_style: list
 
-            # Unwrap actual types from `Annotated` type annotations.
-            unwrap_annotated: true
+          # CROSS-REFERENCES -------------------------------------------------------
 
-            # MEMBERS ----------------------------------------------------------------
-            # Show class inherited members.
-            inherited_members: true
+          # Enable cross-references in signatures.
+          signature_crossrefs: true
 
-            # Render auto-generated summaries of attributes, functions, etc.
-            # at the start of each symbol's documentation.
-            summary: true
+          # Unwrap actual types from `Annotated` type annotations.
+          unwrap_annotated: true
 
-            # HEADINGS ---------------------------------------------------------------
-            # For auto-generated pages, one module per page,
-            # make the module heading be the H1 heading of the page.
-            heading_level: 0
+          # MEMBERS ----------------------------------------------------------------
+          # Show class inherited members.
+          inherited_members: true
 
-            # Render headings for parameters, making them linkable.
-            parameter_headings: true
+          # Render auto-generated summaries of attributes, functions, etc.
+          # at the start of each symbol's documentation.
+          summary: true
 
-            # Render headings for type parameters too.
-            type_parameter_headings: true
+          # HEADINGS ---------------------------------------------------------------
+          # For auto-generated pages, one module per page,
+          # make the module heading be the H1 heading of the page.
+          heading_level: 0
 
-            # Always show the heading for the symbol you render with `::: id`.
-            show_root_heading: true
+          # Render headings for parameters, making them linkable.
+          parameter_headings: true
 
-            # Only show the name of the symbols you inject render `::: id`.
-            show_root_full_path: false
+          # Render headings for type parameters too.
+          type_parameter_headings: true
 
-            # Show the type of symbol (class, function, etc.) in the heading.
-            show_symbol_type_heading: false
+          # Always show the heading for the symbol you render with `::: id`.
+          show_root_heading: true
 
-            # Show the type of symbol (class, function, etc.) in the table of contents.
-            show_symbol_type_toc: true
+          # Only show the name of the symbols you inject render `::: id`.
+          show_root_full_path: false
 
-            # SIGNATURES -------------------------------------------------------------
-            # Format code to 80 + 10% margin (Black and Ruff defaults)
-            # in signatures and attribute value code blocks.
-            # Needs Black/Ruff installed.
-            line_length: 88
+          # Show the type of symbol (class, function, etc.) in the heading.
+          show_symbol_type_heading: false
 
-            # Merge signature and docstring of `__init__` methods
-            # into their parent class signature and docstring.
-            merge_init_into_class: true
+          # Show the type of symbol (class, function, etc.) in the table of contents.
+          show_symbol_type_toc: true
 
-            # Render signatures and attribute values in a separate code block,
-            # below the symbol heading.
-            separate_signature: true
+          # SIGNATURES -------------------------------------------------------------
+          # Format code to 80 + 10% margin (Black and Ruff defaults)
+          # in signatures and attribute value code blocks.
+          # Needs Black/Ruff installed.
+          line_length: 88
 
-            # Show type annotations in signatures.
-            show_signature_annotations: true
+          # Merge signature and docstring of `__init__` methods
+          # into their parent class signature and docstring.
+          merge_init_into_class: true
 
-            # Show type parameters in signatures.
-            show_signature_type_parameters: true
+          # Render signatures and attribute values in a separate code block,
+          # below the symbol heading.
+          separate_signature: true
+
+          # Show type annotations in signatures.
+          show_signature_annotations: true
+
+          # Show type parameters in signatures.
+          show_signature_type_parameters: true
