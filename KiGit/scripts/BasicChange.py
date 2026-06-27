@@ -4,6 +4,7 @@ from dataclasses import dataclass
 class BasicChange:      #Basic-Class for changes
     reference: str
     origin: str
+    component: str
 
 #specific Changes that will be created and appended to DiffRes
 @dataclass
@@ -20,7 +21,7 @@ class ComponentModified(BasicChange):
 
 @dataclass
 class ComponentMoved(ComponentModified):
-    positions : tuple
+    coordinates : tuple
 
 @dataclass
 class ComponentValueChanged(ComponentModified):
