@@ -1,18 +1,14 @@
 import typer
 import os
 import re
+import scripts.DiffResRenderer as renderer
+import scripts.BasicChange as bc
 from rich.console import Console
 from rich.table import Table
 from parser.diff_parser import KiCadDiffParser
 from scripts.commands import GitManager
 from typing import List
 from typing import Annotated, Optional
-import scripts.DiffResRenderer as r
-
-
-app = typer.Typer()
-import scripts.BasicChange as bc
-
 
 app = typer.Typer(
     name="KiGit",
@@ -37,7 +33,7 @@ cwd = os.getcwd()
 def diff(
         args: Annotated[Optional[List[str]], typer.Argument(help="commit file or file or commit")] = None,
         show_filename: bool = typer.Option(False, help="Shows corresponding Filename in result"),
-        output: r.OutputFormat = typer.Option(r.OutputFormat.TABLE, "--output", "-o", help="Output Format")
+        output: renderer.OutputFormat = typer.Option(renderer.OutputFormat.TABLE, "--output", "-o", help="Output Format"),
         detail: str = typer.Option("", "--detail", help="Filters detail screen"),
         debug: bool = typer.Option(False, help="enables Debug options")
         ):
@@ -54,7 +50,6 @@ def diff(
                 file = val
             else:
                 commit[0] = val
-                file = None
         elif len(args) == 2:
             val = args[1]
             if re.search(r"\.kicad_.*$", val) or "/" in val:
@@ -88,17 +83,17 @@ def diff(
     if debug:
         print(f"[DEBUG] {stats}")
 
-    if output == r.OutputFormat.TABLE:
-        r.render_diff(stats, r.TableDiffRenderer(show_filename))
-    elif output == r.OutputFormat.JSON:
-        r.render_diff(stats, r.JsonDiffRenderer())
-    elif output == r.OutputFormat.HTML:
-        r.render_diff(stats, r.HTMLDiffRenderer(show_filename))
+    if output == renderer.OutputFormat.TABLE:
+        renderer.render_diff(stats, renderer.TableDiffRenderer(show_filename))
+    elif output == renderer.OutputFormat.JSON:
+        renderer.render_diff(stats, renderer.JsonDiffRenderer())
+    elif output == renderer.OutputFormat.HTML:
+        renderer.render_diff(stats, renderer.HTMLDiffRenderer(show_filename))
        
 
 @app.command()
 def status():
-    r.call_status()
+    renderer.call_status()
 #_ wird zu - in CLI
 @app.command()
 def quick_status():
