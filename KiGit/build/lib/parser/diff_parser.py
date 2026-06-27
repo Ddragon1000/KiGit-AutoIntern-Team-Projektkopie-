@@ -109,7 +109,7 @@ class KiCadDiffParser:
 					continue
 				
 				#if starting point equal but not end -> moidified
-				if old_pts[0] == new_pts[0] and old_pts[1] != new_pts[1]:
+				if old_pts[0] != new_pts[0] or old_pts[1] != new_pts[1]:
 					ref_string = sexpdata.dumps(new_el)
 
 					self.diffres.addChange(BasicChange.ComponentMoved(
