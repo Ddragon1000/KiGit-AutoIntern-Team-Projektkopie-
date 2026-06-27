@@ -139,6 +139,7 @@ class TableDiffRenderer(DiffResRenderer):
         console = Console()
         #problem with doing it in renderdiff is that I could not call on "show_filename" which causes one or the other
         #to return with 'None', to fix this the code must happen where we get the info for show_filename.
+        #system to dynamically change filetype was with assistance
         if self.show_filename:
             source_list = list(dr.filterFile())
         else:

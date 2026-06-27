@@ -4,12 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9be2ee0d-5a0b-4d26-b825-f2bcca9aedb3" name="Changes" comment="demonstrative version">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="9be2ee0d-5a0b-4d26-b825-f2bcca9aedb3" name="Changes" comment="pager and status demonstrative version">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/KiGit/KiGit.egg-info/SOURCES.txt" beforeDir="false" afterPath="$PROJECT_DIR$/KiGit/KiGit.egg-info/SOURCES.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/KiGit/build/lib/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/KiGit/build/lib/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/KiGit/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/KiGit/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/KiGit/scripts/DiffResRenderer.py" beforeDir="false" afterPath="$PROJECT_DIR$/KiGit/scripts/DiffResRenderer.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -91,6 +87,7 @@
       <workItem from="1782512857916" duration="1975000" />
       <workItem from="1782516004449" duration="420000" />
       <workItem from="1782516439319" duration="384000" />
+      <workItem from="1782547496881" duration="475000" />
     </task>
     <task id="LOCAL-00001" summary="demonstrative version">
       <option name="closed" value="true" />
@@ -119,7 +116,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="demonstrative version" />
-    <option name="LAST_COMMIT_MESSAGE" value="demonstrative version" />
+    <MESSAGE value="pager and status demonstrative version" />
+    <option name="LAST_COMMIT_MESSAGE" value="pager and status demonstrative version" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/AutoIntern_3$main.coverage" NAME="main Coverage Results" MODIFIED="1782162671009" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KiGit" />
