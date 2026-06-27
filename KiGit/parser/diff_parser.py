@@ -9,12 +9,6 @@ class KiCadDiffParser:
 
 	#Registry for what file the parser is used
 	#easily add new filetypes if necessary later
-	FILE_PARSERS: dict[str, str] = {
-		".kicad_sch": "wire",
-		".kicad_pcb": "segment",
-		#later e.g.:
-		#".kicad_pcb": "via"
-	}
 
 	def __init__(self):
 		self.diffres = DiffRes(changes=[])

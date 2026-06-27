@@ -7,8 +7,7 @@ from rich.console import Console
 from rich.table import Table
 from parser.diff_parser import KiCadDiffParser
 from scripts.commands import GitManager
-from typing import List
-from typing import Annotated, Optional
+from typing import Annotated
 
 app = typer.Typer(
     name="KiGit",
@@ -26,12 +25,15 @@ app = typer.Typer(
     #epilog=""
 )
 console = Console()
+#`os.getcwd()` should be replaced by `Path.cwd()`
 cwd = os.getcwd()
 
-
+#Boolean-typed positional argument in function definition debug:
+#Boolean positional value in function call typer.Option(False, ...)
+#same with show_filename: ... (False, ...)
 @app.command()
 def diff(
-        args: Annotated[Optional[List[str]], typer.Argument(help="commit file or file or commit")] = None,
+        args: Annotated[list[str] | None, typer.Argument(help="commit file or file or commit")] = None,
         show_filename: bool = typer.Option(False, help="Shows corresponding Filename in result"),
         output: renderer.OutputFormat = typer.Option(renderer.OutputFormat.TABLE, "--output", "-o", help="Output Format"),
         detail: str = typer.Option("", "--detail", help="Filters detail screen"),
@@ -42,8 +44,9 @@ def diff(
     #default values
     commit = ["HEAD", None]
     file = None
-    
+
     if args:
+        #remove magic values ==1 and ==2 ?
         if len(args) == 1:
             val = args[0]
             if re.search(r"\.kicad_.*$", val) or "/" in val:

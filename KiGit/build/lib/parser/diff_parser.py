@@ -9,6 +9,8 @@ class KiCadDiffParser:
 
 	#Registry for what file the parser is used
 	#easily add new filetypes if necessary later
+
+	#Mutable default value for class attribute
 	FILE_PARSERS: dict[str, str] = {
 		".kicad_sch": "wire",
 		".kicad_pcb": "segment",
