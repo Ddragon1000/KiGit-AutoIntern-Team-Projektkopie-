@@ -46,6 +46,7 @@ def diff(
     file = None
 
     if args:
+        #remove magic values ==1 and ==2 ?
         if len(args) == 1:
             val = args[0]
             if re.search(r"\.kicad_.*$", val) or "/" in val:

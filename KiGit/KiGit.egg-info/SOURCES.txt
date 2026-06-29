@@ -1,3 +1,4 @@
+kigit_globals.py
 main.py
 pyproject.toml
 KiGit.egg-info/PKG-INFO

@@ -1,5 +1,5 @@
 [project]
-name = "KiGit"
+name = "KiGit AutoIntern-3"
 version = "0.2.0"
 description = "CLI Tool to easily identify changes made in KiCad Projects working with Git"
 readme = "README.md"
@@ -14,7 +14,7 @@ dependencies = [
 [project.scripts]
 kigit = "main:app"
 [tool.setuptools]
-py-modules = ["main"]
+py-modules = ["main", "kigit_globals"]
 [tool.setuptools.packages.find]
 include = ["parser*", "scripts*"]
 
