@@ -1,0 +1,17 @@
+@startuml statemachine_difftastic
+
+[*] --> ReadingFiles : [diff1 diff2 file]\nEnteredCommand
+
+ReadingFiles --> DetectingLanguage : [done]
+
+DetectingLanguage --> GeneratingSyntaxTree : [True]\nLanguageSupported
+DetectingLanguage --> PerformingLineDiff : [False]\nLanguageUnsupported
+
+GeneratingSyntaxTree --> ComparingStructures : TreeCreated
+ComparingStructures --> DisplayingResults : [Ready]\nDiffReady
+
+PerformingLineDiff --> DisplayingResults : [Ready]\nDiffCompleted
+
+DisplayingResults --> [*]
+
+@enduml

@@ -1,7 +1,8 @@
-.venv
+.venv/
 __pycache__/
 *.pyc
 .tmp
 
 build/
 *.egg-info/
+out/

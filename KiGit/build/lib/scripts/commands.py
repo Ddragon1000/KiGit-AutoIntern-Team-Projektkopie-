@@ -1,9 +1,14 @@
 from git import Repo, InvalidGitRepositoryError, NoSuchPathError, DiffIndex
 from pathlib import Path
 
+#File `AutoIntern-3\KiGit\scripts\commands.py` is part of an implicit namespace package. Add an `__init__.py`
+#Missing docstring in public module
+
 class GitManager:
+
 	"""Used for seemless connection between KiGit and the current Git Repository"""
-	def __init__(self, path: str):
+
+	def __init__(self, path: str) -> None:
 		"""Init the Repository and catch errors if path is invalid"""
 		try:
 			self.repo = Repo(path, search_parent_directories=True)
@@ -24,6 +29,7 @@ class GitManager:
 		try:
 			return self.repo.commit(commit1).diff(other=commit2, paths=path_filter)
 		except Exception as e:
+			#Do not catch blind exception: `Exception`
 			return f"[ERROR] generating diff: {e}"
 
 
