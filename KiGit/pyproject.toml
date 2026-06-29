@@ -1,6 +1,6 @@
 [project]
-name = "KiGit AutoIntern-3"
-version = "0.2.0"
+name = "KiGit_AutoIntern-3"
+version = "0.3.0"
 description = "CLI Tool to easily identify changes made in KiCad Projects working with Git"
 readme = "README.md"
 requires-python = ">=3.11"
