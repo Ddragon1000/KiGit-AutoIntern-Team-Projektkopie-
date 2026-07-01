@@ -4,19 +4,12 @@ from scripts.DiffRes import DiffRes
 import scripts.BasicChange as BasicChange
 from git.diff import DiffIndex
 from pathlib import Path
+from kigit_globals import FILE_PARSERS
 
 class KiCadDiffParser:
 
 	#Registry for what file the parser is used
 	#easily add new filetypes if necessary later
-
-	#Mutable default value for class attribute
-	FILE_PARSERS: dict[str, str] = {
-		".kicad_sch": "wire",
-		".kicad_pcb": "segment",
-		#later e.g.:
-		#".kicad_pcb": "via"
-	}
 
 	def __init__(self):
 		self.diffres = DiffRes(changes=[])
@@ -57,7 +50,7 @@ class KiCadDiffParser:
 
 	def _get_keyword(self, path: str) -> str | None:
 		"""return the S-Expression keyword for filepath"""
-		for extension, keyword in self.FILE_PARSERS.items():
+		for extension, keyword in FILE_PARSERS.items():
 			if path.endswith(extension):
 				return keyword
 		return None
