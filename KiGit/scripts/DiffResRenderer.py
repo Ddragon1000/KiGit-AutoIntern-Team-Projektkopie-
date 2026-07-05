@@ -22,7 +22,7 @@ class DiffResRenderer(ABC):
 
 class JsonDiffRenderer(DiffResRenderer):
     def render(self, dr : d.DiffRes) -> str:
-
+        files_dict = {}
         summary = {
             "total_changes": len(dr.changes),
             "files": {}
@@ -37,9 +37,21 @@ class JsonDiffRenderer(DiffResRenderer):
                 "removed": len(dr.getRemoved()),
                 "modified": len(dr.getModified())
             }
+        
+        
+        for components in dr.filterFile():
+            filename = components.changes[0].origin
+            file_changes = [
+                self._serialize_change(change)
+                for change in components.changes
+            ]
+            
+            files_dict[filename] = file_changes
+        
+
 
         
-        return json.dumps({"summary": summary}, indent=2, ensure_ascii=False)
+        return json.dumps({"summary": summary, "files": files_dict}, indent=2, ensure_ascii=False)
     
     def _serialize_change(self, change : bc.BasicChange) -> dict[str, object]:
         name = change.__class__.__name__
@@ -221,16 +233,6 @@ def render_diff(dr : d.DiffRes, renderer : DiffResRenderer):
 
     elif isinstance(renderer, JsonDiffRenderer):
         print(output)
-        
-        from rich.prompt import Confirm
-        if Confirm.ask("Do you want to download a detailed JSON-file?"):
-            detailed = renderer.detailed_render(dr)
-
-            filename = "kigit_diff.json"
-            with open(filename, "w", encoding="utf-8") as f:
-                f.write(detailed)
-            
-            print(f"Downloaded succesfully under current working directory with the name: {filename}")
 
     elif isinstance(renderer, TableDiffRenderer):
         renderer.render_paginated(dr)
