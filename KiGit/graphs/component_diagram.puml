@@ -1,7 +1,7 @@
 @startuml "Component Diagram KiGit"
 title KiGit - Component Diagram
 
-'left to right direction
+left to right direction
 
 actor "User (Terminal)" as user
 
@@ -21,7 +21,9 @@ package "KiGit" {
 		component [diffres.py] as diffres <<Data Class>>
 		component [basicchange.py] as basicchange <<Data Class>>
 	}
-}
+
+	component [DiffResRenderer.py] as renderer <<Output Generator>>
+	}
 
 package "System / Environment" {
 	[Git Repository] as gitrepo
@@ -40,5 +42,8 @@ parser ..> diffres : created and filled
 parser ..> basicchange : used for DiffRes
 
 parser ..> main : returnes ready DiffRes object(s)
+
+main --> renderer : render()
+renderer --> user : show()
 
 @enduml
