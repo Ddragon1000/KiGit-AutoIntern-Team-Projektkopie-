@@ -8,33 +8,31 @@ from kigit_globals import FILE_PARSERS
 
 class KiCadDiffParser:
 
-	#Registry for what file the parser is used
-	#easily add new filetypes if necessary later
-
 	def __init__(self):
 		self.diffres = DiffRes(changes=[])
 
-	#main parser
 	def parse(self, diff_index: DiffIndex, working_tree_dir: str = None) -> DiffRes:
-		"""Reading unified diff file and returns DiffRes for each filetype"""
+		"""Reading DiffIndex Object of GitPython and returns DiffRes for each filetype"""
 
 		for diff in diff_index:
 			path = diff.b_path or diff.a_path
 			keyword = self._get_keyword(path)
+			#unknown file -> ignore
 			if not keyword:
-				continue #unknown file -> ignore
+				continue
+
 			#get blobs from gitpython
+			#old file
 			old_text = diff.a_blob.data_stream.read().decode("utf-8") if diff.a_blob else ""
+			#new file
 			if diff.b_blob:
 				new_text = diff.b_blob.data_stream.read().decode("utf-8")
-			elif diff.deleted_file:
-				new_text = ""
 			elif working_tree_dir and diff.b_path:
 				new_text = Path(working_tree_dir, diff.b_path).read_text(encoding="utf-8")
 			else:
 				new_text = ""
 			
-			#parse python lists
+			#parse s-expressions
 			old_sexp = sexpdata.loads(old_text) if old_text else []
 			new_sexp = sexpdata.loads(new_text) if new_text else []
 
@@ -47,6 +45,67 @@ class KiCadDiffParser:
 			self._compare_elements(old_elements, new_elements, keyword, path)
 
 		return self.diffres
+
+	def _compare_elements(self, old_elems, new_elems, keyword, path):
+		"""Counting added, removed and modified elements of one specific keyword of a patched file"""
+
+		#preselection whats identical is not important
+		#only old elements in here if there are not a part of new elements
+		unmatched_old = [elem for elem in old_elems if elem not in new_elems]
+		#only new elements in here if there are not a part of old elements
+		unmatched_new = [elem for elem in new_elems if elem not in old_elems]
+
+		matched_old, matched_new, modified = self.get_modified(unmatched_old, unmatched_new, keyword, path)
+		#everything else should be deleted or added
+		for old_el in unmatched_old:
+			if old_el not in matched_old:
+				ref_string = sexpdata.dumps(old_el)
+				self.diffres.addChange(BasicChange.ComponentRemoved(reference=keyword, origin=path, component=ref_string))
+
+		for new_el in unmatched_new:
+			if new_el not in matched_new:
+				ref_string = sexpdata.dumps(new_el)
+				self.diffres.addChange(BasicChange.ComponentAdded(reference=keyword, origin=path, component=ref_string))
+
+	def get_modified(self, old: list, new: list, keyword: str, path: str):
+		
+		matched_old = []
+		matched_new = []
+		modified = []
+		
+		for old_el in old:
+			old_pts = self._extract_coordinates(old_el)
+			if len(old_pts) < 2:
+				continue
+
+			for new_el in new:
+				if new_el in matched_new:
+					continue
+				
+				new_pts = self._extract_coordinates(new_el)
+				if len(new_pts) < 2:
+					continue
+				
+				start_diff = old_pts[0] != new_pts[0]
+				end_diff = old_pts[1] != new_pts[1]
+				#if starting point equal but not end -> moidified
+				#if ending points equal but not start -> modified
+				if start_diff ^ end_diff:
+					#ref_string = sexpdata.dumps(new_el)
+
+					self.diffres.addChange(BasicChange.ComponentMoved(
+						reference=keyword,
+						origin=path,
+						component=new_el,
+						coordinates=(old_pts, new_pts)
+					))
+					matched_old.append(old_el)
+					matched_new.append(new_el)
+					modified.append(new_el)
+					break
+		
+		return matched_old, matched_new, modified
+
 
 	def _get_keyword(self, path: str) -> str | None:
 		"""return the S-Expression keyword for filepath"""
@@ -74,56 +133,3 @@ class KiCadDiffParser:
 		
 		search_xy(elements_list)
 		return coords
-
-	#counting logic
-	#if we are in a wire block -> if only added parts -> added
-	#						   -> if added and removed -> modified
-	#						   -> if only removed -> removed
-	def _compare_elements(self, old_elems, new_elems, keyword, path):
-		"""Counting added, removed and modified elements of one specific keyword of a patched file"""
-
-		#preselection whats identical is not important
-		unmatched_old = [e for e in old_elems if e not in new_elems]
-		unmatched_new = [e for e in new_elems if e not in old_elems]
-
-		matched_old = []
-		matched_new = []
-
-		#get modified
-		for old_el in unmatched_old:
-			old_pts = self._extract_coordinates(old_el)
-			if len(old_pts) < 2:
-				continue
-
-			for new_el in unmatched_new:
-				if new_el in matched_new:
-					continue
-				
-				new_pts = self._extract_coordinates(new_el)
-				if len(new_pts) < 2:
-					continue
-				
-				#if starting point equal but not end -> moidified
-				if old_pts[0] != new_pts[0] or old_pts[1] != new_pts[1]:
-					ref_string = sexpdata.dumps(new_el)
-
-					self.diffres.addChange(BasicChange.ComponentMoved(
-						reference=keyword,
-						origin=path,
-						component=ref_string,
-						coordinates=(old_pts, new_pts)
-					))
-					matched_old.append(old_el)
-					matched_new.append(new_el)
-					break
-
-		#everything else should be deleted or added
-		for old_el in unmatched_old:
-			if old_el not in matched_old:
-				ref_string = sexpdata.dumps(old_el)
-				self.diffres.addChange(BasicChange.ComponentRemoved(reference=keyword, origin=path, component=ref_string))
-
-		for new_el in unmatched_new:
-			if new_el not in matched_new:
-				ref_string = sexpdata.dumps(new_el)
-				self.diffres.addChange(BasicChange.ComponentAdded(reference=keyword, origin=path, component=ref_string))	
