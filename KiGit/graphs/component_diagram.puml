@@ -23,7 +23,7 @@ package "KiGit" {
 	}
 }
 
-cloud "System / Environment" {
+package "System / Environment" {
 	[Git Repository] as gitrepo
 	() "GitPython Library" as gitpy
 }
