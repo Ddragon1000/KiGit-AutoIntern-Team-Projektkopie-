@@ -55,17 +55,12 @@ class KiCadDiffParser:
 
 		self._report_moved(unmatched_old, unmatched_new, keyword, path)
 
-		matched_old, matched_new, modified = self.get_modified(unmatched_old, unmatched_new, keyword, path)
 		#everything else should be deleted or added
 		for old_el in unmatched_old:
-			if old_el not in matched_old:
-				ref_string = sexpdata.dumps(old_el)
-				self.diffres.addChange(BasicChange.ComponentRemoved(reference=keyword, origin=path, component=ref_string))
+			self.diffres.addChange(BasicChange.ComponentRemoved(reference=keyword, origin=path, component=sexpdata.dumps(old_el)))
 
 		for new_el in unmatched_new:
-			if new_el not in matched_new:
-				ref_string = sexpdata.dumps(new_el)
-				self.diffres.addChange(BasicChange.ComponentAdded(reference=keyword, origin=path, component=ref_string))
+				self.diffres.addChange(BasicChange.ComponentAdded(reference=keyword, origin=path, component=sexpdata.dumps(new_el)))
 
 	def _report_moved(self, unmatched_old: list, unmatched_new: list, keyword: str, path: str):
 		"""finds elements with same start or same endpoints and reports them as ComponentMoved or removes them out of both lists"""
