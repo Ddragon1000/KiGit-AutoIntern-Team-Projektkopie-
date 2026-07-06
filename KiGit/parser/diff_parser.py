@@ -53,6 +53,8 @@ class KiCadDiffParser:
 		#only new elements in here if there are not a part of old elements
 		unmatched_new = [elem for elem in new_elems if elem not in old_elems]
 
+		self._report_moved(unmatched_old, unmatched_new, keyword, path)
+
 		matched_old, matched_new, modified = self.get_modified(unmatched_old, unmatched_new, keyword, path)
 		#everything else should be deleted or added
 		for old_el in unmatched_old:
@@ -65,45 +67,40 @@ class KiCadDiffParser:
 				ref_string = sexpdata.dumps(new_el)
 				self.diffres.addChange(BasicChange.ComponentAdded(reference=keyword, origin=path, component=ref_string))
 
-	def get_modified(self, old: list, new: list, keyword: str, path: str):
-		
-		matched_old = []
-		matched_new = []
-		modified = []
-		
-		for old_el in old:
+	def _report_moved(self, unmatched_old: list, unmatched_new: list, keyword: str, path: str):
+		"""finds elements with same start or same endpoints and reports them as ComponentMoved or removes them out of both lists"""
+
+		for old_el in list(unmatched_old):
 			old_pts = self._extract_coordinates(old_el)
 			if len(old_pts) < 2:
 				continue
 
-			for new_el in new:
-				if new_el in matched_new:
-					continue
-				
-				new_pts = self._extract_coordinates(new_el)
-				if len(new_pts) < 2:
-					continue
-				
-				start_diff = old_pts[0] != new_pts[0]
-				end_diff = old_pts[1] != new_pts[1]
-				#if starting point equal but not end -> moidified
-				#if ending points equal but not start -> modified
-				if start_diff ^ end_diff:
-					#ref_string = sexpdata.dumps(new_el)
+			match = self._find_moved_match(old_pts, unmatched_new)
+			if match is None:
+				continue
 
-					self.diffres.addChange(BasicChange.ComponentMoved(
-						reference=keyword,
-						origin=path,
-						component=new_el,
-						coordinates=(old_pts, new_pts)
-					))
-					matched_old.append(old_el)
-					matched_new.append(new_el)
-					modified.append(new_el)
-					break
-		
-		return matched_old, matched_new, modified
+			new_el, new_pts = match
+			self.diffres.addChange(BasicChange.ComponentMoved(
+				reference=keyword, origin=path,
+				component=new_el,
+				coordinates=(old_pts, new_pts)
+			))
+			unmatched_old.remove(old_el)
+			unmatched_new.remove(new_el)
 
+	def _find_moved_match(self, old_pts, candidates: list):
+		"""searches in candidates one element which start or endpoints are the same to old_pts but not both!"""
+
+		for new_el in candidates:
+			new_pts = self._extract_coordinates(new_el)
+			if len(new_pts) < 2:
+				continue
+
+			start_same = old_pts[0] == new_pts[0]
+			end_same = old_pts[1] == new_pts[1]
+			if start_same != end_same:
+				return new_el, new_pts
+		return None
 
 	def _get_keyword(self, path: str) -> str | None:
 		"""return the S-Expression keyword for filepath"""
