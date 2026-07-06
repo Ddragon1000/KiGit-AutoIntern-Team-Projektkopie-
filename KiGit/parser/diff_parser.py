@@ -15,36 +15,34 @@ class KiCadDiffParser:
 		"""Reading DiffIndex Object of GitPython and returns DiffRes for each filetype"""
 
 		for diff in diff_index:
-			path = diff.b_path or diff.a_path
-			keyword = self._get_keyword(path)
-			#unknown file -> ignore
-			if not keyword:
-				continue
-
-			#get blobs from gitpython
-			#old file
-			old_text = diff.a_blob.data_stream.read().decode("utf-8") if diff.a_blob else ""
-			#new file
-			if diff.b_blob:
-				new_text = diff.b_blob.data_stream.read().decode("utf-8")
-			elif working_tree_dir and diff.b_path:
-				new_text = Path(working_tree_dir, diff.b_path).read_text(encoding="utf-8")
-			else:
-				new_text = ""
-			
-			#parse s-expressions
-			old_sexp = sexpdata.loads(old_text) if old_text else []
-			new_sexp = sexpdata.loads(new_text) if new_text else []
-
-			#filter relevant elements
-			key_symbol = sexpdata.Symbol(keyword)
-			old_elements = [item for item in old_sexp if isinstance(item, list) and item[0] == key_symbol]
-			new_elements = [item for item in new_sexp if isinstance(item, list) and item[0] == key_symbol]
-
-			#compare symnatic for added, removed, modified
-			self._compare_elements(old_elements, new_elements, keyword, path)
-
+			self._process_diff(diff, working_tree_dir)
 		return self.diffres
+	
+	def _process_diff(self, diff, working_tree_dir):
+		path = diff.b_path or diff.a_path
+		keyword = self._get_keyword(path)
+		if not keyword:
+			return
+		old_elements = self._parse_elements(diff.a_blob, None, keyword)
+		new_elements = self._parse_elements(diff.b_blob, working_tree_dir and Path(working_tree_dir, diff.b_path), keyword)
+		self._compare_elements(old_elements, new_elements, keyword, path)
+		
+	def _parse_elements(self, blob, fallback_path, keyword) -> list:
+		text = self._read_text(blob, fallback_path)
+		if not text:
+			return []
+		sexp = sexpdata.loads(text)
+		key_symbol = sexpdata.Symbol(keyword)
+		return [item for item in sexp if isinstance(item, list) and item and item[0] == key_symbol]
+
+	
+	def _read_text(self, blob, fallback_path) -> str:
+		if blob:
+			return blob.data_stream.read().decode("utf-8")
+		if fallback_path and fallback_path.exists():
+			return fallback_path.read_text(encoding="utf-8")
+		return ""
+		
 
 	def _compare_elements(self, old_elems, new_elems, keyword, path):
 		"""Counting added, removed and modified elements of one specific keyword of a patched file"""
