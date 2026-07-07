@@ -39,7 +39,7 @@ package "KiGit" {
 
 package "System / Environment" {
 	[Git Repository] as gitrepo
-	() "GitPython Library" as gitpy
+	() "GitPython Library     " as gitpy
 }
 
 user --> main : starts command (e.g. kigit diff)
