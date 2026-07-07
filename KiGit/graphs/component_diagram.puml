@@ -1,7 +1,17 @@
 @startuml "Component Diagram KiGit"
+'layout optimization
+'spacing between layer
+skinparam ranksep 50
+'spacing between elements on same layer
+skinparam nodesep 50
+'spacing between each arrow/liens
+skinparam linetype orhto 
+'alternative polyline
+
+
 title KiGit - Component Diagram
 
-left to right direction
+'left to right direction
 
 actor "User (Terminal)" as user
 
@@ -38,12 +48,12 @@ main --> commands : get diff()
 commands --> gitpy : retrieves rawdata
 gitpy -- gitrepo
 
-main --> parser : ""only if 'diff'""\nhands over DiffIndex to parse data
+main --> parser : ""only if 'diff'""\nhands over DiffIndex
 
 parser ..> diffres : created and filled
 parser ..> basicchange : used for DiffRes
 
-parser ..> main : returnes ready DiffRes object(s)
+parser ..> main : returns ready DiffRes object(s)
 
 main --> renderer : render()
 renderer --> user : show()
