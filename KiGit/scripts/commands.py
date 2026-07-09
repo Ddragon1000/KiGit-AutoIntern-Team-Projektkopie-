@@ -1,3 +1,4 @@
+import os
 from git import Repo, InvalidGitRepositoryError, NoSuchPathError, DiffIndex
 from pathlib import Path
 
@@ -27,8 +28,6 @@ class GitManager:
 
 		path_filter = (Path(file)) if file else None
 
-
-		
 		try:
 			return self.repo.commit(commit1).diff(other=commit2, paths=path_filter)
 		except Exception as e:
@@ -38,6 +37,15 @@ class GitManager:
 	def status(self) -> str:
 		"""Returns a short status"""
 		try:
+			repo_root =  self.repo.working_tree_dir
+			allow_list_path = os.path.join(repo_root,".kigitallow")
+			allowed_paths = []
+			if os.path.exists(allow_list_path):
+				with open(allow_list_path, "r", encoding="utf-8") as f:
+					allowed_paths = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+			
+			if allowed_paths:
+				return self.repo.git.status("-s", *allowed_paths)
 			return self.repo.git.status("-s")
 		except Exception as e:
 			#Do not catch blind exception: `Exception`
