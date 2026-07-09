@@ -1,8 +1,10 @@
 import sexpdata
+from typing import Any, Optional
 from dataclasses import dataclass
 from scripts.DiffRes import DiffRes
 import scripts.BasicChange as BasicChange
-from git.diff import DiffIndex
+from git import Blob, IndexObject
+from git.diff import Diff, DiffIndex
 from pathlib import Path
 from kigit_globals import FILE_PARSERS
 
@@ -11,23 +13,25 @@ class KiCadDiffParser:
 	def __init__(self):
 		self.diffres = DiffRes(changes=[])
 
-	def parse(self, diff_index: DiffIndex, working_tree_dir: str = None) -> DiffRes:
+	def parse(self, diff_index: DiffIndex, working_tree_dir: Optional[str] = None) -> DiffRes:
 		"""Reading DiffIndex Object of GitPython and returns DiffRes for each filetype"""
 
 		for diff in diff_index:
 			self._process_diff(diff, working_tree_dir)
 		return self.diffres
 	
-	def _process_diff(self, diff, working_tree_dir: str):
+	def _process_diff(self, diff: Diff, working_tree_dir: Optional[str]) -> None:
 		path = diff.b_path or diff.a_path
+		if path is None:
+			return
 		keyword = self._get_keyword(path)
 		if not keyword:
 			return
 		old_elements = self._parse_elements(diff.a_blob, None, keyword)
-		new_elements = self._parse_elements(diff.b_blob, working_tree_dir and Path(working_tree_dir, diff.b_path), keyword)
+		new_elements = self._parse_elements(diff.b_blob, Path(working_tree_dir, diff.b_path) if working_tree_dir and diff.b_path else None, keyword)
 		self._compare_elements(old_elements, new_elements, keyword, path)
 		
-	def _parse_elements(self, blob, fallback_path, keyword) -> list:
+	def _parse_elements(self, blob: Optional[IndexObject], fallback_path: Optional[Path], keyword: str) -> list[list[Any]]:
 		text = self._read_text(blob, fallback_path)
 		if not text:
 			return []
@@ -36,7 +40,7 @@ class KiCadDiffParser:
 		return [item for item in sexp if isinstance(item, list) and item and item[0] == key_symbol]
 
 	
-	def _read_text(self, blob, fallback_path) -> str:
+	def _read_text(self, blob: Optional[IndexObject], fallback_path: Optional[Path]) -> str:
 		if blob:
 			return blob.data_stream.read().decode("utf-8")
 		if fallback_path and fallback_path.exists():
@@ -44,7 +48,7 @@ class KiCadDiffParser:
 		return ""
 		
 
-	def _compare_elements(self, old_elems, new_elems, keyword, path):
+	def _compare_elements(self, old_elems: list[list[Any]], new_elems: list[list[Any]], keyword: str, path: str):
 		"""Counting added, removed and modified elements of one specific keyword of a patched file"""
 
 		#preselection whats identical is not important
@@ -62,7 +66,7 @@ class KiCadDiffParser:
 		for new_el in unmatched_new:
 				self.diffres.addChange(BasicChange.ComponentAdded(reference=keyword, origin=path, component=sexpdata.dumps(new_el)))
 
-	def _report_moved(self, unmatched_old: list, unmatched_new: list, keyword: str, path: str):
+	def _report_moved(self, unmatched_old: list[list[Any]], unmatched_new: list[list[Any]], keyword: str, path: str) -> None:
 		"""finds elements with same start or same endpoints and reports them as ComponentMoved or removes them out of both lists"""
 
 		for old_el in list(unmatched_old):
@@ -77,13 +81,13 @@ class KiCadDiffParser:
 			new_el, new_pts = match
 			self.diffres.addChange(BasicChange.ComponentMoved(
 				reference=keyword, origin=path,
-				component=new_el,
+				component=sexpdata.dumps(new_el),
 				coordinates=(old_pts, new_pts)
 			))
 			unmatched_old.remove(old_el)
 			unmatched_new.remove(new_el)
 
-	def _find_moved_match(self, old_pts, candidates: list):
+	def _find_moved_match(self, old_pts: list[tuple[float, float]], candidates: list[list[Any]]) -> Optional[tuple[list[Any], list[tuple[float, float]]]]:
 		"""searches in candidates one element which start or endpoints are the same to old_pts but not both!"""
 
 		for new_el in candidates:
@@ -97,14 +101,14 @@ class KiCadDiffParser:
 				return new_el, new_pts
 		return None
 
-	def _get_keyword(self, path: str) -> str | None:
+	def _get_keyword(self, path: str) -> Optional[str]:
 		"""return the S-Expression keyword for filepath"""
 		for extension, keyword in FILE_PARSERS.items():
 			if path.endswith(extension):
 				return keyword
 		return None
 	
-	def _extract_coordinates(self, elements_list) -> list[tuple[float, float]]:
+	def _extract_coordinates(self, elements_list: list[Any]) -> list[tuple[float, float]]:
 		"""
 		Helperfunction: Extracts all (xy X Y) coords from elements
 		"""
