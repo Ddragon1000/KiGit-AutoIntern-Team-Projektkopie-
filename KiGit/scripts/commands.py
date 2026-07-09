@@ -42,7 +42,7 @@ class GitManager:
 			allowed_paths = []
 			if os.path.exists(allow_list_path):
 				with open(allow_list_path, "r", encoding="utf-8") as f:
-					allowed_paths = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+					allowed_paths = [s for line in f if (s := line.strip()) and not s.startswith("#")]
 			
 			if allowed_paths:
 				return self.repo.git.status("-s", *allowed_paths)
