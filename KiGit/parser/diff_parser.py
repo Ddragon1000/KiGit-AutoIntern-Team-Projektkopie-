@@ -18,7 +18,7 @@ class KiCadDiffParser:
 			self._process_diff(diff, working_tree_dir)
 		return self.diffres
 	
-	def _process_diff(self, diff, working_tree_dir):
+	def _process_diff(self, diff, working_tree_dir: str):
 		path = diff.b_path or diff.a_path
 		keyword = self._get_keyword(path)
 		if not keyword:
