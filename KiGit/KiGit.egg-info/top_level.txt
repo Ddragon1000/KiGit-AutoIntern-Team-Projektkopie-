@@ -1,3 +1,4 @@
+kigit_globals
 main
 parser
 scripts
