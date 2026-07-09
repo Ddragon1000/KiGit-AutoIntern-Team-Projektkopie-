@@ -1,3 +1,4 @@
+from scripts.helper import extract_parameters
 import os
 import json
 import scripts.DiffRes as d
@@ -97,8 +98,9 @@ class HTMLDiffRenderer(DiffResRenderer):
     
 class TableDiffRenderer(DiffResRenderer):
 
-    def __init__(self, s_f):
+    def __init__(self, s_f, detail=False):
         self.show_filename = s_f
+        self.detail = detail
 
     def render(self, dr_or_components) -> Table:
             table = Table(title="kigit diff")
@@ -129,8 +131,8 @@ class TableDiffRenderer(DiffResRenderer):
                                           str(len(components.getAdded())),
                                           str(len(components.getRemoved())),
                                           str(len(components.getModified())),
-                                          str(components.changes[0].origin))
-                return table
+                                          str(components.changes[0].origin))          
+            return table
 
 
     #same as render but allows for pagination at the cost of a hardcoded max table size
@@ -157,8 +159,8 @@ class TableDiffRenderer(DiffResRenderer):
             end = start + max_size
             chunk = source_list[start:end]
 
-
             page_table = Table(title=f"kigit diff (Page {current_page + 1}/{total_pages})")
+
             page_table.add_column("Part", justify="center", style="white")
             page_table.add_column("Added", justify="center", style="green")
             page_table.add_column("Removed", justify="center", style="red")
@@ -167,41 +169,47 @@ class TableDiffRenderer(DiffResRenderer):
             if self.show_filename:
                 page_table.add_column("Filename", justify="center", style="white")
 
-            if not self.show_filename:
-                for components in chunk:
-                    page_table.add_row(
-                        str(components.changes[0].reference),
-                        str(len(components.getAdded())),
-                        str(len(components.getRemoved())),
-                        str(len(components.getModified()))
-                    )
-            else:
-                for components in chunk:
-                    for entry in components.groupByComponent():
-                        page_table.add_row(
-                            str(entry.changes[0].reference),
-                            str(len(components.getAdded())),
-                            str(len(components.getRemoved())),
-                            str(len(components.getModified())),
-                            str(components.changes[0].origin)
-                        )
+            if self.detail:
+                page_table.add_column("Parameters", justify="left", style="purple")
 
-            # print chunk
+            for components in chunk:
+                groups = components.groupByComponent() if self.show_filename else [components]
+
+                for entry in groups:
+
+                    row = [
+                    str(entry.changes[0].reference),
+                    str(len(entry.getAdded())),
+                    str(len(entry.getRemoved())),
+                    str(len(entry.getModified()))
+                    ]
+
+                    if self.show_filename:
+                        row.append(entry.changes[0].origin)
+
+                    if self.detail:
+                        all_params = []
+                        for change in entry.changes:
+                            params = extract_parameters(change.component)
+                            # --detail
+                            if self.detail:
+                                for key, value in params.items():
+                                    all_params.append(f"{key}={value}")
+                        row.append("\n".join(all_params) if all_params else "-")
+                    page_table.add_row(*row)
             console.print(page_table)
 
-            # page select via CL
-            if not self.show_filename:
-                #the paging looks bad on an obviously short print
+            if total_pages <= 1:
                 break
 
-            print(f"\n[N]ext Page  |  [P]revious Page  |  [Q]uit")
-            user_input = input("Choose an option: ").strip().lower()
+            print("\n[N]ext | [P]revious | [Q]uit")
+            choice = input("> ").strip().lower()
 
-            if user_input == 'n' and current_page < total_pages - 1:
+            if choice == "n" and current_page < total_pages - 1:
                 current_page += 1
-            elif user_input == 'p' and current_page > 0:
+            elif choice == "p" and current_page > 0:
                 current_page -= 1
-            elif user_input == 'q':
+            elif choice == "q":
                 break
 
 
