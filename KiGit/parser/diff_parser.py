@@ -28,10 +28,14 @@ class KiCadDiffParser:
 		if not keyword:
 			return
 		old_elements = self._parse_elements(diff.a_blob, None, keyword)
-		new_elements = self._parse_elements(diff.b_blob, Path(working_tree_dir, diff.b_path) if working_tree_dir and diff.b_path else None, keyword)
+		new_elements = self._parse_elements(
+			diff.b_blob, 
+			Path(working_tree_dir, diff.b_path) if working_tree_dir and diff.b_path else None, 
+			keyword)
 		self._compare_elements(old_elements, new_elements, keyword, path)
 		
-	def _parse_elements(self, blob: Optional[IndexObject], fallback_path: Optional[Path], keyword: str) -> list[list[Any]]:
+	def _parse_elements(self, blob: Optional[IndexObject], 
+					 fallback_path: Optional[Path], keyword: str) -> list[list[Any]]:
 		text = self._read_text(blob, fallback_path)
 		if not text:
 			return []
@@ -48,7 +52,8 @@ class KiCadDiffParser:
 		return ""
 		
 
-	def _compare_elements(self, old_elems: list[list[Any]], new_elems: list[list[Any]], keyword: str, path: str):
+	def _compare_elements(self, old_elems: list[list[Any]], 
+					   new_elems: list[list[Any]], keyword: str, path: str):
 		"""Counting added, removed and modified elements of one specific keyword of a patched file"""
 
 		#preselection whats identical is not important
@@ -61,13 +66,21 @@ class KiCadDiffParser:
 
 		#everything else should be deleted or added
 		for old_el in unmatched_old:
-			self.diffres.addChange(BasicChange.ComponentRemoved(reference=keyword, origin=path, component=sexpdata.dumps(old_el)))
+			self.diffres.addChange(BasicChange.ComponentRemoved(
+				reference=keyword, 
+				origin=path, 
+				component=sexpdata.dumps(old_el)))
 
 		for new_el in unmatched_new:
-				self.diffres.addChange(BasicChange.ComponentAdded(reference=keyword, origin=path, component=sexpdata.dumps(new_el)))
+				self.diffres.addChange(BasicChange.ComponentAdded(
+					reference=keyword, 
+					origin=path, 
+					component=sexpdata.dumps(new_el)))
 
-	def _report_moved(self, unmatched_old: list[list[Any]], unmatched_new: list[list[Any]], keyword: str, path: str) -> None:
-		"""finds elements with same start or same endpoints and reports them as ComponentMoved or removes them out of both lists"""
+	def _report_moved(self, unmatched_old: list[list[Any]], 
+				   unmatched_new: list[list[Any]], keyword: str, path: str) -> None:
+		"""finds elements with same start or same endpoints 
+		and reports them as ComponentMoved or removes them out of both lists"""
 
 		for old_el in list(unmatched_old):
 			old_pts = self._extract_coordinates(old_el)
@@ -87,7 +100,8 @@ class KiCadDiffParser:
 			unmatched_old.remove(old_el)
 			unmatched_new.remove(new_el)
 
-	def _find_moved_match(self, old_pts: list[tuple[float, float]], candidates: list[list[Any]]) -> Optional[tuple[list[Any], list[tuple[float, float]]]]:
+	def _find_moved_match(self, old_pts: list[tuple[float, float]], 
+					   candidates: list[list[Any]]) -> Optional[tuple[list[Any], list[tuple[float, float]]]]:
 		"""searches in candidates one element which start or endpoints are the same to old_pts but not both!"""
 
 		for new_el in candidates:
