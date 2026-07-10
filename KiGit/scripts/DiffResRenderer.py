@@ -232,7 +232,9 @@ def render_diff(dr : d.DiffRes, renderer : DiffResRenderer):
         webbrowser.open("file://" + os.path.realpath(filename))
 
     elif isinstance(renderer, JsonDiffRenderer):
-        print(output)
+        from rich.console import Console
+        console = Console()
+        console.print(output)
 
     elif isinstance(renderer, TableDiffRenderer):
         renderer.render_paginated(dr)
