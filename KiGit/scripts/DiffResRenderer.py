@@ -144,7 +144,7 @@ class TableDiffRenderer(DiffResRenderer):
             source_list = list(dr.filterFile())
         else:
             source_list = list(dr.groupByComponent())
-
+        print("function called")
         # for page display
         total_pages = (len(source_list) + (max_size - 1)) // max_size
         current_page = 0
@@ -233,7 +233,7 @@ def render_diff(dr : d.DiffRes, renderer : DiffResRenderer):
             print(f"Downloaded succesfully under current working directory with the name: {filename}")
 
     elif isinstance(renderer, TableDiffRenderer):
-        renderer.render_paginated(dr)
+        renderer.render_paginated(dr,3)
 
 
 def call_status():
