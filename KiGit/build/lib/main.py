@@ -1,5 +1,5 @@
 import typer
-import os
+import os, sys
 import re
 import scripts.DiffResRenderer as renderer
 import scripts.BasicChange as bc
@@ -90,6 +90,13 @@ def diff(
         renderer.render_diff(stats, renderer.TableDiffRenderer(show_filename))
     elif output == renderer.OutputFormat.JSON:
         renderer.render_diff(stats, renderer.JsonDiffRenderer())
+        
+        if not sys.stdout.isatty(): #checks if output was redirected to a file
+            sys.stderr.write(
+                "\n[KiGit Warning] For Json Output\n"
+                "If you just redirected this output to a file using '>', Windows might force a UTF-16 BOM.\n"
+                "For a clean UTF-8 file, use: kigit diff -o json | Out-File -Encoding utf8 filename.json\n\n"
+            )
     elif output == renderer.OutputFormat.HTML:
         renderer.render_diff(stats, renderer.HTMLDiffRenderer(show_filename))
        
