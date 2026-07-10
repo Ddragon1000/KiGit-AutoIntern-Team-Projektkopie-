@@ -144,7 +144,7 @@ class TableDiffRenderer(DiffResRenderer):
             source_list = list(dr.filterFile())
         else:
             source_list = list(dr.groupByComponent())
-        print("function called")
+
         # for page display
         total_pages = (len(source_list) + (max_size - 1)) // max_size
         current_page = 0
@@ -157,8 +157,10 @@ class TableDiffRenderer(DiffResRenderer):
             end = start + max_size
             chunk = source_list[start:end]
 
-
-            page_table = Table(title=f"kigit diff (Page {current_page + 1}/{total_pages})")
+            if total_pages <= len(chunk):
+                page_table = Table(title=f"kigit diff")
+            else:
+                page_table = Table(title=f"kigit diff (Page {current_page + 1}/{total_pages})")
             page_table.add_column("Part", justify="center", style="white")
             page_table.add_column("Added", justify="center", style="green")
             page_table.add_column("Removed", justify="center", style="red")
@@ -190,19 +192,19 @@ class TableDiffRenderer(DiffResRenderer):
             console.print(page_table)
 
             # page select via CL
-            if not self.show_filename:
-                #the paging looks bad on an obviously short print
+            if not self.show_filename or total_pages <= len(chunk):
+                #the paging looks bad on an obviously short print and we do not want it on a single page
                 break
+            else:
+                print(f"\n[N]ext Page  |  [P]revious Page  |  [Q]uit")
+                user_input = input("Choose an option: ").strip().lower()
 
-            print(f"\n[N]ext Page  |  [P]revious Page  |  [Q]uit")
-            user_input = input("Choose an option: ").strip().lower()
-
-            if user_input == 'n' and current_page < total_pages - 1:
-                current_page += 1
-            elif user_input == 'p' and current_page > 0:
-                current_page -= 1
-            elif user_input == 'q':
-                break
+                if user_input == 'n' and current_page < total_pages - 1:
+                    current_page += 1
+                elif user_input == 'p' and current_page > 0:
+                    current_page -= 1
+                elif user_input == 'q':
+                    break
 
 
 def render_diff(dr : d.DiffRes, renderer : DiffResRenderer):
