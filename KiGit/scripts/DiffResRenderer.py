@@ -100,7 +100,8 @@ class TableDiffRenderer(DiffResRenderer):
 
     def __init__(self, s_f, detail=False):
         self.show_filename = s_f
-        self.detail = detail
+        # Convert multiple requests like --detail start,end,width into ["start", "end", "width"]
+        self.detail = [] if detail == "none" else [d.strip() for d in detail.split(",")]
 
     def render(self, dr_or_components) -> Table:
             table = Table(title="kigit diff")
@@ -166,7 +167,7 @@ class TableDiffRenderer(DiffResRenderer):
             page_table.add_column("Removed", justify="center", style="red")
             page_table.add_column("Modified", justify="center", style="yellow")
 
-            if self.detail != "none":
+            if self.detail:
                 page_table.add_column("Parameters", justify="left", style="Cyan")
 
             if self.show_filename:
@@ -183,18 +184,24 @@ class TableDiffRenderer(DiffResRenderer):
                     str(len(entry.getRemoved())),
                     str(len(entry.getModified()))
                     ]
-
+                    # only if user uses --detail * we have the column
                     if self.detail:
                         all_params = []
                         for change in entry.changes:
+                            # we extract all parameters from component
                             params = extract_parameters(change.component)
+                            #insert empty line to sapertate details of components
                             all_params.append("")
+                            # add either all or just requested detail
                             for key, value in params.items():
-                                if self.detail == "all":
+                                # we add all available parameters
+                                if "all" in self.detail:
                                     all_params.append(f"{key}={value}")
-                                elif key == self.detail:
-                                    all_params.append(str(value))
-                    if self.detail != "none":
+                                    #we display only selected parameters
+                                elif key in self.detail:
+                                    all_params.append(f"{key}={value}")
+                    #add parameter column 
+                    if self.detail:
                         row.append("\n".join(all_params) if all_params else "-")
                     
                     if self.show_filename:
