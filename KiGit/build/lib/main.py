@@ -36,7 +36,7 @@ def diff(
         args: Annotated[list[str] | None, typer.Argument(help="commit file or file or commit")] = None,
         show_filename: bool = typer.Option(False, help="Shows corresponding Filename in result"),
         output: renderer.OutputFormat = typer.Option(renderer.OutputFormat.TABLE, "--output", "-o", help="Output Format"),
-        detail: str = typer.Option("", "--detail", help="Filters detail screen"),
+        detail: str = typer.Option("none","--detail",help="Show all details or only a specific parameter."),
         debug: bool = typer.Option(False, help="enables Debug options")
         ):
     """Show changes between commits, commit and working tree and more for KiCad files"""
@@ -87,11 +87,11 @@ def diff(
         print(f"[DEBUG] {stats}")
 
     if output == renderer.OutputFormat.TABLE:
-        renderer.render_diff(stats, renderer.TableDiffRenderer(show_filename))
+        renderer.render_diff(stats, renderer.TableDiffRenderer(show_filename,detail))
     elif output == renderer.OutputFormat.JSON:
         renderer.render_diff(stats, renderer.JsonDiffRenderer())
     elif output == renderer.OutputFormat.HTML:
-        renderer.render_diff(stats, renderer.HTMLDiffRenderer(show_filename))
+        renderer.render_diff(stats, renderer.HTMLDiffRenderer(show_filename,detail))
        
 
 @app.command()

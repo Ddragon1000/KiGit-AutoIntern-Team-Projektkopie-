@@ -166,11 +166,11 @@ class TableDiffRenderer(DiffResRenderer):
             page_table.add_column("Removed", justify="center", style="red")
             page_table.add_column("Modified", justify="center", style="yellow")
 
+            if self.detail != "none":
+                page_table.add_column("Parameters", justify="left", style="Cyan")
+
             if self.show_filename:
                 page_table.add_column("Filename", justify="center", style="white")
-
-            if self.detail:
-                page_table.add_column("Parameters", justify="left", style="purple")
 
             for components in chunk:
                 groups = components.groupByComponent() if self.show_filename else [components]
@@ -184,19 +184,23 @@ class TableDiffRenderer(DiffResRenderer):
                     str(len(entry.getModified()))
                     ]
 
-                    if self.show_filename:
-                        row.append(entry.changes[0].origin)
-
                     if self.detail:
                         all_params = []
                         for change in entry.changes:
                             params = extract_parameters(change.component)
-                            # --detail
-                            if self.detail:
-                                for key, value in params.items():
+                            all_params.append("")
+                            for key, value in params.items():
+                                if self.detail == "all":
                                     all_params.append(f"{key}={value}")
+                                elif key == self.detail:
+                                    all_params.append(str(value))
+                    if self.detail != "none":
                         row.append("\n".join(all_params) if all_params else "-")
+                    
+                    if self.show_filename:
+                        row.append(entry.changes[0].origin)
                     page_table.add_row(*row)
+
             console.print(page_table)
 
             if total_pages <= 1:
