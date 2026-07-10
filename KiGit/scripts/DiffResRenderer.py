@@ -75,7 +75,7 @@ class HTMLDiffRenderer(DiffResRenderer):
     def __init__(self, s_f):
         self.show_filename = s_f
 
-    def render(self, dr: d.DiffRes) -> str:
+    def render_old(self, dr: d.DiffRes) -> str:
         html = "<html>\n<body>\n<h1>KiGit Report</h1>\n"
         html += f"<p><strong>Aenderungen gesamt:</strong> {len(dr.changes)}</p>\n"
         html += "<ul>\n" 
@@ -93,6 +93,26 @@ class HTMLDiffRenderer(DiffResRenderer):
                     html += f"  <li><strong>{part}</strong> (in {filename}) - Added: {len(entry.getAdded())} | Removed: {len(entry.getRemoved())} | Modified: {len(entry.getModified())}</li>\n"
 
         html += "</ul>\n</body>\n</html>"
+        return html
+    
+    def render(self, dr: d.DiffRes) -> str:
+        html = "<html>\n<body>\n<h1>KiGit Report</h1>\n"
+        html += f"<p><strong>Total Changes:</strong> {len(dr.changes)}</p>\n"
+        
+        
+        file_header = "<th>File</th>" if self.show_filename else ""
+        html += f"<table border='1'>\n  <tr><th>Component</th><th>Added</th><th>Removed</th><th>Modified</th>{file_header}</tr>\n"
+
+        if not self.show_filename:
+            for c in dr.groupByComponent():
+                html += f"  <tr><td>{c.changes[0].reference}</td><td>{len(c.getAdded())}</td><td>{len(c.getRemoved())}</td><td>{len(c.getModified())}</td></tr>\n"
+        else:
+            for file_c in dr.filterFile():
+                filename = file_c.changes[0].origin
+                for c in file_c.groupByComponent():
+                    html += f"  <tr><td>{c.changes[0].reference}</td><td>{len(c.getAdded())}</td><td>{len(c.getRemoved())}</td><td>{len(c.getModified())}</td><td>{filename}</td></tr>\n"
+
+        html += "</table>\n</body>\n</html>"
         return html
     
 class TableDiffRenderer(DiffResRenderer):
