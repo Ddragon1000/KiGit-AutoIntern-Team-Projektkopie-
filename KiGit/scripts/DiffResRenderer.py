@@ -1,4 +1,4 @@
-from scripts.helper import extract_parameters
+from scripts.helper import extract_parameters, format_parameters, filter_parameters
 import os
 import json
 import scripts.DiffRes as d
@@ -22,6 +22,10 @@ class DiffResRenderer(ABC):
         pass
 
 class JsonDiffRenderer(DiffResRenderer):
+
+    def __init__(self, detail="none"):
+        self.detail = [] if detail == "none" else [d.strip() for d in detail.split(",")]
+
     def render(self, dr : d.DiffRes) -> str:
 
         summary = {
@@ -51,11 +55,16 @@ class JsonDiffRenderer(DiffResRenderer):
                 type = "removed"
             case _:
                 type = "modified"
-        
-        return {
+
+        change_json = {
             "type": type,
             "element": change.reference
         }
+        params = filter_parameters(extract_parameters(change.component),self.detail)
+        if params:
+            change_json["parameters"] = params
+        
+        return change_json
     
     def detailed_render(self, dr: d.DiffRes) -> str:
         files_dict = {}
@@ -73,26 +82,37 @@ class JsonDiffRenderer(DiffResRenderer):
            
 class HTMLDiffRenderer(DiffResRenderer):
 
-    def __init__(self, s_f):
+    def __init__(self, s_f, detail="none"):
         self.show_filename = s_f
+        self.detail = [] if detail == "none" else [d.strip() for d in detail.split(",")]
 
     def render(self, dr: d.DiffRes) -> str:
         html = "<html>\n<body>\n<h1>KiGit Report</h1>\n"
         html += f"<p><strong>Aenderungen gesamt:</strong> {len(dr.changes)}</p>\n"
         html += "<ul>\n" 
 
+
         if not self.show_filename:
             for components in dr.groupByComponent():
                 part = components.changes[0].reference
-                html += f"  <li><strong>{part}</strong> - Added: {len(components.getAdded())} | Removed: {len(components.getRemoved())} | Modified: {len(components.getModified())}</li>\n"
-        
+                html += f"  <li><strong>{part}</strong> - Added: {len(components.getAdded())} | Removed: {len(components.getRemoved())} | Modified: {len(components.getModified())}"                
+                if self.detail:
+                    html += "<br><pre>"
+                    html += format_parameters(components.changes, self.detail)
+                    html += "</pre>"
+                html += "</li>\n"
+                
         else:
             for components in dr.filterFile():
                 filename = components.changes[0].origin
                 for entry in components.groupByComponent():
                     part = entry.changes[0].reference
-                    html += f"  <li><strong>{part}</strong> (in {filename}) - Added: {len(entry.getAdded())} | Removed: {len(entry.getRemoved())} | Modified: {len(entry.getModified())}</li>\n"
-
+                    html += f"  <li><strong>{part}</strong> (in {filename}) - Added: {len(entry.getAdded())} | Removed: {len(entry.getRemoved())} | Modified: {len(entry.getModified())}"
+                    if self.detail:
+                        html += "<br><pre>"
+                        html += format_parameters(components.changes, self.detail)
+                        html += "</pre>"
+                    html += "</li>\n"
         html += "</ul>\n</body>\n</html>"
         return html
     
@@ -186,23 +206,7 @@ class TableDiffRenderer(DiffResRenderer):
                     ]
                     # only if user uses --detail * we have the column
                     if self.detail:
-                        all_params = []
-                        for change in entry.changes:
-                            # we extract all parameters from component
-                            params = extract_parameters(change.component)
-                            #insert empty line to sapertate details of components
-                            all_params.append("")
-                            # add either all or just requested detail
-                            for key, value in params.items():
-                                # we add all available parameters
-                                if "all" in self.detail:
-                                    all_params.append(f"{key}={value}")
-                                    #we display only selected parameters
-                                elif key in self.detail:
-                                    all_params.append(f"{key}={value}")
-                    #add parameter column 
-                    if self.detail:
-                        row.append("\n".join(all_params) if all_params else "-")
+                        row.append(format_parameters(entry.changes, self.detail))
                     
                     if self.show_filename:
                         row.append(entry.changes[0].origin)

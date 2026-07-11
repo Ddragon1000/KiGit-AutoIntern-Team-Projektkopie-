@@ -89,7 +89,7 @@ def diff(
     if output == renderer.OutputFormat.TABLE:
         renderer.render_diff(stats, renderer.TableDiffRenderer(show_filename,detail))
     elif output == renderer.OutputFormat.JSON:
-        renderer.render_diff(stats, renderer.JsonDiffRenderer())
+        renderer.render_diff(stats, renderer.JsonDiffRenderer(detail))
     elif output == renderer.OutputFormat.HTML:
         renderer.render_diff(stats, renderer.HTMLDiffRenderer(show_filename,detail))
        
