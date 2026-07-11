@@ -3,6 +3,7 @@ import os
 import re
 import scripts.DiffResRenderer as renderer
 import scripts.BasicChange as bc
+import subprocess
 from rich.console import Console
 from rich.table import Table
 from parser.diff_parser import KiCadDiffParser
@@ -70,6 +71,13 @@ def diff(
     gitmanager = GitManager(cwd)
 
     parser = KiCadDiffParser()
+
+    sch_files = [f for f in os.listdir(gitmanager.repo.working_tree_dir) 
+                 if os.path.isfile(os.path.join(gitmanager.repo.working_tree_dir, f)) and re.search("_sch$", f)]
+    pcb_files = [f for f in os.listdir(gitmanager.repo.working_tree_dir) 
+                 if os.path.isfile(os.path.join(gitmanager.repo.working_tree_dir, f)) and re.search("_pcb$", f)]
+    
+    faultyFileDetection(sch_files, pcb_files)
     
     diff_result = gitmanager.diff(commit[0], commit[1], file)
 
@@ -105,5 +113,28 @@ def quick_status():
     status = gitmanager.get_change_status()
     print("There are current changes" if status else "No changes at the moment")
 
+
+def faultyFileDetection(sch_files, pcb_files):
+    #faulty file detection
+    for file in sch_files:
+        args = ["kicad-cli", "sch", "erc", file]
+
+        result = subprocess.run(args, capture_output=True, check=False, text=True)
+
+        if result.stdout == "Failed to load schematic":
+            print("Kicad sch file {file} is faulty!")
+
+    for file in pcb_files:
+        args = ["kicad-cli", "pcb", "drc", file]
+
+        result = subprocess.run(args, capture_output=True, check=False, text=True)
+
+        if result.stdout == "Failed to load schematic":
+            print("Kicad PCB file {file} is faulty!")
+
+
+
+
 if __name__ == "__main__":
     app()
+

@@ -119,7 +119,7 @@ def faultyFileDetection(sch_files, pcb_files):
     for file in sch_files:
         args = ["kicad-cli", "sch", "erc", file]
 
-        result = subprocess.run(args, capture_output=True, check=True, text=True)
+        result = subprocess.run(args, capture_output=True, check=False, text=True)
 
         if result.stdout == "Failed to load schematic":
             print("Kicad sch file {file} is faulty!")
@@ -127,7 +127,7 @@ def faultyFileDetection(sch_files, pcb_files):
     for file in pcb_files:
         args = ["kicad-cli", "pcb", "drc", file]
 
-        result = subprocess.run(args, capture_output=True, check=True, text=True)
+        result = subprocess.run(args, capture_output=True, check=False, text=True)
 
         if result.stdout == "Failed to load schematic":
             print("Kicad PCB file {file} is faulty!")
