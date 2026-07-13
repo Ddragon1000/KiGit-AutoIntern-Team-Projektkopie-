@@ -1,7 +1,6 @@
 import typer
 import os
 import re
-import time
 import scripts.DiffResRenderer as renderer
 import scripts.BasicChange as bc
 from rich.console import Console
@@ -78,8 +77,6 @@ def diff(
     ffresult = 0
     if erc_drc_check or faulty_file_check:
         ffresult = faultyFileDetection(erc_drc_check, faulty_file_check)
-
-    time.sleep(3)
 
     if ffresult == -1:
         print("Command aborted!")
