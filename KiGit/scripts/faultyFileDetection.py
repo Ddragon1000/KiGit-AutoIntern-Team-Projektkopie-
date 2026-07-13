@@ -12,6 +12,7 @@ def faultyFileDetection() -> int:
     #faulty file detection
     
     gitmanager = GitManager(cwd)
+    faultyFile = False
     
     sch_files = [f for f in os.listdir(gitmanager.repo.working_tree_dir) 
                  if os.path.isfile(os.path.join(gitmanager.repo.working_tree_dir, f)) and re.search("_sch$", f)]
@@ -23,23 +24,26 @@ def faultyFileDetection() -> int:
 
         result = subprocess.run(args, capture_output=True, check=False, text=True)
 
-        if result.stdout == "Failed to load schematic":
-            print("Kicad sch file {file} is faulty!")
-            return -1
+        if result.stderr == "Failed to load schematic\n":
+            print(f"Kicad sch file \"{file}\" is faulty!")
+            faultyFile = True
         else:
-            print("ERC check: \n{result.stdout}")
+            print(f"ERC check: \n{result.stdout}")
 
     for file in pcb_files:
         args = ["kicad-cli", "pcb", "drc", file]
 
         result = subprocess.run(args, capture_output=True, check=False, text=True)
 
-        if result.stdout == "Failed to load schematic":
-            print("Kicad PCB file {file} is faulty!")
-            return -1
+        if result.stderr == "Failed to load board\n":
+            print(f"Kicad PCB file \"{file}\" is faulty!")
+            faultyFile = True
         else: 
-            print("DRC check: \n{result.stdout}")
+            print(f"DRC check: \n{result.stdout}")
         
-    return 0
+    if faultyFile == True:
+        return -1
+    else:
+        return 0
     
 

@@ -1,14 +1,15 @@
 import typer
 import os
 import re
+import time
 import scripts.DiffResRenderer as renderer
 import scripts.BasicChange as bc
-import subprocess
 from rich.console import Console
 from rich.table import Table
 from parser.diff_parser import KiCadDiffParser
 from scripts.commands import GitManager
 from typing import Annotated
+from scripts.faultyFileDetection import faultyFileDetection
 
 app = typer.Typer(
     name="KiGit",
@@ -71,35 +72,36 @@ def diff(
     gitmanager = GitManager(cwd)
 
     parser = KiCadDiffParser()
-
-    sch_files = [f for f in os.listdir(gitmanager.repo.working_tree_dir) 
-                 if os.path.isfile(os.path.join(gitmanager.repo.working_tree_dir, f)) and re.search("_sch$", f)]
-    pcb_files = [f for f in os.listdir(gitmanager.repo.working_tree_dir) 
-                 if os.path.isfile(os.path.join(gitmanager.repo.working_tree_dir, f)) and re.search("_pcb$", f)]
     
-    faultyFileDetection(sch_files, pcb_files)
-    
-    diff_result = gitmanager.diff(commit[0], commit[1], file)
+    ffresult = faultyFileDetection()
 
-    if isinstance(diff_result, str):
-        print(f"[ERROR] Git: {diff_result}")
+    time.sleep(3)
+
+    if ffresult == -1:
+        print("Command is aborted!")
         raise typer.Exit(1)
-    else:
-        stats = parser.parse(diff_result, working_tree_dir=gitmanager.repo.working_tree_dir)
+    elif ffresult == 0:
+        diff_result = gitmanager.diff(commit[0], commit[1], file)
 
-    if stats.isEmpty():
-        typer.echo("No KiCad file changes detected")
-        raise typer.Exit(1)
+        if isinstance(diff_result, str):
+            print(f"[ERROR] Git: {diff_result}")
+            raise typer.Exit(1)
+        else:
+            stats = parser.parse(diff_result, working_tree_dir=gitmanager.repo.working_tree_dir)
 
-    if debug:
-        print(f"[DEBUG] {stats}")
+        if stats.isEmpty():
+            typer.echo("No KiCad file changes detected")
+            raise typer.Exit(1)
 
-    if output == renderer.OutputFormat.TABLE:
-        renderer.render_diff(stats, renderer.TableDiffRenderer(show_filename))
-    elif output == renderer.OutputFormat.JSON:
-        renderer.render_diff(stats, renderer.JsonDiffRenderer())
-    elif output == renderer.OutputFormat.HTML:
-        renderer.render_diff(stats, renderer.HTMLDiffRenderer(show_filename))
+        if debug:
+            print(f"[DEBUG] {stats}")
+
+        if output == renderer.OutputFormat.TABLE:
+            renderer.render_diff(stats, renderer.TableDiffRenderer(show_filename))
+        elif output == renderer.OutputFormat.JSON:
+            renderer.render_diff(stats, renderer.JsonDiffRenderer())
+        elif output == renderer.OutputFormat.HTML:
+            renderer.render_diff(stats, renderer.HTMLDiffRenderer(show_filename))
        
 
 @app.command()
@@ -112,25 +114,6 @@ def quick_status():
     gitmanager = GitManager(cwd)
     status = gitmanager.get_change_status()
     print("There are current changes" if status else "No changes at the moment")
-
-
-def faultyFileDetection(sch_files, pcb_files):
-    #faulty file detection
-    for file in sch_files:
-        args = ["kicad-cli", "sch", "erc", file]
-
-        result = subprocess.run(args, capture_output=True, check=False, text=True)
-
-        if result.stdout == "Failed to load schematic":
-            print("Kicad sch file {file} is faulty!")
-
-    for file in pcb_files:
-        args = ["kicad-cli", "pcb", "drc", file]
-
-        result = subprocess.run(args, capture_output=True, check=False, text=True)
-
-        if result.stdout == "Failed to load schematic":
-            print("Kicad PCB file {file} is faulty!")
 
 
 

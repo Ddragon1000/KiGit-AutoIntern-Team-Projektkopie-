@@ -1,6 +1,7 @@
 import typer
 import os
 import re
+import time
 import scripts.DiffResRenderer as renderer
 import scripts.BasicChange as bc
 from rich.console import Console
@@ -74,8 +75,10 @@ def diff(
     
     ffresult = faultyFileDetection()
 
+    time.sleep(3)
+
     if ffresult == -1:
-        print("Command is aborted!")
+        print("Command aborted!")
         raise typer.Exit(1)
     elif ffresult == 0:
         diff_result = gitmanager.diff(commit[0], commit[1], file)
