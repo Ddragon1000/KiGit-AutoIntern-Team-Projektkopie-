@@ -9,6 +9,8 @@ from parser.diff_parser import KiCadDiffParser
 from scripts.commands import GitManager
 from typing import Annotated
 
+Valid_details = {"all","start","end","width","layer","net","pts","stroke"}
+
 app = typer.Typer(
     name="KiGit",
     help=(
@@ -66,6 +68,18 @@ def diff(
             commit[1] = args[1]
             file = args[2]
 
+    # Validate the --detail input
+    requested = [] if detail == "none" else [d.strip() for d in detail.split(",")]
+    valid = []
+    invalid = []
+    for item in requested:
+        if item in Valid_details:
+            valid.append(item)
+        else:
+            invalid.append(item)
+    # Rebuild the detail string so we have only the valid parameters.
+    detail = ",".join(valid) if valid else "none"
+
     #object creation
     gitmanager = GitManager(cwd)
 
@@ -92,7 +106,17 @@ def diff(
         renderer.render_diff(stats, renderer.JsonDiffRenderer(detail))
     elif output == renderer.OutputFormat.HTML:
         renderer.render_diff(stats, renderer.HTMLDiffRenderer(show_filename,detail))
-       
+
+    if invalid:
+        print(
+            f"\nWarning: The following detail parameter(s) are not supported and were ignored: "
+            f"{', '.join(invalid)}"
+        )
+
+        if detail == "none":
+            print(
+                "No valid detail parameters were specified, therefore no parameter details were displayed."
+            )
 
 @app.command()
 def status():
