@@ -1,3 +1,4 @@
+import psutil
 import typer
 import os, sys
 import re
@@ -27,6 +28,16 @@ app = typer.Typer(
 console = Console()
 #`os.getcwd()` should be replaced by `Path.cwd()`
 cwd = os.getcwd()
+
+def isPowerShell():
+    process_id = os.getpid() #get ID from KiGit-Process
+    current_process = psutil.Process(process_id) #Object that has information about Process
+
+    for parent in current_process.parents(): #goes through object to find correct parent
+        parent_name = parent.name().lower()
+        if parent_name == "powershell.exe" or parent_name == "pwsh.exe":
+            return True 
+    return False
 
 #Boolean-typed positional argument in function definition debug:
 #Boolean positional value in function call typer.Option(False, ...)
@@ -90,12 +101,12 @@ def diff(
         renderer.render_diff(stats, renderer.TableDiffRenderer(show_filename))
     elif output == renderer.OutputFormat.JSON:
         renderer.render_diff(stats, renderer.JsonDiffRenderer())
-
-        if not sys.stdout.isatty(): #checks if output was redirected to a file
-            sys.stderr.write(
-                "\n[KiGit Warning] For Json Output\n"
-                "If you just redirected this output to a file using '>', Windows might force a UTF-16 BOM.\n"
-                "For a clean UTF-8 file, use: kigit diff -o json | Out-File -Encoding utf8 filename.json\n\n"
+        if (isPowerShell()):
+            if not sys.stdout.isatty(): #checks if output was redirected to a file
+                sys.stderr.write(
+                    "\n[KiGit Warning] For Json Output\n"
+                    "If you just redirected this output to a file using '>', Windows might force a UTF-16 BOM.\n"
+                    "For a clean UTF-8 file, use: kigit diff -o json | Out-File -Encoding utf8 filename.json\n\n"
             )
     elif output == renderer.OutputFormat.HTML:
         renderer.render_diff(stats, renderer.HTMLDiffRenderer(show_filename))
