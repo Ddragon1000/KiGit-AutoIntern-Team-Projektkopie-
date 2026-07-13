@@ -52,8 +52,8 @@ def format_parameters(changes, detail):
         if not match_params:
             continue
         # separate wires/segments
-        if all_params:
-            all_params.append("")
+       # if all_params:
+        #    all_params.append("")
         #add type 
         if isinstance(change, bc.ComponentAdded):
             all_params.append("[Added]")
@@ -62,6 +62,9 @@ def format_parameters(changes, detail):
         else:
             all_params.append("[Modified]")  
         all_params.extend(match_params)
+
+        if all_params:
+            all_params.append("")
     #formatted output getting returned 
     return "\n".join(all_params) if all_params else "-"
 
