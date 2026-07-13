@@ -1,4 +1,5 @@
 import sexpdata
+import scripts.BasicChange as bc
 
 def extract_parameters(element):
     # convert string into S-expression
@@ -41,16 +42,26 @@ def format_parameters(changes, detail):
     #we go thorugh components
     for change in changes:
         params = extract_parameters(change.component)
-
-        # separate wires/segments
-        if all_params:
-            all_params.append("")
+        match_params = []
         #we keep the requested detail parameters
         for key, value in params.items():
             if "all" in detail:
-                all_params.append(f"{key}={value}")
+                match_params.append(f"{key}={value}")
             elif key in detail:
-                all_params.append(f"{key}={value}")
+                match_params.append(f"{key}={value}")
+        if not match_params:
+            continue
+        # separate wires/segments
+        if all_params:
+            all_params.append("")
+        #add type 
+        if isinstance(change, bc.ComponentAdded):
+            all_params.append("[Added]")
+        elif isinstance(change, bc.ComponentRemoved):
+            all_params.append("[Removed]")
+        else:
+            all_params.append("[Modified]")  
+        all_params.extend(match_params)
     #formatted output getting returned 
     return "\n".join(all_params) if all_params else "-"
 
