@@ -2,22 +2,28 @@ import subprocess
 import os
 import re
 
+from kigit_globals.py import FILE_PARSERS
 from scripts.commands import GitManager
 
 
 cwd = os.getcwd()
 
 
-def faultyFileDetection(erc_drc_check, faulty_file_check) -> int:
+def faultyFileDetection(erc_drc_check, faulty_file_check) -> bool:
     #faulty file detection
     
     gitmanager = GitManager(cwd)
     faultyFile = False
+
+    kicad_files_endings = FILE_PARSERS.keys()
+
+    schematic = kicad_files_endings[0]
+    pcb = kicad_files_endings[1]
     
     sch_files = [f for f in os.listdir(gitmanager.repo.working_tree_dir) 
-                 if os.path.isfile(os.path.join(gitmanager.repo.working_tree_dir, f)) and re.search("_sch$", f)]
+                 if os.path.isfile(os.path.join(gitmanager.repo.working_tree_dir, f)) and re.search(f"{schematic}$", f)]
     pcb_files = [f for f in os.listdir(gitmanager.repo.working_tree_dir) 
-                 if os.path.isfile(os.path.join(gitmanager.repo.working_tree_dir, f)) and re.search("_pcb$", f)]
+                 if os.path.isfile(os.path.join(gitmanager.repo.working_tree_dir, f)) and re.search(f"{pcb}$", f)]
     
     if faulty_file_check:
         for file in sch_files:
@@ -25,7 +31,7 @@ def faultyFileDetection(erc_drc_check, faulty_file_check) -> int:
 
             result = subprocess.run(args, capture_output=True, check=False, text=True)
 
-            if result.stderr == "Failed to load schematic\n":
+            if result.stderr:
                 print(f"Kicad sch file \"{file}\" is faulty!")
                 faultyFile = True
             elif erc_drc_check:
@@ -38,7 +44,7 @@ def faultyFileDetection(erc_drc_check, faulty_file_check) -> int:
 
             result = subprocess.run(args, capture_output=True, check=False, text=True)
 
-            if result.stderr == "Failed to load board\n":
+            if result.stderr:
                 print(f"Kicad PCB file \"{file}\" is faulty!")
                 faultyFile = True
             elif erc_drc_check: 
@@ -46,10 +52,9 @@ def faultyFileDetection(erc_drc_check, faulty_file_check) -> int:
             else:
                 print("No faulty KiCad PCB files found!")
             
-        if faultyFile == True:
-            return -1
-        else:
-            return 0
+        return faultyFile
+
+
     elif erc_drc_check:
         for file in sch_files:
             args = ["kicad-cli", "sch", "erc", file]
@@ -64,6 +69,7 @@ def faultyFileDetection(erc_drc_check, faulty_file_check) -> int:
             result = subprocess.run(args, capture_output=True, check=False, text=True)
 
             print(f"DRC check: \n{result.stdout}")
+        
         return 0
 
 
