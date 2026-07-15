@@ -130,10 +130,11 @@ class TableDiffRenderer(DiffResRenderer):
 
             if self.show_filename:
                 for components in dr.filterFile():
-                    table.add_row(str(components.changes[0].reference),
-                                    str(len(components.getAdded())),
-                                    str(len(components.getRemoved())),
-                                    str(len(components.getModified())))
+                    for component in components.groupByComponent():
+                        table.add_row(str(component.changes[0].reference),
+                                        str(len(component.getAdded())),
+                                        str(len(component.getRemoved())),
+                                        str(len(component.getModified())))
             else:
                 for components in dr.groupByComponent():
                     table.add_row(str(components.changes[0].reference),
@@ -191,10 +192,10 @@ class TableDiffRenderer(DiffResRenderer):
                     for entry in components.groupByComponent():
                         page_table.add_row(
                             str(entry.changes[0].reference),
-                            str(len(components.getAdded())),
-                            str(len(components.getRemoved())),
-                            str(len(components.getModified())),
-                            str(components.changes[0].origin)
+                            str(len(entry.getAdded())),
+                            str(len(entry.getRemoved())),
+                            str(len(entry.getModified())),
+                            str(entry.changes[0].origin)
                         )
 
             # print chunk
