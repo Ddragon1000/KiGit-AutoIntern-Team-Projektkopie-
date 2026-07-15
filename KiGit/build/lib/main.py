@@ -1,7 +1,6 @@
 import typer
 import os
 import re
-import time
 import scripts.DiffResRenderer as renderer
 import scripts.BasicChange as bc
 from rich.console import Console
@@ -75,16 +74,14 @@ def diff(
 
     parser = KiCadDiffParser()
     
-    ffresult = 0
+    ffresult = False
     if erc_drc_check or faulty_file_check:
         ffresult = faultyFileDetection(erc_drc_check, faulty_file_check)
 
-    time.sleep(3)
-
-    if ffresult == -1:
+    if ffresult == True:
         print("Command aborted!")
         raise typer.Exit(1)
-    elif ffresult == 0:
+    else:
         diff_result = gitmanager.diff(commit[0], commit[1], file)
 
         if isinstance(diff_result, str):

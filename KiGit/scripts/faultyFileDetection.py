@@ -2,7 +2,7 @@ import subprocess
 import os
 import re
 
-from kigit_globals.py import FILE_PARSERS
+from kigit_globals import FILE_PARSERS
 from scripts.commands import GitManager
 
 
@@ -16,9 +16,18 @@ def faultyFileDetection(erc_drc_check, faulty_file_check) -> bool:
     faultyFile = False
 
     kicad_files_endings = FILE_PARSERS.keys()
+   
+    count = 0
+    schematic = None
+    pcb = None
 
-    schematic = kicad_files_endings[0]
-    pcb = kicad_files_endings[1]
+    for key in FILE_PARSERS.keys():
+        count += 1
+        if count == 1:
+            schematic = key
+        if count == 2:
+            pcb = key
+
     
     sch_files = [f for f in os.listdir(gitmanager.repo.working_tree_dir) 
                  if os.path.isfile(os.path.join(gitmanager.repo.working_tree_dir, f)) and re.search(f"{schematic}$", f)]
