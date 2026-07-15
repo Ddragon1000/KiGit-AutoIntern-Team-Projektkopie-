@@ -265,16 +265,20 @@ def call_status():
 class FaultyFileOutput:
 
     def __init__(self):
-        self.schematic_files : list[list[str, bool, bool]] = []
-        self.pcb_files : list[list[str, bool, bool]] = []
+        self.schematic_files : list[list[str, bool, bool, str]] = [] # list of lists that contain the output relevant information: 
+                                                                     #[file, faulty_file, erc_drc_check, result.stdout for erc_drc_check]
+        self.pcb_files : list[list[str, bool, bool, str]] = []
 
     def add_schematic(self, file_check: list[str, bool, bool, str]):
+        #adds a list object of relevant output information of a schematic file check to the schematic list of the class
         self.schematic_files.append(file_check)
 
     def add_pcb(self, file_check: list[str, bool, bool, str]):
+        #adds a list object of relevant output information of a pcb file check to the pcb list of the class
         self.pcb_files.append(file_check)
 
     def output(self):
+        #iterates through the schematic file list to output every file check
         for file in self.schematic_files:
             if file[1]:
                 print(f"Kicad sch file \"{file[0]}\" is faulty!")
@@ -284,6 +288,7 @@ class FaultyFileOutput:
                 print("No faulty Kicad schematic files found!")
 
         for file in self.pcb_files: 
+            #iterates through the pcb file list to output every file check
             if file[1]:
                 print(f"Kicad pcb file \"{file[0]}\" is faulty!")
             elif file[2]:

@@ -73,10 +73,14 @@ def diff(
     gitmanager = GitManager(cwd)
 
     parser = KiCadDiffParser()
+
+    faulty_file_output = renderer.FaultyFileOutput()
+
     
     ffresult = False
     if erc_drc_check or faulty_file_check:
-        ffresult = faultyFileDetection(erc_drc_check, faulty_file_check)
+        ffresult = faultyFileDetection(erc_drc_check, faulty_file_check, faulty_file_output)
+        faulty_file_output.output()
 
     if ffresult == True:
         print("Command aborted!")
