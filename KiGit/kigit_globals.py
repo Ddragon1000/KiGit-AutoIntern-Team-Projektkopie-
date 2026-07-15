@@ -1,8 +1,8 @@
 """Global variables"""
 
-FILE_PARSERS: dict[str, str] = {
-	".kicad_sch": "wire",
-	".kicad_pcb": "segment",
+FILE_PARSERS: dict[str, list[str]] = {
+	".kicad_sch": ["wire", "symbol"],
+	".kicad_pcb": ["segment"],
 	#later e.g.:
 	#".kicad_pcb": "via"
 }

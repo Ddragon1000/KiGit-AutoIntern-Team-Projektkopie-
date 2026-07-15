@@ -1,6 +1,6 @@
 import os
 import json
-import scripts.DiffRes as d
+import scripts.DiffRes as diffres
 import scripts.BasicChange as bc
 from scripts.commands import GitManager
 from enum import Enum
@@ -17,11 +17,11 @@ class OutputFormat(str, Enum):
 
 class DiffResRenderer(ABC):
     @abstractmethod
-    def render(self, dr : d.DiffRes): 
+    def render(self, dr : diffres.DiffRes): 
         pass
 
 class JsonDiffRenderer(DiffResRenderer):
-    def render(self, dr : d.DiffRes) -> str:
+    def render(self, dr : diffres.DiffRes) -> str:
         files_dict = {}
         summary = {
             "total_changes": len(dr.changes),
@@ -68,7 +68,7 @@ class JsonDiffRenderer(DiffResRenderer):
             "element": change.reference
         }
     
-    def detailed_render(self, dr: d.DiffRes) -> str:
+    def detailed_render(self, dr: diffres.DiffRes) -> str:
         files_dict = {}
 
         for components in dr.filterFile():
@@ -87,7 +87,7 @@ class HTMLDiffRenderer(DiffResRenderer):
     def __init__(self, s_f):
         self.show_filename = s_f
 
-    def render(self, dr: d.DiffRes) -> str:
+    def render(self, dr: diffres.DiffRes) -> str:
         html = "<html>\n<body>\n<h1>KiGit Report</h1>\n"
         html += f"<p><strong>Aenderungen gesamt:</strong> {len(dr.changes)}</p>\n"
         html += "<ul>\n" 
@@ -112,7 +112,7 @@ class TableDiffRenderer(DiffResRenderer):
     def __init__(self, s_f):
         self.show_filename = s_f
 
-    def render(self, dr_or_components) -> Table:
+    def render(self, dr: diffres.DiffRes) -> Table:
             table = Table(title="kigit diff")
             table.add_column("Part", justify="center", style="white")
             table.add_column("Added", justify="center", style="green")
@@ -122,31 +122,30 @@ class TableDiffRenderer(DiffResRenderer):
             if self.show_filename:
                 table.add_column("Filename", justify="center", style="white")
 
-                # Determine if we were given a full DiffRes object or already a list of components
-                if hasattr(dr_or_components, 'groupByComponent'):
-                    components_iterable = dr_or_components.groupByComponent() if not self.show_filename else dr_or_components.filterFile()
-                else:
-                    components_iterable = dr_or_components
+            # Determine if we were given a full DiffRes object or already a list of components
+            #if hasattr(dr_or_components, 'groupByComponent'):
+                #components_iterable = dr_or_components.groupByComponent() if not self.show_filename else dr_or_components.filterFile()
+            #else:
+                #components_iterable = dr_or_components
 
-                if not self.show_filename:
-                    for components in components_iterable:
-                        table.add_row(str(components.changes[0].reference),
-                                      str(len(components.getAdded())),
-                                      str(len(components.getRemoved())),
-                                      str(len(components.getModified())))
-                else:
-                    for components in components_iterable:
-                        for entry in components.groupByComponent(): #Q: why is this here, is it not the same to the one above?
-                            table.add_row(str(entry.changes[0].reference),
-                                          str(len(components.getAdded())),
-                                          str(len(components.getRemoved())),
-                                          str(len(components.getModified())),
-                                          str(components.changes[0].origin))
-                return table
+            if self.show_filename:
+                for components in dr.filterFile():
+                    table.add_row(str(components.changes[0].reference),
+                                    str(len(components.getAdded())),
+                                    str(len(components.getRemoved())),
+                                    str(len(components.getModified())))
+            else:
+                for components in dr.groupByComponent():
+                    table.add_row(str(components.changes[0].reference),
+                                        str(len(components.getAdded())),
+                                        str(len(components.getRemoved())),
+                                        str(len(components.getModified())),
+                                        str(components.changes[0].origin))
+            return table
 
 
     #same as render but allows for pagination at the cost of a hardcoded max table size
-    def render_paginated(self, dr: d.DiffRes, max_size: int = 23):
+    def render_paginated(self, dr: diffres.DiffRes, max_size: int = 23):
         from rich.console import Console
         console = Console()
         #problem with doing it in renderdiff is that I could not call on "show_filename" which causes one or the other
@@ -217,7 +216,7 @@ class TableDiffRenderer(DiffResRenderer):
                 break
 
 
-def render_diff(dr : d.DiffRes, renderer : DiffResRenderer):
+def render_diff(dr : diffres.DiffRes, renderer : DiffResRenderer):
     output = renderer.render(dr)
 
     if isinstance(renderer,HTMLDiffRenderer):
