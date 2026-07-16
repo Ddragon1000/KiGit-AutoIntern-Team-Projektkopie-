@@ -7,6 +7,8 @@ from git import Blob, IndexObject
 from git.diff import Diff, DiffIndex
 from pathlib import Path
 from kigit_globals import FILE_PARSERS
+from kigit_globals import COORDINATE_LEN
+from kigit_globals import SEXP_BLOCK_CONTENTS
 
 class KiCadDiffParser:
 
@@ -84,7 +86,7 @@ class KiCadDiffParser:
 
 		for old_el in list(unmatched_old):
 			old_pts = self._extract_coordinates(old_el)
-			if len(old_pts) < 2:
+			if len(old_pts) < COORDINATE_LEN:
 				continue
 
 			match = self._find_moved_match(old_pts, unmatched_new)
@@ -106,7 +108,7 @@ class KiCadDiffParser:
 
 		for new_el in candidates:
 			new_pts = self._extract_coordinates(new_el)
-			if len(new_pts) < 2:
+			if len(new_pts) < COORDINATE_LEN:
 				continue
 
 			start_same = old_pts[0] == new_pts[0]
@@ -130,7 +132,7 @@ class KiCadDiffParser:
 
 		def search_xy(item):
 			if isinstance(item, list):
-				if len(item) >= 3 and item[0] == sexpdata.Symbol('xy'):
+				if len(item) >= SEXP_BLOCK_CONTENTS and item[0] == sexpdata.Symbol('xy'):
 					try:
 						coords.append((float(item[1]), float(item[2])))
 					except (ValueError, TypeError):
