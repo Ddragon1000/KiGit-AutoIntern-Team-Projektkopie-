@@ -146,7 +146,7 @@ class TableDiffRenderer(DiffResRenderer):
 
 
     #same as render but allows for pagination at the cost of a hardcoded max table size
-    def render_paginated(self, dr: d.DiffRes, max_size: int = 23):
+    def render_paginated(self, dr: d.DiffRes, max_size: int = 20):
         from rich.console import Console
         console = Console()
         #problem with doing it in renderdiff is that I could not call on "show_filename" which causes one or the other
@@ -169,8 +169,10 @@ class TableDiffRenderer(DiffResRenderer):
             end = start + max_size
             chunk = source_list[start:end]
 
-
-            page_table = Table(title=f"kigit diff (Page {current_page + 1}/{total_pages})")
+            if total_pages <= 1:
+                page_table = Table(title=f"kigit diff")
+            else:
+                page_table = Table(title=f"kigit diff (Page {current_page + 1}/{total_pages})")
             page_table.add_column("Part", justify="center", style="white")
             page_table.add_column("Added", justify="center", style="green")
             page_table.add_column("Removed", justify="center", style="red")
@@ -202,19 +204,19 @@ class TableDiffRenderer(DiffResRenderer):
             console.print(page_table)
 
             # page select via CL
-            if not self.show_filename:
-                #the paging looks bad on an obviously short print
+            if not self.show_filename or total_pages <= 1:
+                #the paging looks bad on an obviously short print and we do not want it on a single page
                 break
+            else:
+                print(f"\n[N]ext Page  |  [P]revious Page  |  [Q]uit")
+                user_input = input("Choose an option: ").strip().lower()
 
-            print(f"\n[N]ext Page  |  [P]revious Page  |  [Q]uit")
-            user_input = input("Choose an option: ").strip().lower()
-
-            if user_input == 'n' and current_page < total_pages - 1:
-                current_page += 1
-            elif user_input == 'p' and current_page > 0:
-                current_page -= 1
-            elif user_input == 'q':
-                break
+                if user_input == 'n' and current_page < total_pages - 1:
+                    current_page += 1
+                elif user_input == 'p' and current_page > 0:
+                    current_page -= 1
+                elif user_input == 'q':
+                    break
 
 
 def render_diff(dr : d.DiffRes, renderer : DiffResRenderer):
@@ -239,27 +241,57 @@ def render_diff(dr : d.DiffRes, renderer : DiffResRenderer):
         renderer.render_paginated(dr)
 
 
-def call_status():
+def call_status(max_size: int = 20):
     """Shows the KiGit status"""
     console = Console()
     gitmanager = GitManager(cwd)
 
     gitstatus = gitmanager.status()
 
+    status_array = gitstatus.splitlines()
+
+    # for page display
+    total_pages = (len(status_array) + (max_size - 1)) // max_size
+    current_page = 0
+
     if gitstatus:
-        status_array = gitstatus.splitlines()
+        while True:
+            console.clear()
 
-        table = Table(title="kigit status")
-        table.add_column("Staging Area", justify="center")
-        table.add_column("Working Directory", justify="center")
-        table.add_column("File", justify="center")
+            # data to create the chunk
+            start = current_page * max_size
+            end = start + max_size
+            chunk = status_array[start:end]
 
-        for line in status_array:
-            table.add_row(str(line[0]),
-                          str(line[1]),
-                          str(line[2:]))
+            if total_pages <= 1:
+                table = Table(title=f"kigit diff")
+            else:
+                table = Table(title=f"kigit status (Page {current_page + 1}/{total_pages})")
+            table.add_column("Staging Area", justify="center")
+            table.add_column("Working Directory", justify="center")
+            table.add_column("File", justify="center")
 
-        console.print(table)
+            for line in chunk:
+                table.add_row(str(line[0]),
+                              str(line[1]),
+                              str(line[2:]))
+
+            # print chunk
+            console.print(table)
+            if total_pages <= 1:
+                break
+            else:
+                print(f"\n[N]ext Page  |  [P]revious Page  |  [Q]uit")
+                user_input = input("Choose an option: ").strip().lower()
+
+                if user_input == 'n' and current_page < total_pages - 1:
+                    current_page += 1
+                elif user_input == 'p' and current_page > 0:
+                    current_page -= 1
+                elif user_input == 'q':
+                    break
+
+
     else:
         print("No current updates at the moment.")
 
