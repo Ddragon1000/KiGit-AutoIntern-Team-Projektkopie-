@@ -1,3 +1,4 @@
+import logging
 import psutil
 import typer
 import os, sys
@@ -8,6 +9,7 @@ from rich.console import Console
 from rich.table import Table
 from parser.diff_parser import KiCadDiffParser
 from scripts.commands import GitManager
+from scripts.logging_config import setup_logging
 from typing import Annotated
 
 app = typer.Typer(
@@ -28,6 +30,51 @@ app = typer.Typer(
 console = Console()
 #`os.getcwd()` should be replaced by `Path.cwd()`
 cwd = os.getcwd()
+
+logger = logging.getLogger(__name__)
+
+
+
+def version_callback(value: bool):
+    #from pathlib import Path
+    #import tomllib
+    import importlib.metadata
+    if value:
+        version = importlib.metadata.version("KiGit_AutoIntern-3")
+        #path = Path(__file__).resolve().parent / "pyproject.toml"
+        #
+        #with open(path, "rb") as f:
+        #    toml = tomllib.load(f)
+        #
+        #version = toml["project"]["version"]
+
+        typer.echo(f"Kigit Version: {version} \n"
+                   "Developers: Dennis Piotrowski, Jannick Tim Medda, Marcel Wiemann, Ismail Koc, Daniel Quayes, Adrian Sturm")
+        raise typer.Exit()
+
+
+@app.callback()
+def main(
+    verbose: Annotated[
+        int,
+        typer.Option(
+            "--verbose", "-v",
+            count = True,
+            help = "Verbosity, -v -v for more details"
+        )
+    ] = 0,
+    version: Annotated[
+        bool,
+        typer.Option(
+            "--version",
+            callback= version_callback,
+            is_eager= True,
+            help= "Developer and Version of Kigit"
+        ),
+    ] = False,
+): 
+    setup_logging(verbose)
+    logger.debug(f"logging configured with verbosity level {verbose}")
 
 def isPowerShell():
     parent_id = os.getpid()
@@ -53,6 +100,7 @@ def diff(
         ):
     """Show changes between commits, commit and working tree and more for KiCad files"""
 
+    logger.info("starting \"diff\"-command")
     #default values
     commit = ["HEAD", None]
     file = None
@@ -78,17 +126,22 @@ def diff(
             commit[1] = args[1]
             file = args[2]
 
+    logger.debug(f"parameters: commit={commit}, file={file}")
+
     #object creation
     gitmanager = GitManager(cwd)
+    logger.debug(f"initialized Gitmanager for: {cwd}")
 
     parser = KiCadDiffParser()
     
+    logger.debug(f"calling gitmanger.diff({commit[0]}), {commit[1]}, {file}")
     diff_result = gitmanager.diff(commit[0], commit[1], file)
 
     if isinstance(diff_result, str):
         print(f"[ERROR] Git: {diff_result}")
         raise typer.Exit(1)
     else:
+        logger.info("Parsing git-diff results")
         stats = parser.parse(diff_result, working_tree_dir=gitmanager.repo.working_tree_dir)
 
     if stats.isEmpty():
@@ -97,6 +150,8 @@ def diff(
 
     if debug:
         print(f"[DEBUG] {stats}")
+
+    logger.info(f"Rendering results in format: {output.value}")
 
     if output == renderer.OutputFormat.TABLE:
         renderer.render_diff(stats, renderer.TableDiffRenderer(show_filename))
@@ -115,11 +170,13 @@ def diff(
 
 @app.command()
 def status():
+    logger.info("starting \"status\"-command")
     renderer.call_status()
 #_ wird zu - in CLI
 @app.command()
 def quick_status():
     """Show a quick message of the status of your KiCad files in your Repository"""
+    logger.info("starting \"quick_status\"-command")
     gitmanager = GitManager(cwd)
     status = gitmanager.get_change_status()
     print("There are current changes" if status else "No changes at the moment")
