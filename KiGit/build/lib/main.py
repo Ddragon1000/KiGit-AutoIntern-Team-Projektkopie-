@@ -1,6 +1,7 @@
 import logging
+import psutil
 import typer
-import os
+import os, sys
 import re
 import scripts.DiffResRenderer as renderer
 import scripts.BasicChange as bc
@@ -75,6 +76,16 @@ def main(
     setup_logging(verbose)
     logger.debug(f"logging configured with verbosity level {verbose}")
 
+def isPowerShell():
+    parent_id = os.getpid()
+    curent_process = psutil.Process(parent_id)
+
+    for parent in curent_process.parents():
+        parent_name = parent.name().lower()
+        if parent_name == "powershell.exe":
+            return True
+        
+    return False
 
 #Boolean-typed positional argument in function definition debug:
 #Boolean positional value in function call typer.Option(False, ...)
@@ -145,7 +156,14 @@ def diff(
     if output == renderer.OutputFormat.TABLE:
         renderer.render_diff(stats, renderer.TableDiffRenderer(show_filename))
     elif output == renderer.OutputFormat.JSON:
-        renderer.render_diff(stats, renderer.JsonDiffRenderer())
+        #renderer.render_diff(stats, renderer.JsonDiffRenderer())
+        print(isPowerShell())
+        if not sys.stdout.isatty(): #checks if output was redirected to a file
+            sys.stderr.write(
+                "\n[KiGit Warning] For Json Output\n"
+                "If you just redirected this output to a file using '>', Windows might force a UTF-16 BOM.\n"
+                "For a clean UTF-8 file, use: kigit diff -o json | Out-File -Encoding utf8 filename.json\n\n"
+            )
     elif output == renderer.OutputFormat.HTML:
         renderer.render_diff(stats, renderer.HTMLDiffRenderer(show_filename))
        

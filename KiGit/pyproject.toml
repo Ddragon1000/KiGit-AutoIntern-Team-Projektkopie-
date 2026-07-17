@@ -10,6 +10,7 @@ dependencies = [
     "logging>=0.4.9.6",
     "mkdocs>=1.6.1",
     "mkdocstrings-python>=2.0.4",
+    "psutil>=7.2.2",
     "sexpdata>=1.0.2",
     "typer>=0.26.8",
 ]
