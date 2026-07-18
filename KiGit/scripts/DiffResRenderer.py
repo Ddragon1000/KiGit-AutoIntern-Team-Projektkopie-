@@ -119,7 +119,7 @@ class HTMLDiffRenderer(DiffResRenderer):
                         html += "<br><pre>"
                         html += format_parameters(components.changes, self.detail)
                         html += "</pre>"
-                    html += "</td><td>{filename}</td></tr>\n"
+                    html += f"</td><td>{filename}</td></tr>\n"
         html += "</table>\n</body>\n</html>"
         return html
     
@@ -201,25 +201,6 @@ class TableDiffRenderer(DiffResRenderer):
 
             if self.show_filename:
                 page_table.add_column("Filename", justify="center", style="white")
-
-            if not self.show_filename:
-                for components in chunk:
-                    page_table.add_row(
-                        str(components.changes[0].reference),
-                        str(len(components.getAdded())),
-                        str(len(components.getRemoved())),
-                        str(len(components.getModified()))
-                    )
-            else:
-                for components in chunk:
-                    for entry in components.groupByComponent():
-                        page_table.add_row(
-                            str(entry.changes[0].reference),
-                            str(len(entry.getAdded())),
-                            str(len(entry.getRemoved())),
-                            str(len(entry.getModified())),
-                            str(entry.changes[0].origin)
-                        )
 
             # print chunk
             for components in chunk:

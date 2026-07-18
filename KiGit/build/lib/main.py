@@ -38,18 +38,10 @@ logger = logging.getLogger(__name__)
 
 
 def version_callback(value: bool):
-    #from pathlib import Path
-    #import tomllib
     import importlib.metadata
     if value:
         version = importlib.metadata.version("KiGit_AutoIntern-3")
-        #path = Path(__file__).resolve().parent / "pyproject.toml"
-        #
-        #with open(path, "rb") as f:
-        #    toml = tomllib.load(f)
-        #
-        #version = toml["project"]["version"]
-
+        
         typer.echo(f"Kigit Version: {version} \n"
                    "Developers: Dennis Piotrowski, Jannick Tim Medda, Marcel Wiemann, Ismail Koc, Daniel Quayes, Adrian Sturm")
         raise typer.Exit()
