@@ -35,10 +35,13 @@ def faultyFileDetection(faulty_file_output: FaultyFileOutput) -> bool:
         drc_args = ["kicad-cli", "pcb", "drc", file]
 
         result = None
+
+        schematic = re.search(f"{file_endings["sch"]}$", file)
+        pcb = re.search(f"{file_endings["pcb"]}$", file)
         
-        if re.search(f"{file_endings["sch"]}$", file):    
+        if schematic:    
             result = subprocess.run(erc_args, capture_output=True, check=False, text=True)
-        if re.search(f"{file_endings["pcb"]}$", file):    
+        elif pcb:    
             result = subprocess.run(drc_args, capture_output=True, check=False, text=True)
 
         if result.stderr:
@@ -48,9 +51,9 @@ def faultyFileDetection(faulty_file_output: FaultyFileOutput) -> bool:
 
             file_check = [file, faulty, erc_drc_output] # list of output relevant information [file, faulty, result.stdout for erc_drc_check in this case none]
             
-            if re.search(f"{file_endings["sch"]}$", file):
+            if schematic:
                 faulty_file_output.add_schematic(file_check)
-            elif re.search(f"{file_endings["pcb"]}$", file):
+            elif pcb:
                 faulty_file_output.add_pcb(file_check)
 
             result.stderr = None
