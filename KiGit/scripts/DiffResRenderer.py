@@ -1,7 +1,7 @@
 from scripts.helper import extract_parameters, format_parameters, filter_parameters
 import os
 import json
-import scripts.DiffRes as d
+import scripts.DiffRes as diffres
 import scripts.BasicChange as bc
 from scripts.commands import GitManager
 from enum import Enum
@@ -18,7 +18,7 @@ class OutputFormat(str, Enum):
 
 class DiffResRenderer(ABC):
     @abstractmethod
-    def render(self, dr : d.DiffRes): 
+    def render(self, dr : diffres.DiffRes): 
         pass
 
 class JsonDiffRenderer(DiffResRenderer):
@@ -26,8 +26,8 @@ class JsonDiffRenderer(DiffResRenderer):
     def __init__(self, detail="none"):
         self.detail = [] if detail == "none" else [d.strip() for d in detail.split(",")]
 
-    def render(self, dr : d.DiffRes) -> str:
-
+    def render(self, dr : diffres.DiffRes) -> str:
+        files_dict = {}
         summary = {
             "total_changes": len(dr.changes),
             "files": {}
@@ -42,9 +42,21 @@ class JsonDiffRenderer(DiffResRenderer):
                 "removed": len(dr.getRemoved()),
                 "modified": len(dr.getModified())
             }
+        
+        
+        for components in dr.filterFile():
+            filename = components.changes[0].origin
+            file_changes = [
+                self._serialize_change(change)
+                for change in components.changes
+            ]
+            
+            files_dict[filename] = file_changes
+        
+
 
         
-        return json.dumps({"summary": summary}, indent=2, ensure_ascii=False)
+        return json.dumps({"summary": summary, "files": files_dict}, indent=2, ensure_ascii=False)
     
     def _serialize_change(self, change : bc.BasicChange) -> dict[str, object]:
         name = change.__class__.__name__
@@ -66,7 +78,7 @@ class JsonDiffRenderer(DiffResRenderer):
         
         return change_json
     
-    def detailed_render(self, dr: d.DiffRes) -> str:
+    def detailed_render(self, dr: diffres.DiffRes) -> str:
         files_dict = {}
 
         for components in dr.filterFile():
@@ -86,34 +98,29 @@ class HTMLDiffRenderer(DiffResRenderer):
         self.show_filename = s_f
         self.detail = [] if detail == "none" else [d.strip() for d in detail.split(",")]
 
-    def render(self, dr: d.DiffRes) -> str:
+    def render(self, dr: diffres.DiffRes) -> str:
         html = "<html>\n<body>\n<h1>KiGit Report</h1>\n"
-        html += f"<p><strong>Aenderungen gesamt:</strong> {len(dr.changes)}</p>\n"
-        html += "<ul>\n" 
+        html += f"<p><strong>Total Changes:</strong> {len(dr.changes)}</p>\n"
+        
+        
+        file_header = "<th>File</th>" if self.show_filename else ""
+        html += f"<table border='1'>\n  <tr><th>Component</th><th>Added</th><th>Removed</th><th>Modified</th>{file_header}</tr>\n"
 
 
         if not self.show_filename:
             for components in dr.groupByComponent():
-                part = components.changes[0].reference
-                html += f"  <li><strong>{part}</strong> - Added: {len(components.getAdded())} | Removed: {len(components.getRemoved())} | Modified: {len(components.getModified())}"                
-                if self.detail:
-                    html += "<br><pre>"
-                    html += format_parameters(components.changes, self.detail)
-                    html += "</pre>"
-                html += "</li>\n"
-                
+                html += f"  <tr><td>{components.changes[0].reference}</td><td>{len(components.getAdded())}</td><td>{len(components.getRemoved())}</td><td>{len(components.getModified())}</td></tr>\n"
         else:
-            for components in dr.filterFile():
-                filename = components.changes[0].origin
-                for entry in components.groupByComponent():
-                    part = entry.changes[0].reference
-                    html += f"  <li><strong>{part}</strong> (in {filename}) - Added: {len(entry.getAdded())} | Removed: {len(entry.getRemoved())} | Modified: {len(entry.getModified())}"
+            for file_components in dr.filterFile():
+                filename = file_components.changes[0].origin
+                for components in file_components.groupByComponent():
+                    html += f"  <tr><td>{components.changes[0].reference}</td><td>{len(components.getAdded())}</td><td>{len(components.getRemoved())}</td><td>{len(components.getModified())}"
                     if self.detail:
                         html += "<br><pre>"
                         html += format_parameters(components.changes, self.detail)
                         html += "</pre>"
-                    html += "</li>\n"
-        html += "</ul>\n</body>\n</html>"
+                    html += "</td><td>{filename}</td></tr>\n"
+        html += "</table>\n</body>\n</html>"
         return html
     
 class TableDiffRenderer(DiffResRenderer):
@@ -123,7 +130,7 @@ class TableDiffRenderer(DiffResRenderer):
         # Convert multiple requests like --detail start,end,width into ["start", "end", "width"]
         self.detail = [] if detail == "none" else [d.strip() for d in detail.split(",")]
 
-    def render(self, dr_or_components) -> Table:
+    def render(self, dr: diffres.DiffRes) -> Table:
             table = Table(title="kigit diff")
             table.add_column("Part", justify="center", style="white")
             table.add_column("Added", justify="center", style="green")
@@ -133,31 +140,31 @@ class TableDiffRenderer(DiffResRenderer):
             if self.show_filename:
                 table.add_column("Filename", justify="center", style="white")
 
-                # Determine if we were given a full DiffRes object or already a list of components
-                if hasattr(dr_or_components, 'groupByComponent'):
-                    components_iterable = dr_or_components.groupByComponent() if not self.show_filename else dr_or_components.filterFile()
-                else:
-                    components_iterable = dr_or_components
+            # Determine if we were given a full DiffRes object or already a list of components
+            #if hasattr(dr_or_components, 'groupByComponent'):
+                #components_iterable = dr_or_components.groupByComponent() if not self.show_filename else dr_or_components.filterFile()
+            #else:
+                #components_iterable = dr_or_components
 
-                if not self.show_filename:
-                    for components in components_iterable:
-                        table.add_row(str(components.changes[0].reference),
-                                      str(len(components.getAdded())),
-                                      str(len(components.getRemoved())),
-                                      str(len(components.getModified())))
-                else:
-                    for components in components_iterable:
-                        for entry in components.groupByComponent(): #Q: why is this here, is it not the same to the one above?
-                            table.add_row(str(entry.changes[0].reference),
-                                          str(len(components.getAdded())),
-                                          str(len(components.getRemoved())),
-                                          str(len(components.getModified())),
-                                          str(components.changes[0].origin))          
+            if self.show_filename:
+                for components in dr.filterFile():
+                    for component in components.groupByComponent():
+                        table.add_row(str(component.changes[0].reference),
+                                        str(len(component.getAdded())),
+                                        str(len(component.getRemoved())),
+                                        str(len(component.getModified())))
+            else:
+                for components in dr.groupByComponent():
+                    table.add_row(str(components.changes[0].reference),
+                                        str(len(components.getAdded())),
+                                        str(len(components.getRemoved())),
+                                        str(len(components.getModified())),
+                                        str(components.changes[0].origin))
             return table
 
 
     #same as render but allows for pagination at the cost of a hardcoded max table size
-    def render_paginated(self, dr: d.DiffRes, max_size: int = 23):
+    def render_paginated(self, dr: diffres.DiffRes, max_size: int = 23):
         from rich.console import Console
         console = Console()
         #problem with doing it in renderdiff is that I could not call on "show_filename" which causes one or the other
@@ -179,8 +186,10 @@ class TableDiffRenderer(DiffResRenderer):
             start = current_page * max_size
             end = start + max_size
             chunk = source_list[start:end]
-
-            page_table = Table(title=f"kigit diff (Page {current_page + 1}/{total_pages})")
+            if total_pages <= 1:
+                page_table = Table(title=f"kigit diff")
+            else:
+                page_table = Table(title=f"kigit diff (Page {current_page + 1}/{total_pages})")
 
             page_table.add_column("Part", justify="center", style="white")
             page_table.add_column("Added", justify="center", style="green")
@@ -193,6 +202,26 @@ class TableDiffRenderer(DiffResRenderer):
             if self.show_filename:
                 page_table.add_column("Filename", justify="center", style="white")
 
+            if not self.show_filename:
+                for components in chunk:
+                    page_table.add_row(
+                        str(components.changes[0].reference),
+                        str(len(components.getAdded())),
+                        str(len(components.getRemoved())),
+                        str(len(components.getModified()))
+                    )
+            else:
+                for components in chunk:
+                    for entry in components.groupByComponent():
+                        page_table.add_row(
+                            str(entry.changes[0].reference),
+                            str(len(entry.getAdded())),
+                            str(len(entry.getRemoved())),
+                            str(len(entry.getModified())),
+                            str(entry.changes[0].origin)
+                        )
+
+            # print chunk
             for components in chunk:
                 groups = components.groupByComponent() if self.show_filename else [components]
 
@@ -214,21 +243,23 @@ class TableDiffRenderer(DiffResRenderer):
 
             console.print(page_table)
 
-            if total_pages <= 1:
+            # page select via CL
+            if not self.show_filename or total_pages <= 1:
+                #the paging looks bad on an obviously short print and we do not want it on a single page
                 break
+            else:
+                print("\n[N]ext | [P]revious | [Q]uit")
+                choice = input("> ").strip().lower()
 
-            print("\n[N]ext | [P]revious | [Q]uit")
-            choice = input("> ").strip().lower()
-
-            if choice == "n" and current_page < total_pages - 1:
-                current_page += 1
-            elif choice == "p" and current_page > 0:
-                current_page -= 1
-            elif choice == "q":
-                break
+                if choice == "n" and current_page < total_pages - 1:
+                    current_page += 1
+                elif choice == "p" and current_page > 0:
+                    current_page -= 1
+                elif choice == "q":
+                    break
 
 
-def render_diff(dr : d.DiffRes, renderer : DiffResRenderer):
+def render_diff(dr : diffres.DiffRes, renderer : DiffResRenderer):
     output = renderer.render(dr)
 
     if isinstance(renderer,HTMLDiffRenderer):
@@ -243,43 +274,64 @@ def render_diff(dr : d.DiffRes, renderer : DiffResRenderer):
         webbrowser.open("file://" + os.path.realpath(filename))
 
     elif isinstance(renderer, JsonDiffRenderer):
-        print(output)
-        
-        from rich.prompt import Confirm
-        if Confirm.ask("Do you want to download a detailed JSON-file?"):
-            detailed = renderer.detailed_render(dr)
-
-            filename = "kigit_diff.json"
-            with open(filename, "w", encoding="utf-8") as f:
-                f.write(detailed)
-            
-            print(f"Downloaded succesfully under current working directory with the name: {filename}")
+        console = Console()
+        console.print(output)
 
     elif isinstance(renderer, TableDiffRenderer):
         renderer.render_paginated(dr)
 
 
-def call_status():
+def call_status(max_size: int = 20):
     """Shows the KiGit status"""
     console = Console()
     gitmanager = GitManager(cwd)
 
     gitstatus = gitmanager.status()
 
+    status_array = gitstatus.splitlines()
+
+    # for page display
+    total_pages = (len(status_array) + (max_size - 1)) // max_size
+    current_page = 0
+
     if gitstatus:
-        status_array = gitstatus.splitlines()
+        while True:
+            console.clear()
 
-        table = Table(title="kigit status")
-        table.add_column("Staging Area", justify="center")
-        table.add_column("Working Directory", justify="center")
-        table.add_column("File", justify="center")
+            # data to create the chunk
+            start = current_page * max_size
+            end = start + max_size
+            chunk = status_array[start:end]
 
-        for line in status_array:
-            table.add_row(str(line[0]),
-                          str(line[1]),
-                          str(line[2:]))
+            if total_pages <= 1:
+                table = Table(title=f"kigit diff")
+            else:
+                table = Table(title=f"kigit status (Page {current_page + 1}/{total_pages})")
+            table.add_column("Staging Area", justify="center")
+            table.add_column("Working Directory", justify="center")
+            table.add_column("File", justify="center")
 
-        console.print(table)
+            for line in chunk:
+                table.add_row(str(line[0]),
+                              str(line[1]),
+                              str(line[2:]))
+
+            # print chunk
+            console.print(table)
+            if total_pages <= 1:
+                break
+            else:
+                print(f"\n[N]ext Page  |  [P]revious Page  |  [Q]uit")
+                user_input = input("Choose an option: ").strip().lower()
+
+                if user_input == 'n' and current_page < total_pages - 1:
+                    current_page += 1
+                elif user_input == 'p' and current_page > 0:
+                    current_page -= 1
+                elif user_input == 'q':
+                    break
+
+
     else:
         print("No current updates at the moment.")
 

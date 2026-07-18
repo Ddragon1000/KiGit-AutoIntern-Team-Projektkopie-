@@ -21,8 +21,8 @@ class KiCadDiffParser:
 
 		for diff in diff_index:
 			path = diff.b_path or diff.a_path
-			keyword = self._get_keyword(path)
-			if not keyword:
+			keywords = self._get_keywords(path)
+			if not keywords:
 				continue #unknown file -> ignore
 			#get blobs from gitpython
 			old_text = diff.a_blob.data_stream.read().decode("utf-8") if diff.a_blob else ""
@@ -35,25 +35,28 @@ class KiCadDiffParser:
 			else:
 				new_text = ""
 			
-			#parse python lists
 			old_sexp = sexpdata.loads(old_text) if old_text else []
 			new_sexp = sexpdata.loads(new_text) if new_text else []
 
-			#filter relevant elements
-			key_symbol = sexpdata.Symbol(keyword)
-			old_elements = [item for item in old_sexp if isinstance(item, list) and item[0] == key_symbol]
-			new_elements = [item for item in new_sexp if isinstance(item, list) and item[0] == key_symbol]
+			#parse python lists for each keyword
+			for keyword in keywords:
+				key_symbol = sexpdata.Symbol(keyword)
 
-			#compare symnatic for added, removed, modified
-			self._compare_elements(old_elements, new_elements, keyword, path)
+				#filter relevant elements
+				key_symbol = sexpdata.Symbol(keyword)
+				old_elements = [item for item in old_sexp if isinstance(item, list) and item[0] == key_symbol]
+				new_elements = [item for item in new_sexp if isinstance(item, list) and item[0] == key_symbol]
+
+				#compare symnatic for added, removed, modified
+				self._compare_elements(old_elements, new_elements, keyword, path)
 
 		return self.diffres
 
-	def _get_keyword(self, path: str) -> str | None:
+	def _get_keywords(self, path: str) -> list[str]| None:
 		"""return the S-Expression keyword for filepath"""
-		for extension, keyword in FILE_PARSERS.items():
+		for extension, keywords in FILE_PARSERS.items():
 			if path.endswith(extension):
-				return keyword
+				return keywords
 		return None
 	
 	def _extract_coordinates(self, elements_list) -> list[tuple[float, float]]:
