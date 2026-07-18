@@ -1,61 +1,130 @@
 import sexpdata
+from typing import Any, Optional
 from dataclasses import dataclass
 from scripts.DiffRes import DiffRes
 import scripts.BasicChange as BasicChange
-from git.diff import DiffIndex
+from git import Blob, IndexObject
+from git.diff import Diff, DiffIndex
 from pathlib import Path
 from kigit_globals import FILE_PARSERS
+from kigit_globals import COORDINATE_LEN
+from kigit_globals import SEXP_BLOCK_CONTENTS
 
 class KiCadDiffParser:
-
-	#Registry for what file the parser is used
-	#easily add new filetypes if necessary later
 
 	def __init__(self):
 		self.diffres = DiffRes(changes=[])
 
-	#main parser
-	def parse(self, diff_index: DiffIndex, working_tree_dir: str = None) -> DiffRes:
-		"""Reading unified diff file and returns DiffRes for each filetype"""
+	def parse(self, diff_index: DiffIndex, working_tree_dir: Optional[str] = None) -> DiffRes:
+		"""Reading DiffIndex Object of GitPython and returns DiffRes for each filetype"""
 
 		for diff in diff_index:
-			path = diff.b_path or diff.a_path
-			keyword = self._get_keyword(path)
-			if not keyword:
-				continue #unknown file -> ignore
-			#get blobs from gitpython
-			old_text = diff.a_blob.data_stream.read().decode("utf-8") if diff.a_blob else ""
-			if diff.b_blob:
-				new_text = diff.b_blob.data_stream.read().decode("utf-8")
-			elif diff.deleted_file:
-				new_text = ""
-			elif working_tree_dir and diff.b_path:
-				new_text = Path(working_tree_dir, diff.b_path).read_text(encoding="utf-8")
-			else:
-				new_text = ""
-			
-			#parse python lists
-			old_sexp = sexpdata.loads(old_text) if old_text else []
-			new_sexp = sexpdata.loads(new_text) if new_text else []
-
-			#filter relevant elements
-			key_symbol = sexpdata.Symbol(keyword)
-			old_elements = [item for item in old_sexp if isinstance(item, list) and item[0] == key_symbol]
-			new_elements = [item for item in new_sexp if isinstance(item, list) and item[0] == key_symbol]
-
-			#compare symnatic for added, removed, modified
-			self._compare_elements(old_elements, new_elements, keyword, path)
-
+			self._process_diff(diff, working_tree_dir)
 		return self.diffres
+	
+	def _process_diff(self, diff: Diff, working_tree_dir: Optional[str]) -> None:
+		path = diff.b_path or diff.a_path
+		if path is None:
+			return
+		keyword = self._get_keyword(path)
+		if not keyword:
+			return
+		old_elements = self._parse_elements(diff.a_blob, None, keyword)
+		new_elements = self._parse_elements(
+			diff.b_blob, 
+			Path(working_tree_dir, diff.b_path) if working_tree_dir and diff.b_path else None, 
+			keyword)
+		self._compare_elements(old_elements, new_elements, keyword, path)
+		
+	def _parse_elements(self, blob: Optional[IndexObject], 
+					 fallback_path: Optional[Path], keyword: str) -> list[list[Any]]:
+		text = self._read_text(blob, fallback_path)
+		if not text:
+			return []
+		sexp = sexpdata.loads(text)
+		key_symbol = sexpdata.Symbol(keyword)
+		return [item for item in sexp if isinstance(item, list) and item and item[0] == key_symbol]
 
-	def _get_keyword(self, path: str) -> str | None:
+	
+	def _read_text(self, blob: Optional[IndexObject], fallback_path: Optional[Path]) -> str:
+		if blob:
+			return blob.data_stream.read().decode("utf-8")
+		if fallback_path and fallback_path.exists():
+			return fallback_path.read_text(encoding="utf-8")
+		return ""
+		
+
+	def _compare_elements(self, old_elems: list[list[Any]], 
+					   new_elems: list[list[Any]], keyword: str, path: str):
+		"""Counting added, removed and modified elements of one specific keyword of a patched file"""
+
+		#preselection whats identical is not important
+		#only old elements in here if there are not a part of new elements
+		unmatched_old = [elem for elem in old_elems if elem not in new_elems]
+		#only new elements in here if there are not a part of old elements
+		unmatched_new = [elem for elem in new_elems if elem not in old_elems]
+
+		self._report_moved(unmatched_old, unmatched_new, keyword, path)
+
+		#everything else should be deleted or added
+		for old_el in unmatched_old:
+			self.diffres.addChange(BasicChange.ComponentRemoved(
+				reference=keyword, 
+				origin=path, 
+				component=sexpdata.dumps(old_el)))
+
+		for new_el in unmatched_new:
+				self.diffres.addChange(BasicChange.ComponentAdded(
+					reference=keyword, 
+					origin=path, 
+					component=sexpdata.dumps(new_el)))
+
+	def _report_moved(self, unmatched_old: list[list[Any]], 
+				   unmatched_new: list[list[Any]], keyword: str, path: str) -> None:
+		"""finds elements with same start or same endpoints 
+		and reports them as ComponentMoved or removes them out of both lists"""
+
+		for old_el in list(unmatched_old):
+			old_pts = self._extract_coordinates(old_el)
+			if len(old_pts) < COORDINATE_LEN:
+				continue
+
+			match = self._find_moved_match(old_pts, unmatched_new)
+			if match is None:
+				continue
+
+			new_el, new_pts = match
+			self.diffres.addChange(BasicChange.ComponentMoved(
+				reference=keyword, origin=path,
+				component=sexpdata.dumps(new_el),
+				coordinates=(old_pts, new_pts)
+			))
+			unmatched_old.remove(old_el)
+			unmatched_new.remove(new_el)
+
+	def _find_moved_match(self, old_pts: list[tuple[float, float]], 
+					   candidates: list[list[Any]]) -> Optional[tuple[list[Any], list[tuple[float, float]]]]:
+		"""searches in candidates one element which start or endpoints are the same to old_pts but not both!"""
+
+		for new_el in candidates:
+			new_pts = self._extract_coordinates(new_el)
+			if len(new_pts) < COORDINATE_LEN:
+				continue
+
+			start_same = old_pts[0] == new_pts[0]
+			end_same = old_pts[1] == new_pts[1]
+			if start_same != end_same:
+				return new_el, new_pts
+		return None
+
+	def _get_keyword(self, path: str) -> Optional[str]:
 		"""return the S-Expression keyword for filepath"""
 		for extension, keyword in FILE_PARSERS.items():
 			if path.endswith(extension):
 				return keyword
 		return None
 	
-	def _extract_coordinates(self, elements_list) -> list[tuple[float, float]]:
+	def _extract_coordinates(self, elements_list: list[Any]) -> list[tuple[float, float]]:
 		"""
 		Helperfunction: Extracts all (xy X Y) coords from elements
 		"""
@@ -63,7 +132,7 @@ class KiCadDiffParser:
 
 		def search_xy(item):
 			if isinstance(item, list):
-				if len(item) >= 3 and item[0] == sexpdata.Symbol('xy'):
+				if len(item) >= SEXP_BLOCK_CONTENTS and item[0] == sexpdata.Symbol('xy'):
 					try:
 						coords.append((float(item[1]), float(item[2])))
 					except (ValueError, TypeError):
@@ -74,56 +143,3 @@ class KiCadDiffParser:
 		
 		search_xy(elements_list)
 		return coords
-
-	#counting logic
-	#if we are in a wire block -> if only added parts -> added
-	#						   -> if added and removed -> modified
-	#						   -> if only removed -> removed
-	def _compare_elements(self, old_elems, new_elems, keyword, path):
-		"""Counting added, removed and modified elements of one specific keyword of a patched file"""
-
-		#preselection whats identical is not important
-		unmatched_old = [e for e in old_elems if e not in new_elems]
-		unmatched_new = [e for e in new_elems if e not in old_elems]
-
-		matched_old = []
-		matched_new = []
-
-		#get modified
-		for old_el in unmatched_old:
-			old_pts = self._extract_coordinates(old_el)
-			if len(old_pts) < 2:
-				continue
-
-			for new_el in unmatched_new:
-				if new_el in matched_new:
-					continue
-				
-				new_pts = self._extract_coordinates(new_el)
-				if len(new_pts) < 2:
-					continue
-				
-				#if starting point equal but not end -> moidified
-				if old_pts[0] != new_pts[0] or old_pts[1] != new_pts[1]:
-					ref_string = sexpdata.dumps(new_el)
-
-					self.diffres.addChange(BasicChange.ComponentMoved(
-						reference=keyword,
-						origin=path,
-						component=ref_string,
-						coordinates=(old_pts, new_pts)
-					))
-					matched_old.append(old_el)
-					matched_new.append(new_el)
-					break
-
-		#everything else should be deleted or added
-		for old_el in unmatched_old:
-			if old_el not in matched_old:
-				ref_string = sexpdata.dumps(old_el)
-				self.diffres.addChange(BasicChange.ComponentRemoved(reference=keyword, origin=path, component=ref_string))
-
-		for new_el in unmatched_new:
-			if new_el not in matched_new:
-				ref_string = sexpdata.dumps(new_el)
-				self.diffres.addChange(BasicChange.ComponentAdded(reference=keyword, origin=path, component=ref_string))	
