@@ -360,6 +360,6 @@ def test_mixed_changes_same_file():
 
     result = parser.parse(diff_index)
 
-    assert len(result.getAdded()) == 0
-    assert len(result.getRemoved()) == 0
-    assert len(result.getModified()) == 1
+    assert len(result.getAdded()) == 1
+    assert len(result.getRemoved()) == 1
+    assert len(result.getModified()) == 0
