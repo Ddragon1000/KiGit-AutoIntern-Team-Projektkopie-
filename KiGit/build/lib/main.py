@@ -82,7 +82,7 @@ def diff(
         faulty_file_output.output()
 
     if ffresult:
-        print("Faulty files were detected, therefore Command aborted!")
+        print("\nFaulty files were detected, therefore Command aborted!")
         raise typer.Exit(1)
     else:
         diff_result = gitmanager.diff(commit[0], commit[1], file)
