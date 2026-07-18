@@ -12,6 +12,8 @@ from scripts.commands import GitManager
 from scripts.logging_config import setup_logging
 from typing import Annotated
 
+Valid_details = {"all","start","end","width","layer","net","pts","stroke"}
+
 app = typer.Typer(
     name="KiGit",
     help=(
@@ -86,7 +88,7 @@ def diff(
         args: Annotated[list[str] | None, typer.Argument(help="commit file or file or commit")] = None,
         show_filename: bool = typer.Option(False, help="Shows corresponding Filename in result"),
         output: renderer.OutputFormat = typer.Option(renderer.OutputFormat.TABLE, "--output", "-o", help="Output Format"),
-        detail: str = typer.Option("", "--detail", help="Filters detail screen"),
+        detail: str = typer.Option("none","--detail",help="Show all details or only a specific parameter."),
         debug: bool = typer.Option(False, help="enables Debug options")
         ):
     """Show changes between commits, commit and working tree and more for KiCad files"""
@@ -117,6 +119,18 @@ def diff(
             commit[1] = args[1]
             file = args[2]
 
+    # Validate the --detail input
+    requested = [] if detail == "none" else [d.strip() for d in detail.split(",")]
+    valid = []
+    invalid = []
+    for item in requested:
+        if item in Valid_details:
+            valid.append(item)
+        else:
+            invalid.append(item)
+    # Rebuild the detail string so we have only the valid parameters.
+    detail = ",".join(valid) if valid else "none"
+
     logger.debug(f"parameters: commit={commit}, file={file}")
 
     #object creation
@@ -145,9 +159,9 @@ def diff(
     logger.info(f"Rendering results in format: {output.value}")
 
     if output == renderer.OutputFormat.TABLE:
-        renderer.render_diff(stats, renderer.TableDiffRenderer(show_filename))
+        renderer.render_diff(stats, renderer.TableDiffRenderer(show_filename,detail))
     elif output == renderer.OutputFormat.JSON:
-        renderer.render_diff(stats, renderer.JsonDiffRenderer())
+        renderer.render_diff(stats, renderer.JsonDiffRenderer(detail))
         if (isPowerShell()):
             if not sys.stdout.isatty(): #checks if output was redirected to a file
                 sys.stderr.write(
@@ -156,8 +170,18 @@ def diff(
                     "For a clean UTF-8 file, use: kigit diff -o json | Out-File -Encoding utf8 filename.json\n\n"
             )
     elif output == renderer.OutputFormat.HTML:
-        renderer.render_diff(stats, renderer.HTMLDiffRenderer(show_filename))
-       
+        renderer.render_diff(stats, renderer.HTMLDiffRenderer(show_filename,detail))
+
+    if invalid:
+        print(
+            f"\nWarning: The following detail parameter(s) are not supported and were ignored: "
+            f"{', '.join(invalid)}"
+        )
+
+        if detail == "none":
+            print(
+                "No valid detail parameters were specified, therefore no parameter details were displayed."
+            )
 
 @app.command()
 def status():

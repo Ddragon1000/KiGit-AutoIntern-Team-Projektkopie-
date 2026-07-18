@@ -1,3 +1,4 @@
+from scripts.helper import extract_parameters, format_parameters, filter_parameters
 import os
 import json
 import scripts.DiffRes as diffres
@@ -21,6 +22,10 @@ class DiffResRenderer(ABC):
         pass
 
 class JsonDiffRenderer(DiffResRenderer):
+
+    def __init__(self, detail="none"):
+        self.detail = [] if detail == "none" else [d.strip() for d in detail.split(",")]
+
     def render(self, dr : diffres.DiffRes) -> str:
         files_dict = {}
         summary = {
@@ -62,11 +67,16 @@ class JsonDiffRenderer(DiffResRenderer):
                 type = "removed"
             case _:
                 type = "modified"
-        
-        return {
+
+        change_json = {
             "type": type,
             "element": change.reference
         }
+        params = filter_parameters(extract_parameters(change.component),self.detail)
+        if params:
+            change_json["parameters"] = params
+        
+        return change_json
     
     def detailed_render(self, dr: diffres.DiffRes) -> str:
         files_dict = {}
@@ -84,8 +94,9 @@ class JsonDiffRenderer(DiffResRenderer):
            
 class HTMLDiffRenderer(DiffResRenderer):
 
-    def __init__(self, s_f):
+    def __init__(self, s_f, detail="none"):
         self.show_filename = s_f
+        self.detail = [] if detail == "none" else [d.strip() for d in detail.split(",")]
 
     def render(self, dr: diffres.DiffRes) -> str:
         html = "<html>\n<body>\n<h1>KiGit Report</h1>\n"
@@ -95,6 +106,7 @@ class HTMLDiffRenderer(DiffResRenderer):
         file_header = "<th>File</th>" if self.show_filename else ""
         html += f"<table border='1'>\n  <tr><th>Component</th><th>Added</th><th>Removed</th><th>Modified</th>{file_header}</tr>\n"
 
+
         if not self.show_filename:
             for components in dr.groupByComponent():
                 html += f"  <tr><td>{components.changes[0].reference}</td><td>{len(components.getAdded())}</td><td>{len(components.getRemoved())}</td><td>{len(components.getModified())}</td></tr>\n"
@@ -102,15 +114,21 @@ class HTMLDiffRenderer(DiffResRenderer):
             for file_components in dr.filterFile():
                 filename = file_components.changes[0].origin
                 for components in file_components.groupByComponent():
-                    html += f"  <tr><td>{components.changes[0].reference}</td><td>{len(components.getAdded())}</td><td>{len(components.getRemoved())}</td><td>{len(components.getModified())}</td><td>{filename}</td></tr>\n"
-
+                    html += f"  <tr><td>{components.changes[0].reference}</td><td>{len(components.getAdded())}</td><td>{len(components.getRemoved())}</td><td>{len(components.getModified())}"
+                    if self.detail:
+                        html += "<br><pre>"
+                        html += format_parameters(components.changes, self.detail)
+                        html += "</pre>"
+                    html += "</td><td>{filename}</td></tr>\n"
         html += "</table>\n</body>\n</html>"
         return html
     
 class TableDiffRenderer(DiffResRenderer):
 
-    def __init__(self, s_f):
+    def __init__(self, s_f, detail=False):
         self.show_filename = s_f
+        # Convert multiple requests like --detail start,end,width into ["start", "end", "width"]
+        self.detail = [] if detail == "none" else [d.strip() for d in detail.split(",")]
 
     def render(self, dr: diffres.DiffRes) -> Table:
             table = Table(title="kigit diff")
@@ -168,15 +186,18 @@ class TableDiffRenderer(DiffResRenderer):
             start = current_page * max_size
             end = start + max_size
             chunk = source_list[start:end]
-
             if total_pages <= 1:
                 page_table = Table(title=f"kigit diff")
             else:
                 page_table = Table(title=f"kigit diff (Page {current_page + 1}/{total_pages})")
+
             page_table.add_column("Part", justify="center", style="white")
             page_table.add_column("Added", justify="center", style="green")
             page_table.add_column("Removed", justify="center", style="red")
             page_table.add_column("Modified", justify="center", style="yellow")
+
+            if self.detail:
+                page_table.add_column("Parameters", justify="left", style="Cyan")
 
             if self.show_filename:
                 page_table.add_column("Filename", justify="center", style="white")
@@ -201,6 +222,25 @@ class TableDiffRenderer(DiffResRenderer):
                         )
 
             # print chunk
+            for components in chunk:
+                groups = components.groupByComponent() if self.show_filename else [components]
+
+                for entry in groups:
+
+                    row = [
+                    str(entry.changes[0].reference),
+                    str(len(entry.getAdded())),
+                    str(len(entry.getRemoved())),
+                    str(len(entry.getModified()))
+                    ]
+                    # only if user uses --detail * we have the column
+                    if self.detail:
+                        row.append(format_parameters(entry.changes, self.detail))
+                    
+                    if self.show_filename:
+                        row.append(entry.changes[0].origin)
+                    page_table.add_row(*row)
+
             console.print(page_table)
 
             # page select via CL
@@ -208,14 +248,14 @@ class TableDiffRenderer(DiffResRenderer):
                 #the paging looks bad on an obviously short print and we do not want it on a single page
                 break
             else:
-                print(f"\n[N]ext Page  |  [P]revious Page  |  [Q]uit")
-                user_input = input("Choose an option: ").strip().lower()
+                print("\n[N]ext | [P]revious | [Q]uit")
+                choice = input("> ").strip().lower()
 
-                if user_input == 'n' and current_page < total_pages - 1:
+                if choice == "n" and current_page < total_pages - 1:
                     current_page += 1
-                elif user_input == 'p' and current_page > 0:
+                elif choice == "p" and current_page > 0:
                     current_page -= 1
-                elif user_input == 'q':
+                elif choice == "q":
                     break
 
 

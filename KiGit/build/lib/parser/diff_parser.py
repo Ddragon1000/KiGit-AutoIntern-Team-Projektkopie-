@@ -5,6 +5,7 @@ import scripts.BasicChange as BasicChange
 from git.diff import DiffIndex
 from pathlib import Path
 from kigit_globals import FILE_PARSERS
+from scripts.helper import extract_parameters
 
 class KiCadDiffParser:
 

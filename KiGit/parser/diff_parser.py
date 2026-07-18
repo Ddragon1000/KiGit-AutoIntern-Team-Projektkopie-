@@ -7,6 +7,7 @@ from git import Blob, IndexObject
 from git.diff import Diff, DiffIndex
 from pathlib import Path
 from kigit_globals import FILE_PARSERS
+from scripts.helper import extract_parameters
 from kigit_globals import COORDINATE_LEN
 from kigit_globals import SEXP_BLOCK_CONTENTS
 
