@@ -6,3 +6,9 @@ FILE_PARSERS: dict[str, str] = {
 	#later e.g.:
 	#".kicad_pcb": "via"
 }
+
+FILE_ENDINGS: dict[str, str] = {
+    "sch": "kicad_sch",
+    "pcb": "kicad_pcb"
+
+}

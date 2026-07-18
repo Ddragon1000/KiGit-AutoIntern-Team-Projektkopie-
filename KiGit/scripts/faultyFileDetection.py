@@ -1,94 +1,75 @@
 import subprocess
+import pathlib
 import os
 import re
 from scripts.DiffResRenderer import FaultyFileOutput
 
-from kigit_globals import FILE_PARSERS
+from kigit_globals import FILE_ENDINGS
 from scripts.commands import GitManager
 
 
-cwd = os.getcwd()
+cwd = pathlib.Path.cwd()
 
 
-def faultyFileDetection(erc_drc_check: bool, faulty_file_check: bool, faulty_file_output: FaultyFileOutput) -> bool:
+def faultyFileDetection(faulty_file_output: FaultyFileOutput) -> bool:
     #faulty file detection
     
     gitmanager = GitManager(cwd)
-    faultyFile = False # variable to check if there was a fualty file found or not
+    faulty_file_exists = False # variable to check if there was a faulty file found or not
 
-    kicad_files_endings = FILE_PARSERS.keys()
-   
-    count = 0
-    schematic = None
-    pcb = None
 
-    for key in FILE_PARSERS.keys():
-        count += 1
-        if count == 1:
-            schematic = key
-        if count == 2:
-            pcb = key
+    kicad_files = []
+
+    for kicad_ending in FILE_ENDINGS.values():
+        for f in os.listdir(gitmanager.repo.working_tree_dir):
+            if os.path.isfile(os.path.join(gitmanager.repo.working_tree_dir, f)) and re.search(f"{kicad_ending}$", f):
+                kicad_files.append(f)
 
     
-    sch_files = [f for f in os.listdir(gitmanager.repo.working_tree_dir) 
-                 if os.path.isfile(os.path.join(gitmanager.repo.working_tree_dir, f)) and re.search(f"{schematic}$", f)]
-    pcb_files = [f for f in os.listdir(gitmanager.repo.working_tree_dir) 
-                 if os.path.isfile(os.path.join(gitmanager.repo.working_tree_dir, f)) and re.search(f"{pcb}$", f)]
-    
-    if faulty_file_check:
-        for file in sch_files:
-            args = ["kicad-cli", "sch", "erc", file]
 
-            result = subprocess.run(args, capture_output=True, check=False, text=True)
+    file_endings = FILE_ENDINGS
 
-            if result.stderr:
-                faultyFile = True
-                file_check = [file, True, False, None] # list of output relevant information [file, faulty_file, erc_drc_check, result.stdout for erc_drc_check]
+    for file in kicad_files:
+
+        erc_args = ["kicad-cli", "sch", "erc", file]
+        drc_args = ["kicad-cli", "pcb", "drc", file]
+
+        result = None
+        
+        if re.search(f"{file_endings["sch"]}$", file):    
+            result = subprocess.run(erc_args, capture_output=True, check=False, text=True)
+        if re.search(f"{file_endings["pcb"]}$", file):    
+            result = subprocess.run(drc_args, capture_output=True, check=False, text=True)
+
+        if result.stderr:
+            faulty_file_exists = True
+            faulty = True
+            erc_drc_output = None
+
+            file_check = [file, faulty, erc_drc_output] # list of output relevant information [file, faulty, result.stdout for erc_drc_check in this case none]
+            
+            if re.search(f"{file_endings["sch"]}$", file):
                 faulty_file_output.add_schematic(file_check)
-            elif erc_drc_check:
-                file_check = [file, False, True, result.stdout]
-                faulty_file_output.add_schematic(file_check)
-            else:
-                file_check = [file, False, False, None]
-                faulty_file_output.add_schematic(file_check)
-
-        for file in pcb_files:
-            args = ["kicad-cli", "pcb", "drc", file]
-
-            result = subprocess.run(args, capture_output=True, check=False, text=True)
-
-            if result.stderr:
-                faultyFile = True
-                file_check = [file, True, False, None]
+            elif re.search(f"{file_endings["pcb"]}$", file):
                 faulty_file_output.add_pcb(file_check)
-            elif erc_drc_check: 
-                file_check = [file, False, True, result.stdout]
-                faulty_file_output.add_pcb(file_check)
-            else:
-                file_check = [file, False, False, None]
+
+            result.stderr = None
+
+        elif result.stdout:
+            faulty = False
+            erc_drc_output = result.stdout
+                
+            file_check = [file, faulty, erc_drc_output] # list of output relevant information [file, faulty, result.stdout for erc_drc_check]
+            
+            if re.search(f"{file_endings["sch"]}$", file):
+                faulty_file_output.add_schematic(file_check)
+            elif re.search(f"{file_endings["pcb"]}$", file):
                 faulty_file_output.add_pcb(file_check)
 
             
-        return faultyFile
+    return faulty_file_exists
 
 
-    elif erc_drc_check:
-        for file in sch_files:
-            args = ["kicad-cli", "sch", "erc", file]
-
-            result = subprocess.run(args, capture_output=True, check=False, text=True)
-
-            print(f"ERC check: \n{result.stdout}")
-            file_check = []
-
-        for file in pcb_files:
-            args = ["kicad-cli", "pcb", "drc", file]
-
-            result = subprocess.run(args, capture_output=True, check=False, text=True)
-
-            print(f"DRC check: \n{result.stdout}")
-        
-        return False
 
 
     

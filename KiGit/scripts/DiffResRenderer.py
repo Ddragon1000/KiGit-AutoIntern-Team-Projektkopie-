@@ -280,21 +280,27 @@ class FaultyFileOutput:
     def output(self):
         #iterates through the schematic file list to output every file check
         for file in self.schematic_files:
-            if file[1]:
-                print(f"Kicad sch file \"{file[0]}\" is faulty!")
-            elif file[2]:
-                print(f"ERC check: {file[3]}")
-            else: 
-                print("No faulty Kicad schematic files found!")
+            file_name = file[0]
+            faulty = file[1]
+            erc_output = file[2]
+
+            if faulty:
+                print(f"Kicad sch file \"{file_name}\" is faulty!")
+            else:
+                print(f"ERC check: {erc_output}")
+
 
         for file in self.pcb_files: 
             #iterates through the pcb file list to output every file check
-            if file[1]:
-                print(f"Kicad pcb file \"{file[0]}\" is faulty!")
-            elif file[2]:
-                print(f"DRC check: {file[3]}")
-            else: 
-                print("No faulty Kicad pcb files found!")
+            file_name = file[0]
+            faulty = file[1]
+            drc_output = file[2]
+            
+            if faulty:
+                print(f"Kicad pcb file \"{file_name}\" is faulty!")
+            else:
+                print(f"DRC check: {drc_output}")
+
 
 
 
