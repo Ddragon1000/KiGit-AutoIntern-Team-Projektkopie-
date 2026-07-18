@@ -89,22 +89,22 @@ class HTMLDiffRenderer(DiffResRenderer):
 
     def render(self, dr: diffres.DiffRes) -> str:
         html = "<html>\n<body>\n<h1>KiGit Report</h1>\n"
-        html += f"<p><strong>Aenderungen gesamt:</strong> {len(dr.changes)}</p>\n"
-        html += "<ul>\n" 
+        html += f"<p><strong>Total Changes:</strong> {len(dr.changes)}</p>\n"
+        
+        
+        file_header = "<th>File</th>" if self.show_filename else ""
+        html += f"<table border='1'>\n  <tr><th>Component</th><th>Added</th><th>Removed</th><th>Modified</th>{file_header}</tr>\n"
 
         if not self.show_filename:
             for components in dr.groupByComponent():
-                part = components.changes[0].reference
-                html += f"  <li><strong>{part}</strong> - Added: {len(components.getAdded())} | Removed: {len(components.getRemoved())} | Modified: {len(components.getModified())}</li>\n"
-        
+                html += f"  <tr><td>{components.changes[0].reference}</td><td>{len(components.getAdded())}</td><td>{len(components.getRemoved())}</td><td>{len(components.getModified())}</td></tr>\n"
         else:
-            for components in dr.filterFile():
-                filename = components.changes[0].origin
-                for entry in components.groupByComponent():
-                    part = entry.changes[0].reference
-                    html += f"  <li><strong>{part}</strong> (in {filename}) - Added: {len(entry.getAdded())} | Removed: {len(entry.getRemoved())} | Modified: {len(entry.getModified())}</li>\n"
+            for file_components in dr.filterFile():
+                filename = file_components.changes[0].origin
+                for components in file_components.groupByComponent():
+                    html += f"  <tr><td>{components.changes[0].reference}</td><td>{len(components.getAdded())}</td><td>{len(components.getRemoved())}</td><td>{len(components.getModified())}</td><td>{filename}</td></tr>\n"
 
-        html += "</ul>\n</body>\n</html>"
+        html += "</table>\n</body>\n</html>"
         return html
     
 class TableDiffRenderer(DiffResRenderer):
@@ -169,8 +169,10 @@ class TableDiffRenderer(DiffResRenderer):
             end = start + max_size
             chunk = source_list[start:end]
 
-
-            page_table = Table(title=f"kigit diff (Page {current_page + 1}/{total_pages})")
+            if total_pages <= 1:
+                page_table = Table(title=f"kigit diff")
+            else:
+                page_table = Table(title=f"kigit diff (Page {current_page + 1}/{total_pages})")
             page_table.add_column("Part", justify="center", style="white")
             page_table.add_column("Added", justify="center", style="green")
             page_table.add_column("Removed", justify="center", style="red")
@@ -202,19 +204,19 @@ class TableDiffRenderer(DiffResRenderer):
             console.print(page_table)
 
             # page select via CL
-            if not self.show_filename:
-                #the paging looks bad on an obviously short print
+            if not self.show_filename or total_pages <= 1:
+                #the paging looks bad on an obviously short print and we do not want it on a single page
                 break
+            else:
+                print(f"\n[N]ext Page  |  [P]revious Page  |  [Q]uit")
+                user_input = input("Choose an option: ").strip().lower()
 
-            print(f"\n[N]ext Page  |  [P]revious Page  |  [Q]uit")
-            user_input = input("Choose an option: ").strip().lower()
-
-            if user_input == 'n' and current_page < total_pages - 1:
-                current_page += 1
-            elif user_input == 'p' and current_page > 0:
-                current_page -= 1
-            elif user_input == 'q':
-                break
+                if user_input == 'n' and current_page < total_pages - 1:
+                    current_page += 1
+                elif user_input == 'p' and current_page > 0:
+                    current_page -= 1
+                elif user_input == 'q':
+                    break
 
 
 def render_diff(dr : diffres.DiffRes, renderer : DiffResRenderer):
@@ -239,27 +241,57 @@ def render_diff(dr : diffres.DiffRes, renderer : DiffResRenderer):
         renderer.render_paginated(dr)
 
 
-def call_status():
+def call_status(max_size: int = 20):
     """Shows the KiGit status"""
     console = Console()
     gitmanager = GitManager(cwd)
 
     gitstatus = gitmanager.status()
 
+    status_array = gitstatus.splitlines()
+
+    # for page display
+    total_pages = (len(status_array) + (max_size - 1)) // max_size
+    current_page = 0
+
     if gitstatus:
-        status_array = gitstatus.splitlines()
+        while True:
+            console.clear()
 
-        table = Table(title="kigit status")
-        table.add_column("Staging Area", justify="center")
-        table.add_column("Working Directory", justify="center")
-        table.add_column("File", justify="center")
+            # data to create the chunk
+            start = current_page * max_size
+            end = start + max_size
+            chunk = status_array[start:end]
 
-        for line in status_array:
-            table.add_row(str(line[0]),
-                          str(line[1]),
-                          str(line[2:]))
+            if total_pages <= 1:
+                table = Table(title=f"kigit diff")
+            else:
+                table = Table(title=f"kigit status (Page {current_page + 1}/{total_pages})")
+            table.add_column("Staging Area", justify="center")
+            table.add_column("Working Directory", justify="center")
+            table.add_column("File", justify="center")
 
-        console.print(table)
+            for line in chunk:
+                table.add_row(str(line[0]),
+                              str(line[1]),
+                              str(line[2:]))
+
+            # print chunk
+            console.print(table)
+            if total_pages <= 1:
+                break
+            else:
+                print(f"\n[N]ext Page  |  [P]revious Page  |  [Q]uit")
+                user_input = input("Choose an option: ").strip().lower()
+
+                if user_input == 'n' and current_page < total_pages - 1:
+                    current_page += 1
+                elif user_input == 'p' and current_page > 0:
+                    current_page -= 1
+                elif user_input == 'q':
+                    break
+
+
     else:
         print("No current updates at the moment.")
 
