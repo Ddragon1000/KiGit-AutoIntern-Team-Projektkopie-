@@ -27,15 +27,16 @@ class KiCadDiffParser:
 		path = diff.b_path or diff.a_path
 		if path is None:
 			return
-		keyword = self._get_keyword(path)
-		if not keyword:
+		keywords = self._get_keywords(path)
+		if not keywords:
 			return
-		old_elements = self._parse_elements(diff.a_blob, None, keyword)
-		new_elements = self._parse_elements(
-			diff.b_blob, 
-			Path(working_tree_dir, diff.b_path) if working_tree_dir and diff.b_path else None, 
-			keyword)
-		self._compare_elements(old_elements, new_elements, keyword, path)
+		for keyword in keywords:
+			old_elements = self._parse_elements(diff.a_blob, None, keyword)
+			new_elements = self._parse_elements(
+				diff.b_blob,
+				Path(working_tree_dir, diff.b_path) if working_tree_dir and diff.b_path else None,
+				keyword)
+			self._compare_elements(old_elements, new_elements, keyword, path)
 		
 	def _parse_elements(self, blob: Optional[IndexObject], 
 					 fallback_path: Optional[Path], keyword: str) -> list[list[Any]]:
@@ -118,7 +119,7 @@ class KiCadDiffParser:
 				return new_el, new_pts
 		return None
 
-	def _get_keyword(self, path: str) -> Optional[list[str]]:
+	def _get_keywords(self, path: str) -> Optional[list[str]]:
 		"""return the S-Expression keyword for filepath"""
 		for extension, keywords in FILE_PARSERS.items():
 			if path.endswith(extension):
