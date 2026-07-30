@@ -38,7 +38,7 @@ def diff(
         show_filename: bool = typer.Option(False, help="Shows corresponding Filename in result"),
         output: renderer.OutputFormat = typer.Option(renderer.OutputFormat.TABLE, "--output", "-o", help="Output Format"),
         detail: str = typer.Option("", "--detail", help="Filters detail screen"),
-        erc_drc_check: bool = typer.Option(False, help="Enables ERC and DRC checks for Kicad schematic and PCB Files, use this to also check whether a Kicad File is faulty"),
+        erc_drc_check: bool = typer.Option(False, help="Enables ERC and DRC checks for Kicad schematic and PCB Files"),
         debug: bool = typer.Option(False, help="enables Debug options")
         ):
     """Show changes between commits, commit and working tree and more for KiCad files"""
@@ -77,9 +77,9 @@ def diff(
 
     
     ffresult = False
-    if erc_drc_check:
-        ffresult = faultyFileDetection(faulty_file_output)
-        faulty_file_output.output()
+    
+    ffresult = faultyFileDetection(faulty_file_output)
+    faulty_file_output.output()
 
     if ffresult:
         print("\nFaulty files were detected, therefore Command aborted!")

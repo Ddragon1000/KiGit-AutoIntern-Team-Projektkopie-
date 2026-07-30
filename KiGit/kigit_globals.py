@@ -7,8 +7,3 @@ FILE_PARSERS: dict[str, str] = {
 	#".kicad_pcb": "via"
 }
 
-FILE_ENDINGS: dict[str, str] = {
-    "sch": "kicad_sch",
-    "pcb": "kicad_pcb"
-
-}
