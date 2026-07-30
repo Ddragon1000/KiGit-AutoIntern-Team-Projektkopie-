@@ -26,13 +26,12 @@ def faultyFileDetection(erc_drc_check) -> bool:
     
     if erc_drc_check:
         for file in kicad_files:
-            
-            create_ERC_DRC_process(file)
+            result = create_ERC_DRC_process(file, erc_drc_check)
 
     else:
         for file in kicad_files:
 
-            result = create_ERC_DRC_process(file)
+            result = create_ERC_DRC_process(file, erc_drc_check)
 
             if result.stderr:
                 result.stderr = None
@@ -43,19 +42,29 @@ def faultyFileDetection(erc_drc_check) -> bool:
 
             
 
-def create_ERC_DRC_process(file):
-        erc_args = ["kicad-cli", "sch", "erc", file, "--output", "faultyFileCheckSch"]
-        drc_args = ["kicad-cli", "pcb", "drc", file, "--output", "faultyFileCheckPCB"]
-
-        result = None
-
-        schematic = re.search("sch$", file)
-        pcb = re.search(f"pcb$", file)
+def create_ERC_DRC_process(file, erc_drc_check):
             
-        if schematic:    
+    schematic = re.search("sch$", file)
+    pcb = re.search(f"pcb$", file)
+
+    if erc_drc_check:
+        if schematic:
+            erc_args = ["kicad-cli", "sch", "erc", file]
             return subprocess.run(erc_args, capture_output=True, check=False, text=True)
-        elif pcb:    
+        elif pcb:
+            drc_args = ["kicad-cli", "pcb", "drc", file]
             return subprocess.run(drc_args, capture_output=True, check=False, text=True)
+    else:
+        if schematic:
+            erc_args = ["kicad-cli", "sch", "erc", file, "--output", "faultyFileCheckSch"]
+            return subprocess.run(erc_args, capture_output=True, check=False, text=True)
+        elif pcb:
+            drc_args = ["kicad-cli", "pcb", "drc", file, "--output", "faultyFileCheckPCB"]
+            return subprocess.run(drc_args, capture_output=True, check=False, text=True)
+
+
+    return subprocess.run(args, capture_output=True, check=False, text=True)
+
 
 
 
