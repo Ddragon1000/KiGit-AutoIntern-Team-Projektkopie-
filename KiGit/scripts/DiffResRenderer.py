@@ -262,7 +262,7 @@ def call_status():
 
 
 
-class FaultyFileOutput:
+class ERC_DRC_Output:
 
     def __init__(self):
         self.schematic_files : list[list[str, bool, str]] = [] # list of lists that contain the output relevant information: 
@@ -284,10 +284,8 @@ class FaultyFileOutput:
             faulty = file[1]
             erc_output = file[2]
 
-            if faulty:
-                print(f"Kicad sch file \"{file_name}\" is faulty!")
-            else:
-                print(f"ERC check: {erc_output}")
+
+            print(f"ERC check of {file_name}: {erc_output}")
 
 
         for file in self.pcb_files: 
@@ -295,12 +293,12 @@ class FaultyFileOutput:
             file_name = file[0]
             faulty = file[1]
             drc_output = file[2]
-            
-            if faulty:
-                print(f"Kicad pcb file \"{file_name}\" is faulty!")
-            else:
-                print(f"DRC check: {drc_output}")
+
+            print(f"DRC check of {file_name}: {drc_output}")
 
 
+class FaultyFileOutput:
 
+    def output(self):
+        print("Repository contains faulty files. Revert to the last git commit to undo the faulty files. Command aborted!")
 

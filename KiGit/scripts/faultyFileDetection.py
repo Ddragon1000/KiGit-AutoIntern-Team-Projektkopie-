@@ -4,14 +4,13 @@ import os
 import re
 from scripts.DiffResRenderer import FaultyFileOutput
 
-from kigit_globals import FILE_ENDINGS
 from scripts.commands import GitManager
 
 
 cwd = pathlib.Path.cwd()
 
 
-def faultyFileDetection(faulty_file_output: FaultyFileOutput, erc_drc_check) -> bool:
+def faultyFileDetection(erc_drc_check) -> bool:
     #faulty file detection
     
     gitmanager = GitManager(cwd)
@@ -25,49 +24,38 @@ def faultyFileDetection(faulty_file_output: FaultyFileOutput, erc_drc_check) -> 
             kicad_files.append(f)
 
     
+    if erc_drc_check:
+        for file in kicad_files:
+            
+            create_ERC_DRC_process(file)
+
+    else:
+        for file in kicad_files:
+
+            result = create_ERC_DRC_process(file)
+
+            if result.stderr:
+                result.stderr = None
+                return True
+
+    return False
 
 
-    for file in kicad_files:
+            
 
-        erc_args = ["kicad-cli", "sch", "erc", file]
-        drc_args = ["kicad-cli", "pcb", "drc", file]
+def create_ERC_DRC_process(file):
+        erc_args = ["kicad-cli", "sch", "erc", file, "--output", "faultyFileCheckSch"]
+        drc_args = ["kicad-cli", "pcb", "drc", file, "--output", "faultyFileCheckPCB"]
 
         result = None
 
         schematic = re.search("sch$", file)
         pcb = re.search(f"pcb$", file)
-        
+            
         if schematic:    
-            result = subprocess.run(erc_args, capture_output=True, check=False, text=True)
+            return subprocess.run(erc_args, capture_output=True, check=False, text=True)
         elif pcb:    
-            result = subprocess.run(drc_args, capture_output=True, check=False, text=True)
-
-        if result.stderr:
-            faulty = True
-            erc_drc_output = None
-
-            file_check = [file, faulty, erc_drc_output] # list of output relevant information [file, faulty, result.stdout for erc_drc_check in this case none]
-            
-            if schematic:
-                faulty_file_output.add_schematic(file_check)
-            elif pcb:
-                faulty_file_output.add_pcb(file_check)
-
-            result.stderr = None
-
-        elif result.stdout:
-            faulty = False
-            erc_drc_output = result.stdout
-                
-            file_check = [file, faulty, erc_drc_output] # list of output relevant information [file, faulty, result.stdout for erc_drc_check]
-            
-            if schematic:
-                faulty_file_output.add_schematic(file_check)
-            elif pcb:
-                faulty_file_output.add_pcb(file_check)
-
-            
-
+            return subprocess.run(drc_args, capture_output=True, check=False, text=True)
 
 
 

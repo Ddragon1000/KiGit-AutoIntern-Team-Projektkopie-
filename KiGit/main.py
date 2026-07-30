@@ -78,11 +78,11 @@ def diff(
     
     ffresult = False
     
-    ffresult = faultyFileDetection(faulty_file_output)
-    faulty_file_output.output()
+    ffresult = faultyFileDetection(erc_drc_check)
+    
 
     if ffresult:
-        print("\nFaulty files were detected, therefore Command aborted!")
+        faulty_file_output.output()
         raise typer.Exit(1)
     else:
         diff_result = gitmanager.diff(commit[0], commit[1], file)
