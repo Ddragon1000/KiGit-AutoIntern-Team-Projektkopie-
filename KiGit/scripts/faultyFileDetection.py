@@ -10,7 +10,7 @@ from scripts.commands import GitManager
 cwd = pathlib.Path.cwd()
 
 
-def faultyFileDetection(erc_drc_check) -> bool:
+def faultyFileDetection(erc_drc_check, erc_drc_output) -> bool:
     #faulty file detection
     
     gitmanager = GitManager(cwd)
@@ -27,6 +27,16 @@ def faultyFileDetection(erc_drc_check) -> bool:
     if erc_drc_check:
         for file in kicad_files:
             result = create_ERC_DRC_process(file, erc_drc_check)
+
+            if result.stderr:
+                result.stderr = None
+                return True
+
+            file_check = [file, result.stdout]
+            if re.search("sch$", file):
+                erc_drc_output.add_schematic(file_check)
+            elif re.search("pcb$", file):
+                erc_drc_output.add_pcb(file_check)
 
     else:
         for file in kicad_files:
@@ -63,7 +73,7 @@ def create_ERC_DRC_process(file, erc_drc_check):
             return subprocess.run(drc_args, capture_output=True, check=False, text=True)
 
 
-    return subprocess.run(args, capture_output=True, check=False, text=True)
+    return None
 
 
 

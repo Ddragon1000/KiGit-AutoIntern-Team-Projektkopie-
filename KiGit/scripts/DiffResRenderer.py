@@ -265,15 +265,15 @@ def call_status():
 class ERC_DRC_Output:
 
     def __init__(self):
-        self.schematic_files : list[list[str, bool, str]] = [] # list of lists that contain the output relevant information: 
+        self.schematic_files : list[list[str, str]] = [] # list of lists that contain the output relevant information: 
                                                                      #[file, faulty, result.stdout for erc_drc_check]
-        self.pcb_files : list[list[str, bool, str]] = []
+        self.pcb_files : list[list[str, str]] = []
 
-    def add_schematic(self, file_check: list[str, bool, str]):
+    def add_schematic(self, file_check: list[str, str]):
         #adds a list object of relevant output information of a schematic file check to the schematic list of the class
         self.schematic_files.append(file_check)
 
-    def add_pcb(self, file_check: list[str, bool, str]):
+    def add_pcb(self, file_check: list[str, str]):
         #adds a list object of relevant output information of a pcb file check to the pcb list of the class
         self.pcb_files.append(file_check)
 
@@ -281,20 +281,17 @@ class ERC_DRC_Output:
         #iterates through the schematic file list to output every file check
         for file in self.schematic_files:
             file_name = file[0]
-            faulty = file[1]
-            erc_output = file[2]
+            erc_output = file[1]
 
-
-            print(f"ERC check of {file_name}: {erc_output}")
+            print(f"ERC check of {file_name}: \n{erc_output}")
 
 
         for file in self.pcb_files: 
             #iterates through the pcb file list to output every file check
             file_name = file[0]
-            faulty = file[1]
-            drc_output = file[2]
+            drc_output = file[1]
 
-            print(f"DRC check of {file_name}: {drc_output}")
+            print(f"DRC check of {file_name}: \n{drc_output}")
 
 
 class FaultyFileOutput:

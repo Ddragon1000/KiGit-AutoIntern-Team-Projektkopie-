@@ -73,12 +73,17 @@ def diff(
 
     parser = KiCadDiffParser()
 
+
     faulty_file_output = renderer.FaultyFileOutput()
 
-    
     ffresult = False
     
-    ffresult = faultyFileDetection(erc_drc_check)
+    if erc_drc_check:
+        erc_drc_output = renderer.ERC_DRC_Output()
+        ffresult = faultyFileDetection(erc_drc_check, erc_drc_output)
+        erc_drc_output.output()
+    else:
+        ffresult = faultyFileDetection(erc_drc_check, None)
     
 
     if ffresult:
