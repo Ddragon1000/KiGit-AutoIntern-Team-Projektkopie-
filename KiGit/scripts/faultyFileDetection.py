@@ -3,6 +3,7 @@ import pathlib
 import os
 import re
 from scripts.DiffResRenderer import FaultyFileOutput
+from scripts.DiffRes import DiffRes
 
 from scripts.commands import GitManager
 
@@ -10,22 +11,16 @@ from scripts.commands import GitManager
 cwd = pathlib.Path.cwd()
 
 
-def faultyFileDetection(erc_drc_check, erc_drc_output) -> bool:
+def faultyFileDetection(erc_drc_check, erc_drc_output, diffres) -> bool:
     #faulty file detection
-    
-    gitmanager = GitManager(cwd)
-
-
-    kicad_files = []
-
-    
-    for f in os.listdir(gitmanager.repo.working_tree_dir):
-        if os.path.isfile(os.path.join(gitmanager.repo.working_tree_dir, f)) and (re.search("sch$", f) or re.search("pcb$", f)):
-            kicad_files.append(f)
 
     
     if erc_drc_check:
-        for file in kicad_files:
+        filesd = diffres.filterFile()
+
+        changed_files = [file.changes[0].origin for file in filesd]
+
+        for file in changed_files:
             result = create_ERC_DRC_process(file, erc_drc_check)
 
             if result.stderr:
@@ -39,6 +34,14 @@ def faultyFileDetection(erc_drc_check, erc_drc_output) -> bool:
                 erc_drc_output.add_pcb(file_check)
 
     else:
+        gitmanager = GitManager(cwd)
+
+        kicad_files = []
+
+        for f in os.listdir(gitmanager.repo.working_tree_dir):
+            if os.path.isfile(os.path.join(gitmanager.repo.working_tree_dir, f)) and (re.search("sch$", f) or re.search("pcb$", f)):
+                kicad_files.append(f)
+
         for file in kicad_files:
 
             result = create_ERC_DRC_process(file, erc_drc_check)

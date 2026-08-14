@@ -78,12 +78,8 @@ def diff(
 
     ffresult = False
     
-    if erc_drc_check:
-        erc_drc_output = renderer.ERC_DRC_Output()
-        ffresult = faultyFileDetection(erc_drc_check, erc_drc_output)
-        erc_drc_output.output()
-    else:
-        ffresult = faultyFileDetection(erc_drc_check, None)
+    if not erc_drc_check:
+        ffresult = faultyFileDetection(erc_drc_check, None, None)
     
 
     if ffresult:
@@ -101,6 +97,11 @@ def diff(
         if stats.isEmpty():
             typer.echo("No KiCad file changes detected")
             raise typer.Exit(1)
+
+        if erc_drc_check:
+            erc_drc_output = renderer.ERC_DRC_Output()
+            ffresult = faultyFileDetection(erc_drc_check, erc_drc_output, stats)
+            erc_drc_output.output()
 
         if debug:
             print(f"[DEBUG] {stats}")
