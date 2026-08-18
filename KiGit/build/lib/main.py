@@ -8,7 +8,7 @@ from rich.table import Table
 from parser.diff_parser import KiCadDiffParser
 from scripts.commands import GitManager
 from typing import Annotated
-from scripts.faultyFileDetection import faultyFileDetection
+from scripts.faultyFileDetection import faultyFileDetection, erc_drc
 
 app = typer.Typer(
     name="KiGit",
@@ -78,8 +78,7 @@ def diff(
 
     ffresult = False
     
-    if not erc_drc_check:
-        ffresult = faultyFileDetection(erc_drc_check, None, None)
+    ffresult = faultyFileDetection()
     
 
     if ffresult:
@@ -98,12 +97,14 @@ def diff(
             typer.echo("No KiCad file changes detected")
             raise typer.Exit(1)
 
+        erc_drc_faulty = False
+
         if erc_drc_check:
             erc_drc_output = renderer.ERC_DRC_Output()
-            ffresult = faultyFileDetection(erc_drc_check, erc_drc_output, stats)
+            erc_drc_faulty = erc_drc(erc_drc_output, stats)
             erc_drc_output.output()
 
-        if ffresult:
+        if erc_drc_faulty:
             faulty_file_output.output()
             raise typer.Exit(1)
 
