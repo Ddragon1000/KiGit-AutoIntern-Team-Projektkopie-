@@ -69,10 +69,10 @@ def create_ERC_DRC_process(file, erc_drc_check):
             return subprocess.run(drc_args, capture_output=True, check=False, text=True)
     else:
         if schematic:
-            erc_args = ["kicad-cli", "sch", "erc", file, "--output", "faultyFileCheckSch"]
+            erc_args = ["kicad-cli", "sch", "export", "pdf", file, "--output", "faultyFileCheckSch"]
             return subprocess.run(erc_args, capture_output=True, check=False, text=True)
         elif pcb:
-            drc_args = ["kicad-cli", "pcb", "drc", file, "--output", "faultyFileCheckPCB"]
+            drc_args = ["kicad-cli", "pcb", "export", "pdf", file, "--output", "faultyFileCheckPCB", "--layers", "F.Cu"]
             return subprocess.run(drc_args, capture_output=True, check=False, text=True)
 
 

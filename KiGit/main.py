@@ -103,6 +103,10 @@ def diff(
             ffresult = faultyFileDetection(erc_drc_check, erc_drc_output, stats)
             erc_drc_output.output()
 
+        if ffresult:
+            faulty_file_output.output()
+            raise typer.Exit(1)
+
         if debug:
             print(f"[DEBUG] {stats}")
 
