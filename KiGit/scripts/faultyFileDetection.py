@@ -2,7 +2,6 @@ import subprocess
 import pathlib
 import os
 import re
-import time
 from shutil import which
 from scripts.DiffResRenderer import FaultyFileOutput
 from scripts.DiffRes import DiffRes
@@ -32,7 +31,6 @@ def faultyFileDetection() -> bool:
 
         if not result:
             print("Subprocess creation for faultyFileDetection failed. Please check if kicad-cli is installed in PATH.")
-            time.sleep(5)
             break
 
         for arg in result.args:
@@ -62,7 +60,6 @@ def erc_drc(erc_drc_output, diffres):
 
         if not result:
             print("Subprocess creation for erc-drc-check failed. Please check if kicad-cli is installed in PATH.")
-            time.sleep(5)
             break
 
         if result.stderr:
@@ -83,46 +80,27 @@ def create_subprocess(file, erc_drc_check):
     pcb = re.search(f"pcb$", file)
 
     if erc_drc_check:
-        if schematic:
-            try:
-                erc_args = ["kicad-cli", "sch", "erc", file]
-                return subprocess.run(erc_args, capture_output=True, check=False, text=True)
-            except:
-                pass
-        elif pcb:
-            try:
-                drc_args = ["kicad-cli", "pcb", "drc", file]
-                return subprocess.run(drc_args, capture_output=True, check=False, text=True)
-            except:
-                pass
-
+        try:
+            if schematic:
+                args = ["kicad-cli", "sch", "erc", file]
+            elif pcb:
+                args = ["kicad-cli", "pcb", "drc", file]
+            return subprocess.run(args, capture_output=True, check=False, text=True)
+        except:
+            pass
     else:
-        if schematic:
-            try:
-                erc_args = ["kicad-cli", "sch", "export", "pdf", file, "--output", "faultyFileCheckSch"]
-                return subprocess.run(erc_args, capture_output=True, check=False, text=True)
-            except:
+        try:
+            if schematic:
+                args = ["kicad-cli", "sch", "export", "pdf", file, "--output", "faultyFileCheckSch"]
+            elif pcb:
+                args = ["kicad-cli", "pcb", "export", "pdf", file, "--output", "faultyFileCheckPCB", "--layers", "F.Cu"]
+            return subprocess.run(args, capture_output=True, check=False, text=True)
+        except:
                 pass
-        elif pcb:
-            try:
-                drc_args = ["kicad-cli", "pcb", "export", "pdf", file, "--output", "faultyFileCheckPCB", "--layers", "F.Cu"]
-                return subprocess.run(drc_args, capture_output=True, check=False, text=True)
-            except:
-                pass
-
 
     return None
 
 
-# Source - https://stackoverflow.com/a/34177358
-# Posted by Six, modified by community. See post 'Timeline' for change history
-# Retrieved 2026-08-19, License - CC BY-SA 4.0
 
-def is_tool(name):
-    """Check whether `name` is on PATH and marked as executable."""
-
-    # from whichcraft import which
-
-    return which(name) is not None
 
 
