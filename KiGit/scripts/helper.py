@@ -23,6 +23,7 @@ SOFTWARE.
 """
 import sexpdata
 import scripts.BasicChange as bc
+from typing import Any, Optional
 
 def extract_parameters(element):
     # convert string into S-expression
@@ -62,6 +63,29 @@ def format_parameters(changes, detail):
         return "-"
 
     all_params = []
+
+    if "modified" in detail:
+        for change in changes:
+            if not isinstance(change, bc.ComponentModified):
+                continue
+            if not hasattr(change, "old_component"):
+                continue 
+            modified = get_modified_parameters(change.old_component,change.new_component)
+            if not modified:
+                continue
+            all_params.append("[Modified]")
+
+            for key, values in modified.items():
+                old_value = values["old"]
+                new_value = values["new"]
+
+                all_params.append(
+                    f"{key}: {old_value} -> {new_value}"
+                )
+
+            all_params.append("")
+        return "\n".join(all_params) if all_params else "-"
+
     #we go thorugh components
     for change in changes:
         params = extract_parameters(change.component)
@@ -102,6 +126,8 @@ def filter_parameters(params, detail):
     #if no details
     if not detail:
         return {}
+    if "modified" in detail:
+        return {}
     # Return the complete parameter set
     if "all" in detail:
         return params
@@ -113,3 +139,48 @@ def filter_parameters(params, detail):
             filtered_params[key] = value
 
     return filtered_params
+
+def get_modified_parameters(old_component: str, new_component: str)-> dict:
+    old_params= extract_parameters(old_component)
+    new_params = extract_parameters(new_component)
+    modified = {}
+    all_keys = set(old_params) | set(new_params)
+
+    for key in all_keys:
+        old_value = old_params.get(key)
+        new_value = new_params.get(key)
+
+        if old_value != new_value:
+            modified[key] ={"old": old_value,"new": new_value}
+    return modified
+
+def extract_uuid(element: Any) -> Optional[str]:
+    """
+    Extract the UUID from the S-Expression elements
+    """
+    if not isinstance(element,list):
+        return None
+    for item in element:
+        if not isinstance(item,list) or not item:
+            continue
+        if str(item[0]) == "uuid" and len(item) > 1:
+            return str(item[1])
+        nested_uuid = extract_uuid(item)
+        if nested_uuid is not None:
+            return nested_uuid
+    return None
+
+def find_mod_match(old_el: list[Any], cand: list[list[Any]])-> Optional[list[Any]]:
+    """
+    find new element to old_el through the uuid
+    """
+    old_uuid = extract_uuid(old_el)
+    if old_uuid is None:
+        return None
+
+    for new_el in cand:
+        new_uuid = extract_uuid(new_el)
+        if new_uuid == old_uuid:
+            return new_el
+
+    return None

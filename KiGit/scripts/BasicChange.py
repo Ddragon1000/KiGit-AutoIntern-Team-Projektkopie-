@@ -40,7 +40,8 @@ class ComponentRemoved(BasicChange):
 
 @dataclass
 class ComponentModified(BasicChange):
-    pass
+    old_component: str
+    new_component: str
 
 @dataclass
 class ComponentMoved(ComponentModified):

@@ -1,8 +1,32 @@
+"""
+MIT License
+
+Copyright (c) Jannick Tim Medda, Dennis Piotrowski, Marcel Wiemann, Ismail Koc, Daniel Quayes, Adrian Sturm
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
 import sexpdata
 from typing import Any, Optional
 from dataclasses import dataclass
 from scripts.DiffRes import DiffRes
 import scripts.BasicChange as BasicChange
+from scripts.helper import extract_parameters, extract_uuid, find_mod_match
 from git import Blob, IndexObject
 from git.diff import Diff, DiffIndex
 from pathlib import Path
@@ -66,6 +90,19 @@ class KiCadDiffParser:
 		#only new elements in here if there are not a part of old elements
 		unmatched_new = [elem for elem in new_elems if elem not in old_elems]
 
+		for old_el in list(unmatched_old):
+			new_el = find_mod_match(old_el, unmatched_new)
+
+			if new_el is None:
+				continue
+			self.diffres.addChange(BasicChange.ComponentModified(
+				reference=keyword, origin=path, component=sexpdata.dumps(new_el),
+				old_component=sexpdata.dumps(old_el), new_component=sexpdata.dumps(new_el)
+			))
+
+			unmatched_old.remove(old_el)
+			unmatched_new.remove(new_el)
+
 		self._report_moved(unmatched_old, unmatched_new, keyword, path)
 
 		#everything else should be deleted or added
@@ -96,9 +133,12 @@ class KiCadDiffParser:
 				continue
 
 			new_el, new_pts = match
+
 			self.diffres.addChange(BasicChange.ComponentMoved(
 				reference=keyword, origin=path,
 				component=sexpdata.dumps(new_el),
+				old_component=sexpdata.dumps(old_el),
+				new_component=sexpdata.dumps(new_el),
 				coordinates=(old_pts, new_pts)
 			))
 			unmatched_old.remove(old_el)

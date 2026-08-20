@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from scripts.helper import extract_parameters, format_parameters, filter_parameters
+from scripts.helper import extract_parameters, format_parameters, filter_parameters, get_modified_parameters
 import os
 import json
 import scripts.DiffRes as diffres
@@ -85,19 +85,27 @@ class JsonDiffRenderer(DiffResRenderer):
         name = change.__class__.__name__
         match name: 
             case "ComponentAdded":
-                type = "added"
+                change_type = "added"
             case "ComponentRemoved":
-                type = "removed"
+                change_type = "removed"
             case _:
-                type = "modified"
+                change_type = "modified"
 
         change_json = {
-            "type": type,
+            "type": change_type,
             "element": change.reference
         }
-        params = filter_parameters(extract_parameters(change.component),self.detail)
-        if params:
-            change_json["parameters"] = params
+
+        if("modified" in self.detail and
+           isinstance(change, bc.ComponentModified)):
+            if hasattr(change,"old_component"):
+                modified= get_modified_parameters(change.old_component, change.new_component)
+                if modified:
+                    change_json["parameters"]= modified
+        else:
+            params = filter_parameters(extract_parameters(change.component),self.detail)
+            if params:
+                change_json["parameters"] = params
         
         return change_json
     
@@ -132,7 +140,12 @@ class HTMLDiffRenderer(DiffResRenderer):
 
         if not self.show_filename:
             for components in dr.groupByComponent():
-                html += f"  <tr><td>{components.changes[0].reference}</td><td>{len(components.getAdded())}</td><td>{len(components.getRemoved())}</td><td>{len(components.getModified())}</td></tr>\n"
+                html += f"  <tr><td>{components.changes[0].reference}</td><td>{len(components.getAdded())}</td><td>{len(components.getRemoved())}</td><td>{len(components.getModified())}"
+                if self.detail:
+                    html += "<br><pre>"
+                    html += format_parameters(components.changes,self.detail)
+                    html += "</pre>"
+                html += "</td></tr>\n"
         else:
             for file_components in dr.filterFile():
                 filename = file_components.changes[0].origin
@@ -160,6 +173,8 @@ class TableDiffRenderer(DiffResRenderer):
             table.add_column("Removed", justify="center", style="red")
             table.add_column("Modified", justify="center", style="yellow")
 
+            if self.detail:
+                table.add_column("Parameters", justify="left", style="Cyan")
             if self.show_filename:
                 table.add_column("Filename", justify="center", style="white")
 
@@ -168,21 +183,30 @@ class TableDiffRenderer(DiffResRenderer):
                 #components_iterable = dr_or_components.groupByComponent() if not self.show_filename else dr_or_components.filterFile()
             #else:
                 #components_iterable = dr_or_components
-
+            
             if self.show_filename:
                 for components in dr.filterFile():
                     for component in components.groupByComponent():
-                        table.add_row(str(component.changes[0].reference),
-                                        str(len(component.getAdded())),
-                                        str(len(component.getRemoved())),
-                                        str(len(component.getModified())))
+                        row = [
+                                str(component.changes[0].reference),
+                                str(len(component.getAdded())),
+                                str(len(component.getRemoved())),
+                                str(len(component.getModified()))
+                            ]
+                        if self.detail:
+                            row.append(format_parameters(component.changes,self.detail))
+                        table.add_row(*row)
             else:
                 for components in dr.groupByComponent():
-                    table.add_row(str(components.changes[0].reference),
-                                        str(len(components.getAdded())),
-                                        str(len(components.getRemoved())),
-                                        str(len(components.getModified())),
-                                        str(components.changes[0].origin))
+                    row = [
+                        str(components.changes[0].reference),
+                        str(len(components.getAdded())),
+                        str(len(components.getRemoved())),
+                        str(len(components.getModified()))
+                    ]
+                    if self.detail:
+                        row.append(format_parameters(components.changes,self.detail))
+                    table.add_row(*row)
             return table
 
 
