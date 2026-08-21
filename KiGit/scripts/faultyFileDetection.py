@@ -87,14 +87,14 @@ def create_subprocess(file, erc_drc_check, output = None):
                     args = ["kicad-cli", "pcb", "drc", file]
             elif output == OutputFormat.JSON:
                 if schematic:
-                    args = ["kicad-cli", "sch", "erc", file, "--output", f"{file.rsplit(".", 1)[0]}.json"]
+                    args = ["kicad-cli", "sch", "erc", file, "--output", f"{file.rsplit(".", 1)[0]}-erc.json"]
                 elif pcb:
-                    args = ["kicad-cli", "pcb", "drc", file, "--output", f"{file.rsplit(".", 1)[0]}.json"]
+                    args = ["kicad-cli", "pcb", "drc", file, "--output", f"{file.rsplit(".", 1)[0]}-drc.json"]
             elif output == OutputFormat.HTML:
                 if schematic:
-                    args = ["kicad-cli", "sch", "erc", file, "--output", f"{file.rsplit(".", 1)[0]}.html"]
+                    args = ["kicad-cli", "sch", "erc", file, "--output", f"{file.rsplit(".", 1)[0]}-erc.html"]
                 elif pcb:
-                    args = ["kicad-cli", "pcb", "drc", file, "--output", f"{file.rsplit(".", 1)[0]}.html"]
+                    args = ["kicad-cli", "pcb", "drc", file, "--output", f"{file.rsplit(".", 1)[0]}-drc.html"]
             return subprocess.run(args, capture_output=True, check=False, text=True)
         except:
             pass
