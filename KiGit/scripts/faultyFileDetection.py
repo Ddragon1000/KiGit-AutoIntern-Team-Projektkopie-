@@ -2,8 +2,7 @@ import subprocess
 import pathlib
 import os
 import re
-from shutil import which
-from scripts.DiffResRenderer import FaultyFileOutput
+from scripts.DiffResRenderer import FaultyFileOutput, OutputFormat
 from scripts.DiffRes import DiffRes
 
 from scripts.commands import GitManager
@@ -49,14 +48,14 @@ def faultyFileDetection() -> bool:
     return False
 
 
-def erc_drc(erc_drc_output, diffres):
+def erc_drc(erc_drc_output, diffres, output):
 
     filesd = diffres.filterFile()
 
     changed_files = [file.changes[0].origin for file in filesd]
 
     for file in changed_files:
-        result = create_subprocess(file, True)
+        result = create_subprocess(file, True, output)
 
         if not result:
             print("Subprocess creation for erc-drc-check failed. Please check if kicad-cli is installed in PATH.")
@@ -74,26 +73,37 @@ def erc_drc(erc_drc_output, diffres):
 
 
 
-def create_subprocess(file, erc_drc_check):
+def create_subprocess(file, erc_drc_check, output = None):
             
     schematic = re.search("sch$", file)
     pcb = re.search(f"pcb$", file)
 
     if erc_drc_check:
         try:
-            if schematic:
-                args = ["kicad-cli", "sch", "erc", file]
-            elif pcb:
-                args = ["kicad-cli", "pcb", "drc", file]
+            if output == OutputFormat.TABLE:
+                if schematic:
+                    args = ["kicad-cli", "sch", "erc", file]
+                elif pcb:
+                    args = ["kicad-cli", "pcb", "drc", file]
+            elif output == OutputFormat.JSON:
+                if schematic:
+                    args = ["kicad-cli", "sch", "erc", file, "--output", f"{file.rsplit(".", 1)[0]}.json"]
+                elif pcb:
+                    args = ["kicad-cli", "pcb", "drc", file, "--output", f"{file.rsplit(".", 1)[0]}.json"]
+            elif output == OutputFormat.HTML:
+                if schematic:
+                    args = ["kicad-cli", "sch", "erc", file, "--output", f"{file.rsplit(".", 1)[0]}.html"]
+                elif pcb:
+                    args = ["kicad-cli", "pcb", "drc", file, "--output", f"{file.rsplit(".", 1)[0]}.html"]
             return subprocess.run(args, capture_output=True, check=False, text=True)
         except:
             pass
     else:
         try:
             if schematic:
-                args = ["kicad-cli", "sch", "export", "pdf", file, "--output", "faultyFileCheckSch"]
+                args = ["kicad-cli", "sch", "export", "pdf", file, "--output", "faultyFileCheckSch.lck"]
             elif pcb:
-                args = ["kicad-cli", "pcb", "export", "pdf", file, "--output", "faultyFileCheckPCB", "--layers", "F.Cu"]
+                args = ["kicad-cli", "pcb", "export", "pdf", file, "--output", "faultyFileCheckPCB.lck", "--layers", "F.Cu"]
             return subprocess.run(args, capture_output=True, check=False, text=True)
         except:
                 pass
