@@ -2,6 +2,7 @@ import subprocess
 import pathlib
 import os
 import re
+import functools
 from scripts.DiffResRenderer import FaultyFileOutput, OutputFormat
 from scripts.DiffRes import DiffRes
 
@@ -73,12 +74,22 @@ def erc_drc(erc_drc_output, diffres, output):
 
 
 
+@functools.lru_cache
 def create_subprocess(file, erc_drc_check, output = None):
             
     schematic = re.search("sch$", file)
-    pcb = re.search(f"pcb$", file)
+    pcb = re.search("pcb$", file)
 
-    if erc_drc_check:
+    if not erc_drc_check:
+        try:
+            if schematic:
+                args = ["kicad-cli", "sch", "export", "pdf", file, "--output", "faultyFileCheckSch.lck"]
+            elif pcb:
+                args = ["kicad-cli", "pcb", "export", "pdf", file, "--output", "faultyFileCheckPCB.lck", "--layers", "F.Cu"]
+            return subprocess.run(args, capture_output=True, check=False, text=True)
+        except:
+            pass
+    else:
         try:
             if output == OutputFormat.TABLE:
                 if schematic:
@@ -87,9 +98,9 @@ def create_subprocess(file, erc_drc_check, output = None):
                     args = ["kicad-cli", "pcb", "drc", file]
             elif output == OutputFormat.JSON:
                 if schematic:
-                    args = ["kicad-cli", "sch", "erc", file, "--output", f"{file.rsplit(".", 1)[0]}-erc.json"]
+                    args = ["kicad-cli", "sch", "erc", file, "--output", f"{file.rsplit(".", 1)[0]}-erc.json", "--format", "json"]
                 elif pcb:
-                    args = ["kicad-cli", "pcb", "drc", file, "--output", f"{file.rsplit(".", 1)[0]}-drc.json"]
+                    args = ["kicad-cli", "pcb", "drc", file, "--output", f"{file.rsplit(".", 1)[0]}-drc.json", "--format", "json"]
             elif output == OutputFormat.HTML:
                 if schematic:
                     args = ["kicad-cli", "sch", "erc", file, "--output", f"{file.rsplit(".", 1)[0]}-erc.html"]
@@ -98,15 +109,7 @@ def create_subprocess(file, erc_drc_check, output = None):
             return subprocess.run(args, capture_output=True, check=False, text=True)
         except:
             pass
-    else:
-        try:
-            if schematic:
-                args = ["kicad-cli", "sch", "export", "pdf", file, "--output", "faultyFileCheckSch.lck"]
-            elif pcb:
-                args = ["kicad-cli", "pcb", "export", "pdf", file, "--output", "faultyFileCheckPCB.lck", "--layers", "F.Cu"]
-            return subprocess.run(args, capture_output=True, check=False, text=True)
-        except:
-                pass
+  
 
     return None
 
