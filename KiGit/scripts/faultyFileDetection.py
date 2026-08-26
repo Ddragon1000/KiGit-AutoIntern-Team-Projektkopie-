@@ -2,7 +2,7 @@ import subprocess
 import pathlib
 import os
 import re
-import functools
+import multiprocessing
 from scripts.DiffResRenderer import FaultyFileOutput, OutputFormat
 from scripts.DiffRes import DiffRes
 
@@ -19,22 +19,47 @@ def faultyFileDetection() -> bool:
 
     kicad_files = []
 
+    faulty = False
+
     for f in os.listdir(gitmanager.repo.working_tree_dir):
         if os.path.isfile(os.path.join(gitmanager.repo.working_tree_dir, f)) and (re.search("sch$", f) or re.search("pcb$", f)):
             kicad_files.append(f)
 
+    processes = []
+    is_faulty = False
+    queue = multiprocessing.Queue()
+    queue.put(is_faulty)
+    
     for file in kicad_files:
 
+
+        p = multiprocessing.Process(target = detection, args = (file, gitmanager, queue))
+        processes.append(p)
+
+    for process in processes:
+        process.start()
+
+    for process in processes:
+        process.join()
+        value = queue.get()
+        print(value)
+        if value == True:
+            faulty = True
+
+    return faulty
+
+
+
+def detection(file, gitmanager, queue) -> bool:
         result = create_subprocess(file, False)
 
-        file_to_delete = None
+        file_to_delete = ""
 
         if not result:
             print("Subprocess creation for faultyFileDetection failed. Please check if kicad-cli is installed in PATH.")
-            break
 
         for arg in result.args:
-            re_obj = re.search("^faultyFileCheck", arg)
+            re_obj = re.search(f"{file}.kigittmp", arg)
             if re_obj:
                 file_to_delete = re_obj.string
 
@@ -44,9 +69,9 @@ def faultyFileDetection() -> bool:
 
         if result.stderr:
             result.stderr = None
-            return True
-
-    return False
+            queue.put(True)
+        else:  
+            queue.put(False)
 
 
 def erc_drc(erc_drc_output, diffres, output):
@@ -74,7 +99,6 @@ def erc_drc(erc_drc_output, diffres, output):
 
 
 
-@functools.lru_cache
 def create_subprocess(file, erc_drc_check, output = None):
             
     schematic = re.search("sch$", file)
@@ -83,9 +107,9 @@ def create_subprocess(file, erc_drc_check, output = None):
     if not erc_drc_check:
         try:
             if schematic:
-                args = ["kicad-cli", "sch", "export", "pdf", file, "--output", "faultyFileCheckSch.lck"]
+                args = ["kicad-cli", "sch", "export", "pdf", file, "--output", f"{file}.kigittmp"]
             elif pcb:
-                args = ["kicad-cli", "pcb", "export", "pdf", file, "--output", "faultyFileCheckPCB.lck", "--layers", "F.Cu"]
+                args = ["kicad-cli", "pcb", "export", "pdf", file, "--output", f"{file}.kigittmp", "--layers", "F.Cu"]
             return subprocess.run(args, capture_output=True, check=False, text=True)
         except:
             pass
