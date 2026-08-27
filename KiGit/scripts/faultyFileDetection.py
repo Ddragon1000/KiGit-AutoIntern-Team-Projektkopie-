@@ -4,7 +4,7 @@ import os
 import re
 import multiprocessing
 import concurrent.futures
-from scripts.DiffResRenderer import FaultyFileOutput, OutputFormat
+from scripts.DiffResRenderer import FaultyFileOutput, ERC_DRC_Output, OutputFormat
 from scripts.DiffRes import DiffRes
 
 from scripts.commands import GitManager
@@ -73,41 +73,36 @@ def detection(file, gitmanager, queue) -> bool:
             queue.put(False)
 
 
-def erc_drc(erc_drc_output, diffres, output):
+def erc_drc(erc_drc_output, diffres, output) -> tuple[bool, ERC_DRC_Output]:
 
     filesd = diffres.filterFile()
 
     changed_files = [file.changes[0].origin for file in filesd]
 
-    processes = []
+    func_args = [[file, erc_drc_output, output] for file in changed_files]
+
     erc_drc_fail = False
     is_faulty = False
-    erc_drc_temp = erc_drc_output
-    queue1 = multiprocessing.Queue()
-    queue1.put(is_faulty)
-    queue2 = multiprocessing.Queue()
-    queue2.put(erc_drc_temp)
 
-    for file in changed_files:
-        p = multiprocessing.Process(target = erc_drc_inner_function, args = (file, queue1, queue2, output))
-        processes.append(p)
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        results = executor.map(erc_drc_inner_function, func_args)
+        print(results)
+        for result in list(results):
+            is_faulty = result
+            if is_faulty:
+                erc_drc_fail = True
+            
 
-    for process in processes:
-        process.start()
 
-    for process in processes:
-        process.join()
-        result = queue1.get()
-        if result == True:
-            erc_drc_fail = True
-
-    erc_drc_output = queue2.get()
-
-    return erc_drc_fail
+    return (erc_drc_fail, erc_drc_output)
 
 
 
-def erc_drc_inner_function(file, queue1, queue2, output):
+def erc_drc_inner_function(func_args) -> bool:
+        file = func_args[0]
+        erc_drc_output = func_args[1]
+        output = func_args[2]
+
         result = create_erc_drc_subprocess(file, output)
 
         if not result:
@@ -115,20 +110,17 @@ def erc_drc_inner_function(file, queue1, queue2, output):
 
         if result.stderr:
             result.stderr = None
-            queue1.put(True)
-        else: 
-            queue1.put(False)
+            return True
 
         file_check = [file, result.stdout]
         if re.search("sch$", file):
-            ret = queue2.get()
-            ret.add_schematic(file_check)
-            queue2.put(ret)
+            erc_drc_output.add_schematic(file_check)
+            erc_drc_output.output()
         elif re.search("pcb$", file):
-            ret = queue2.get()
-            ret.add_pcb(file_check)
-            queue2.put(ret)
+            erc_drc_output.add_pcb(file_check)
+            erc_drc_output.output()
 
+        return False
 
 
 
@@ -153,6 +145,8 @@ def create_erc_drc_subprocess(file, output = OutputFormat.TABLE):
 
     schematic = re.search("sch$", file)
     pcb = re.search("pcb$", file)
+
+    print(file)
 
     try:
         if output == OutputFormat.TABLE:

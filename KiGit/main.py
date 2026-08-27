@@ -101,7 +101,7 @@ def diff(
 
         if erc_drc_check:
             erc_drc_output = renderer.ERC_DRC_Output()
-            erc_drc_faulty = erc_drc(erc_drc_output, stats, output)
+            erc_drc_faulty, erc_drc_output = erc_drc(erc_drc_output, stats, output)
             erc_drc_output.output()
 
         if erc_drc_faulty:
