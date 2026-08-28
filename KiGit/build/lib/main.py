@@ -8,7 +8,7 @@ from rich.table import Table
 from parser.diff_parser import KiCadDiffParser
 from scripts.commands import GitManager
 from typing import Annotated
-from scripts.faultyFileDetection import faultyFileDetection, erc_drc
+from scripts.faultyFileDetection import faultyFileDetection, erc_drc_func
 
 app = typer.Typer(
     name="KiGit",
@@ -38,7 +38,7 @@ def diff(
         show_filename: bool = typer.Option(False, help="Shows corresponding Filename in result"),
         output: renderer.OutputFormat = typer.Option(renderer.OutputFormat.TABLE, "--output", "-o", help="Output Format"),
         detail: str = typer.Option("", "--detail", help="Filters detail screen"),
-        erc_drc_check: bool = typer.Option(False, help="Enables ERC and DRC checks for Kicad schematic and PCB Files"),
+        erc_drc: bool = typer.Option(False, help="Enables ER and DR checks for Kicad schematic and PCB Files"),
         debug: bool = typer.Option(False, help="enables Debug options")
         ):
     """Show changes between commits, commit and working tree and more for KiCad files"""
@@ -99,10 +99,10 @@ def diff(
 
 
 
-        if erc_drc_check:
+        if erc_drc:
             erc_drc_faulty = False
             erc_drc_output = renderer.ERC_DRC_Output()
-            erc_drc_faulty = erc_drc(erc_drc_output, stats, output)
+            erc_drc_faulty = erc_drc_func(erc_drc_output, stats, output)
             erc_drc_output.output()
             if erc_drc_faulty:
                 faulty_output.faulty_erc_drc_output()

@@ -43,10 +43,6 @@ def faultyFileDetection() -> bool:
 
     for process in processes:
         process.join()
-        subprocess_fail = queue2.get()
-        if subprocess_fail:
-            for process in processes:
-                process.kill()
         value = queue.get()
         if value == True:
             faulty = True
@@ -56,34 +52,34 @@ def faultyFileDetection() -> bool:
 
 
 def detection(file, gitmanager, queue, queue2):
-        result = create_faulty_file_check_subprocess(file)
+    result = create_faulty_file_check_subprocess(file)
 
-        file_to_delete = ""
+    file_to_delete = ""
 
-        if not result:
-            subprocess_failed_output = FaultyOutput()
-            subprocess_failed_output.subprocess_faulty_output()
-            queue2.put(True)
-            return
+    if not result:
+        subprocess_failed_output = FaultyOutput()
+        subprocess_failed_output.subprocess_faulty_output()
+        queue2.put(True)
+        return
 
-        for arg in result.args:
-            re_obj = re.search(f"{file}.kigittmp", arg)
-            if re_obj:
-                file_to_delete = re_obj.string
+    for arg in result.args:
+        re_obj = re.search(f"{file}.kigittmp", arg)
+        if re_obj:
+            file_to_delete = re_obj.string
 
-        if os.path.exists(os.path.join(gitmanager.repo.working_tree_dir, file_to_delete)):
-            os.remove(os.path.join(gitmanager.repo.working_tree_dir, file_to_delete))
-
-
-        if result.stderr:
-            result.stderr = None
-            queue.put(True)
-        else:  
-            queue.put(False)
+    if os.path.exists(os.path.join(gitmanager.repo.working_tree_dir, file_to_delete)):
+        os.remove(os.path.join(gitmanager.repo.working_tree_dir, file_to_delete))
 
 
+    if result.stderr:
+        result.stderr = None
+        queue.put(True)
+    else:  
+        queue.put(False)
 
-def erc_drc(erc_drc_output, diffres, output) -> bool:
+
+
+def erc_drc_func(erc_drc_output, diffres, output) -> bool:
 
     filesd = diffres.filterFile()
 
@@ -123,13 +119,11 @@ def create_faulty_file_check_subprocess(file):
     schematic = re.search("[.]kicad_sch$", file)
     pcb = re.search("[.]kicad_pcb$", file)
 
-    kicad_cli = find_kicad_cli()
-
     try:
         if schematic:
-            args = [kicad_cli, "sch", "export", "pdf", file, "--output", f"{file}.kigittmp"]
+            args = ["kicad-cli", "sch", "export", "pdf", file, "--output", f"{file}.kigittmp"]
         elif pcb:
-            args = [kicad_cli, "pcb", "export", "pdf", file, "--output", f"{file}.kigittmp", "--layers", "F.Cu"]
+            args = ["kicad-cli", "pcb", "export", "pdf", file, "--output", f"{file}.kigittmp", "--layers", "F.Cu"]
         return subprocess.run(args, capture_output=True, check=False, text=True)
     except:
         pass
@@ -144,25 +138,24 @@ def create_erc_drc_subprocess(func_args):
 
     schematic = re.search("[.]kicad_sch$", file)
     pcb = re.search("[.]kicad_pcb$", file)
-    kicad_cli = find_kicad_cli()
 
 
     try:
         if output == OutputFormat.TABLE:
             if schematic:
-                args = [kicad_cli, "sch", "erc", file]
+                args = ["kicad-cli", "sch", "erc", file]
             elif pcb:
-                args = [kicad_cli, "pcb", "drc", file]
+                args = ["kicad-cli", "pcb", "drc", file]
         elif output == OutputFormat.JSON:
             if schematic:
-                args = [kicad_cli, "sch", "erc", file, "--output", f"{file.rsplit(".", 1)[0]}-erc.json", "--format", "json"]
+                args = ["kicad-cli", "sch", "erc", file, "--output", f"{file.rsplit(".", 1)[0]}-erc.json", "--format", "json"]
             elif pcb:
-                args = [kicad_cli, "pcb", "drc", file, "--output", f"{file.rsplit(".", 1)[0]}-drc.json", "--format", "json"]
+                args = ["kicad-cli", "pcb", "drc", file, "--output", f"{file.rsplit(".", 1)[0]}-drc.json", "--format", "json"]
         elif output == OutputFormat.HTML:
             if schematic:
-                args = [kicad_cli, "sch", "erc", file, "--output", f"{file.rsplit(".", 1)[0]}-erc.html"]
+                args = ["kicad-cli", "sch", "erc", file, "--output", f"{file.rsplit(".", 1)[0]}-erc.html"]
             elif pcb:
-                args = [kicad_cli, "pcb", "drc", file, "--output", f"{file.rsplit(".", 1)[0]}-drc.html"]
+                args = ["kicad-cli", "pcb", "drc", file, "--output", f"{file.rsplit(".", 1)[0]}-drc.html"]
         return subprocess.run(args, capture_output=True, check=False, text=True)
     except:
         pass
