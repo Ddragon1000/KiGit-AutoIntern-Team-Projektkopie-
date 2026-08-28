@@ -41,11 +41,16 @@ def faultyFileDetection() -> bool:
     for process in processes:
         process.start()
 
-    for process in processes:
-        process.join()
-        value = queue.get()
-        if value == True:
-            faulty = True
+    subprocess_fail = queue2.get()
+    if subprocess_fail:
+        for process in processes:
+            process.close()
+    else:
+        for process in processes:
+            process.join()
+            value = queue.get()
+            if value == True:
+                faulty = True
 
     return faulty
 
@@ -57,9 +62,9 @@ def detection(file, gitmanager, queue, queue2):
     file_to_delete = ""
 
     if not result:
+        queue2.put(True)
         subprocess_failed_output = FaultyOutput()
         subprocess_failed_output.subprocess_faulty_output()
-        queue2.put(True)
         return
 
     for arg in result.args:
