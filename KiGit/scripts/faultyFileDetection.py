@@ -20,67 +20,47 @@ def faultyFileDetection() -> bool:
 
     kicad_files = []
 
-    faulty = False
-
     for f in os.listdir(gitmanager.repo.working_tree_dir):
         if os.path.isfile(os.path.join(gitmanager.repo.working_tree_dir, f)) and (re.search("sch$", f) or re.search("pcb$", f)):
             kicad_files.append(f)
 
-    processes = []
     is_faulty = False
-    queue = multiprocessing.Queue()
-    queue.put(is_faulty)
-    subprocess_failed = False
-    queue2 = multiprocessing.Queue()
-    queue2.put(subprocess_failed)
 
-    for file in kicad_files:
-        p = multiprocessing.Process(target = detection, args = (file, gitmanager, queue, queue2))
-        processes.append(p)
-
-    for process in processes:
-        process.start()
-
-    subprocess_fail = queue2.get()
-    if subprocess_fail:
-        for process in processes:
-            process.close()
-    else:
-        for process in processes:
-            process.join()
-            value = queue.get()
-            if value == True:
-                faulty = True
-
-    return faulty
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        results = executor.map(create_faulty_file_check_subprocess, kicad_files)
 
 
+        for result in list(results):
 
-def detection(file, gitmanager, queue, queue2):
-    result = create_faulty_file_check_subprocess(file)
+            if not result:
+                subprocess_failed_output = FaultyOutput()
+                subprocess_failed_output.subprocess_faulty_output()
+                break
 
-    file_to_delete = ""
+            file_to_delete = ""
 
-    if not result:
-        queue2.put(True)
-        subprocess_failed_output = FaultyOutput()
-        subprocess_failed_output.subprocess_faulty_output()
-        return
+            for arg in result.args:
+                re_obj = re.search(f"{result.args[4]}.kigittmp", arg)
+                if re_obj:
+                    file_to_delete = re_obj.string
 
-    for arg in result.args:
-        re_obj = re.search(f"{file}.kigittmp", arg)
-        if re_obj:
-            file_to_delete = re_obj.string
-
-    if os.path.exists(os.path.join(gitmanager.repo.working_tree_dir, file_to_delete)):
-        os.remove(os.path.join(gitmanager.repo.working_tree_dir, file_to_delete))
+            if os.path.exists(os.path.join(gitmanager.repo.working_tree_dir, file_to_delete)):
+                os.remove(os.path.join(gitmanager.repo.working_tree_dir, file_to_delete))
 
 
-    if result.stderr:
-        result.stderr = None
-        queue.put(True)
-    else:  
-        queue.put(False)
+            if result.stderr:
+                result.stderr = None
+                is_faulty = True
+
+
+    return is_faulty
+
+
+
+# def detection(file, gitmanager, queue, quit, subprocess_fail):
+
+
+
 
 
 
@@ -102,6 +82,7 @@ def erc_drc_func(erc_drc_output, diffres, output) -> bool:
             if not result:
                 subprocess_failed_output = FaultyOutput()
                 subprocess_failed_output.subprocess_faulty_output()
+                break
 
             if result.stderr:
                 result.stderr = None
