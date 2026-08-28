@@ -74,7 +74,7 @@ def diff(
     parser = KiCadDiffParser()
 
 
-    faulty_file_output = renderer.FaultyFileOutput()
+    faulty_output = renderer.FaultyOutput()
 
     ffresult = False
     
@@ -82,7 +82,7 @@ def diff(
     
 
     if ffresult:
-        faulty_file_output.output()
+        faulty_output.faulty_file_output()
         raise typer.Exit(1)
     else:
         diff_result = gitmanager.diff(commit[0], commit[1], file)
@@ -97,16 +97,16 @@ def diff(
             typer.echo("No KiCad file changes detected")
             raise typer.Exit(1)
 
-        erc_drc_faulty = False
+
 
         if erc_drc_check:
+            erc_drc_faulty = False
             erc_drc_output = renderer.ERC_DRC_Output()
-            erc_drc_faulty, erc_drc_output = erc_drc(erc_drc_output, stats, output)
+            erc_drc_faulty = erc_drc(erc_drc_output, stats, output)
             erc_drc_output.output()
-
-        if erc_drc_faulty:
-            faulty_file_output.output()
-            raise typer.Exit(1)
+            if erc_drc_faulty:
+                faulty_output.faulty_erc_drc_output()
+                raise typer.Exit(1)
 
         if debug:
             print(f"[DEBUG] {stats}")

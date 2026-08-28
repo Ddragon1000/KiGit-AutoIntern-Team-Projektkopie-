@@ -4,7 +4,7 @@ import os
 import re
 import multiprocessing
 import concurrent.futures
-from scripts.DiffResRenderer import FaultyFileOutput, ERC_DRC_Output, OutputFormat
+from scripts.DiffResRenderer import FaultyOutput, ERC_DRC_Output, OutputFormat
 from scripts.DiffRes import DiffRes
 
 from scripts.commands import GitManager
@@ -30,9 +30,12 @@ def faultyFileDetection() -> bool:
     is_faulty = False
     queue = multiprocessing.Queue()
     queue.put(is_faulty)
+    subprocess_failed = False
+    queue2 = multiprocessing.Queue()
+    queue2.put(subprocess_failed)
 
     for file in kicad_files:
-        p = multiprocessing.Process(target = detection, args = (file, gitmanager, queue))
+        p = multiprocessing.Process(target = detection, args = (file, gitmanager, queue, queue2))
         processes.append(p)
 
     for process in processes:
@@ -40,8 +43,11 @@ def faultyFileDetection() -> bool:
 
     for process in processes:
         process.join()
+        subprocess_fail = queue2.get()
+        if subprocess_fail:
+            for process in processes:
+                process.kill()
         value = queue.get()
-        print(value)
         if value == True:
             faulty = True
 
@@ -49,13 +55,16 @@ def faultyFileDetection() -> bool:
 
 
 
-def detection(file, gitmanager, queue) -> bool:
+def detection(file, gitmanager, queue, queue2):
         result = create_faulty_file_check_subprocess(file)
 
         file_to_delete = ""
 
         if not result:
-            print("Subprocess creation for faultyFileDetection failed. Please check if kicad-cli is installed in PATH.")
+            subprocess_failed_output = FaultyOutput()
+            subprocess_failed_output.subprocess_faulty_output()
+            queue2.put(True)
+            return
 
         for arg in result.args:
             re_obj = re.search(f"{file}.kigittmp", arg)
@@ -73,67 +82,54 @@ def detection(file, gitmanager, queue) -> bool:
             queue.put(False)
 
 
-def erc_drc(erc_drc_output, diffres, output) -> tuple[bool, ERC_DRC_Output]:
+
+def erc_drc(erc_drc_output, diffres, output) -> bool:
 
     filesd = diffres.filterFile()
 
     changed_files = [file.changes[0].origin for file in filesd]
 
-    func_args = [[file, erc_drc_output, output] for file in changed_files]
+    func_args = [[file, output] for file in changed_files]
 
-    erc_drc_fail = False
     is_faulty = False
 
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        results = executor.map(erc_drc_inner_function, func_args)
-        print(results)
+        results = executor.map(create_erc_drc_subprocess, func_args)
+
         for result in list(results):
-            is_faulty = result
-            if is_faulty:
-                erc_drc_fail = True
-            
 
+            if not result:
+                subprocess_failed_output = FaultyOutput()
+                subprocess_failed_output.subprocess_faulty_output()
 
-    return (erc_drc_fail, erc_drc_output)
+            if result.stderr:
+                result.stderr = None
+                is_faulty = True
 
+            file = result.args[3]
+            file_check = [file, result.stdout]
+            if re.search("[.]kicad_sch$", file):
+                erc_drc_output.add_schematic(file_check)
+            elif re.search("[.]kicad_pcb$", file):
+                erc_drc_output.add_pcb(file_check)
 
-
-def erc_drc_inner_function(func_args) -> bool:
-        file = func_args[0]
-        erc_drc_output = func_args[1]
-        output = func_args[2]
-
-        result = create_erc_drc_subprocess(file, output)
-
-        if not result:
-            print("Subprocess creation for erc-drc-check failed. Please check if kicad-cli is installed in PATH.")
-
-        if result.stderr:
-            result.stderr = None
-            return True
-
-        file_check = [file, result.stdout]
-        if re.search("sch$", file):
-            erc_drc_output.add_schematic(file_check)
-            erc_drc_output.output()
-        elif re.search("pcb$", file):
-            erc_drc_output.add_pcb(file_check)
-            erc_drc_output.output()
-
-        return False
+        
+    return is_faulty
 
 
 
 def create_faulty_file_check_subprocess(file):
             
-    schematic = re.search("sch$", file)
-    pcb = re.search("pcb$", file)
+    schematic = re.search("[.]kicad_sch$", file)
+    pcb = re.search("[.]kicad_pcb$", file)
+
+    kicad_cli = find_kicad_cli()
 
     try:
         if schematic:
-            args = ["kicad-cli", "sch", "export", "pdf", file, "--output", f"{file}.kigittmp"]
+            args = [kicad_cli, "sch", "export", "pdf", file, "--output", f"{file}.kigittmp"]
         elif pcb:
-            args = ["kicad-cli", "pcb", "export", "pdf", file, "--output", f"{file}.kigittmp", "--layers", "F.Cu"]
+            args = [kicad_cli, "pcb", "export", "pdf", file, "--output", f"{file}.kigittmp", "--layers", "F.Cu"]
         return subprocess.run(args, capture_output=True, check=False, text=True)
     except:
         pass
@@ -141,33 +137,49 @@ def create_faulty_file_check_subprocess(file):
 
 
 
-def create_erc_drc_subprocess(file, output = OutputFormat.TABLE):
+def create_erc_drc_subprocess(func_args):
 
-    schematic = re.search("sch$", file)
-    pcb = re.search("pcb$", file)
+    file = func_args[0]
+    output = func_args[1]
 
-    print(file)
+    schematic = re.search("[.]kicad_sch$", file)
+    pcb = re.search("[.]kicad_pcb$", file)
+    kicad_cli = find_kicad_cli()
+
 
     try:
         if output == OutputFormat.TABLE:
             if schematic:
-                args = ["kicad-cli", "sch", "erc", file]
+                args = [kicad_cli, "sch", "erc", file]
             elif pcb:
-                args = ["kicad-cli", "pcb", "drc", file]
+                args = [kicad_cli, "pcb", "drc", file]
         elif output == OutputFormat.JSON:
             if schematic:
-                args = ["kicad-cli", "sch", "erc", file, "--output", f"{file.rsplit(".", 1)[0]}-erc.json", "--format", "json"]
+                args = [kicad_cli, "sch", "erc", file, "--output", f"{file.rsplit(".", 1)[0]}-erc.json", "--format", "json"]
             elif pcb:
-                args = ["kicad-cli", "pcb", "drc", file, "--output", f"{file.rsplit(".", 1)[0]}-drc.json", "--format", "json"]
+                args = [kicad_cli, "pcb", "drc", file, "--output", f"{file.rsplit(".", 1)[0]}-drc.json", "--format", "json"]
         elif output == OutputFormat.HTML:
             if schematic:
-                args = ["kicad-cli", "sch", "erc", file, "--output", f"{file.rsplit(".", 1)[0]}-erc.html"]
+                args = [kicad_cli, "sch", "erc", file, "--output", f"{file.rsplit(".", 1)[0]}-erc.html"]
             elif pcb:
-                args = ["kicad-cli", "pcb", "drc", file, "--output", f"{file.rsplit(".", 1)[0]}-drc.html"]
+                args = [kicad_cli, "pcb", "drc", file, "--output", f"{file.rsplit(".", 1)[0]}-drc.html"]
         return subprocess.run(args, capture_output=True, check=False, text=True)
     except:
         pass
     return None
+
+
+def find_kicad_cli() -> str:
+    look_for = "kicad-cli.exe"
+
+    drives = [f'{letter}:\\' for letter in 'CDEFGHIJKLMNOPQRSTUVWXYZ']
+    for drive in drives:
+        if os.path.isdir(drive):
+            for drive in drives:
+                for root, dirs, files in os.walk(drive):
+                    if look_for in files:
+                        return os.path.join(root, look_for)
+    return ""
 
 
 

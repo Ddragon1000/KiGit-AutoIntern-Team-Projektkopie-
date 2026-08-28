@@ -282,8 +282,14 @@ class ERC_DRC_Output(ERC_DRC_Files):
             print(f"DRC check of {file_name}: \n{drc_output}")
 
 
-class FaultyFileOutput:
+class FaultyOutput:
 
-    def output(self):
-        print("Repository contains faulty files. Revert to the last git commit to undo the faulty files. Command aborted!")
+    def faulty_file_output(self):
+        print("Repository contains faulty files, or there is a mismatch between the Kicad version and the Kicad files. ")
+        print("Check the version of your KiCad. If no version mismatch, faulty files exist, revert to the last git commit to undo the faulty files. Command aborted!")
 
+    def faulty_erc_drc_output(self):
+        print("The erc or drc check failed!")
+
+    def subprocess_faulty_output(self):
+        print("Subprocess creation failed. Please check if kicad-cli is installed in PATH.")
