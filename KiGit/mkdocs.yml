@@ -1,4 +1,5 @@
 site_name: Kigit Documentation
+use_directory_urls: false
 site_url: http://127.0.0.1:8000/ #local host for now
 site_description: Kigit Documentation
 site_author: Dennis Piotrowski
