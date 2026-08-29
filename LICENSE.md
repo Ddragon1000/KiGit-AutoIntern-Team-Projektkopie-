@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 RUB-SELAB-2026
+Copyright (c) Jannick Tim Medda, Dennis Piotrowski, Marcel Wiemann, Ismail Koc, Daniel Quayes, Adrian Sturm
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
