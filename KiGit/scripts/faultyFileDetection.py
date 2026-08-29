@@ -2,7 +2,6 @@ import subprocess
 import pathlib
 import os
 import re
-import multiprocessing
 import concurrent.futures
 from scripts.DiffResRenderer import FaultyOutput, ERC_DRC_Output, OutputFormat
 from scripts.DiffRes import DiffRes
@@ -10,6 +9,8 @@ from scripts.DiffRes import DiffRes
 from scripts.commands import GitManager
 
 
+FILE_POSITION_FAULTY_FILE_DETECTION = 4
+FILE_POSITION_ERC_DRC = 3
 cwd = pathlib.Path.cwd()
 
 
@@ -39,10 +40,7 @@ def faultyFileDetection() -> bool:
 
             file_to_delete = ""
 
-            for arg in result.args:
-                re_obj = re.search(f"{result.args[4]}.kigittmp", arg)
-                if re_obj:
-                    file_to_delete = re_obj.string
+            file_to_delete = f"{result.args[FILE_POSITION_FAULTY_FILE_DETECTION]}.kigittmp"
 
             if os.path.exists(os.path.join(gitmanager.repo.working_tree_dir, file_to_delete)):
                 os.remove(os.path.join(gitmanager.repo.working_tree_dir, file_to_delete))
@@ -54,13 +52,6 @@ def faultyFileDetection() -> bool:
 
 
     return is_faulty
-
-
-
-# def detection(file, gitmanager, queue, quit, subprocess_fail):
-
-
-
 
 
 
@@ -88,7 +79,7 @@ def erc_drc_func(erc_drc_output, diffres, output) -> bool:
                 result.stderr = None
                 is_faulty = True
 
-            file = result.args[3]
+            file = result.args[FILE_POSITION_ERC_DRC]
             file_check = [file, result.stdout]
             if re.search("[.]kicad_sch$", file):
                 erc_drc_output.add_schematic(file_check)
@@ -154,10 +145,9 @@ def find_kicad_cli() -> str:
     drives = [f'{letter}:\\' for letter in 'CDEFGHIJKLMNOPQRSTUVWXYZ']
     for drive in drives:
         if os.path.isdir(drive):
-            for drive in drives:
-                for root, dirs, files in os.walk(drive):
-                    if look_for in files:
-                        return os.path.join(root, look_for)
+            for root, dirs, files in os.walk(drive):
+                if look_for in files:
+                    return os.path.join(root, look_for)
     return ""
 
 

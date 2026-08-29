@@ -38,6 +38,7 @@ def diff(
         show_filename: bool = typer.Option(False, help="Shows corresponding Filename in result"),
         output: renderer.OutputFormat = typer.Option(renderer.OutputFormat.TABLE, "--output", "-o", help="Output Format"),
         detail: str = typer.Option("", "--detail", help="Filters detail screen"),
+        faulty_file_check: bool = typer.Option(False, help="Detects whether files are faulty or not. Make sure that the KiCad files are not of a newer version than KiCad itself."),
         erc_drc: bool = typer.Option(False, help="Enables ER and DR checks for Kicad schematic and PCB Files"),
         debug: bool = typer.Option(False, help="enables Debug options")
         ):
@@ -75,48 +76,48 @@ def diff(
 
 
     faulty_output = renderer.FaultyOutput()
-
-    ffresult = False
-    
-    ffresult = faultyFileDetection()
     
 
-    if ffresult:
-        faulty_output.faulty_file_output()
+    if faulty_file_check or erc_drc:
+        ffresult = faultyFileDetection()
+
+        if ffresult:
+            faulty_output.faulty_file_output()
+            raise typer.Exit(1)
+
+
+    diff_result = gitmanager.diff(commit[0], commit[1], file)
+
+    if isinstance(diff_result, str):
+        print(f"[ERROR] Git: {diff_result}")
         raise typer.Exit(1)
     else:
-        diff_result = gitmanager.diff(commit[0], commit[1], file)
+        stats = parser.parse(diff_result, working_tree_dir=gitmanager.repo.working_tree_dir)
 
-        if isinstance(diff_result, str):
-            print(f"[ERROR] Git: {diff_result}")
+    if stats.isEmpty():
+        typer.echo("No KiCad file changes detected")
+        raise typer.Exit(1)
+
+
+
+    if erc_drc:
+        erc_drc_faulty = False
+        erc_drc_output = renderer.ERC_DRC_Output()
+        erc_drc_faulty = erc_drc_func(erc_drc_output, stats, output)
+        erc_drc_output.output()
+        if erc_drc_faulty:
+            faulty_output.faulty_erc_drc_output()
             raise typer.Exit(1)
-        else:
-            stats = parser.parse(diff_result, working_tree_dir=gitmanager.repo.working_tree_dir)
 
-        if stats.isEmpty():
-            typer.echo("No KiCad file changes detected")
-            raise typer.Exit(1)
+    if debug:
+        print(f"[DEBUG] {stats}")
 
-
-
-        if erc_drc:
-            erc_drc_faulty = False
-            erc_drc_output = renderer.ERC_DRC_Output()
-            erc_drc_faulty = erc_drc_func(erc_drc_output, stats, output)
-            erc_drc_output.output()
-            if erc_drc_faulty:
-                faulty_output.faulty_erc_drc_output()
-                raise typer.Exit(1)
-
-        if debug:
-            print(f"[DEBUG] {stats}")
-
-        if output == renderer.OutputFormat.TABLE:
-            renderer.render_diff(stats, renderer.TableDiffRenderer(show_filename))
-        elif output == renderer.OutputFormat.JSON:
-            renderer.render_diff(stats, renderer.JsonDiffRenderer())
-        elif output == renderer.OutputFormat.HTML:
-            renderer.render_diff(stats, renderer.HTMLDiffRenderer(show_filename))
+    if output == renderer.OutputFormat.TABLE:
+        renderer.render_diff(stats, renderer.TableDiffRenderer(show_filename))
+    elif output == renderer.OutputFormat.JSON:
+        renderer.render_diff(stats, renderer.JsonDiffRenderer())
+    elif output == renderer.OutputFormat.HTML:
+        renderer.render_diff(stats, renderer.HTMLDiffRenderer(show_filename))
        
 
 @app.command()
