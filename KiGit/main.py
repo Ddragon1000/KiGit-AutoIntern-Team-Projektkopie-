@@ -11,6 +11,7 @@ from parser.diff_parser import KiCadDiffParser
 from scripts.commands import GitManager
 from scripts.logging_config import setup_logging
 from typing import Annotated
+import scripts.mkdocs as mk
 
 Valid_details = {"all","start","end","width","layer","net","pts","stroke"}
 
@@ -47,8 +48,9 @@ def version_callback(value: bool):
         raise typer.Exit()
 
 
-@app.callback()
+@app.callback(invoke_without_command=True)
 def main(
+    ctx: typer.Context,
     verbose: Annotated[
         int,
         typer.Option(
@@ -66,9 +68,23 @@ def main(
             help= "Developer and Version of Kigit"
         ),
     ] = False,
+    docs: Annotated[
+        bool,
+        typer.Option(
+            "--docs",
+            callback=mk.docs_callback,
+            is_eager=True,
+            help="Opens webbrowser with KiGit documentation page",
+        ),
+        ] = False,
 ): 
     setup_logging(verbose)
     logger.debug(f"logging configured with verbosity level {verbose}")
+
+    if ctx.invoked_subcommand is None and not docs:
+        typer.echo(ctx.get_help())
+        raise typer.Exit()
+
 
 def isPowerShell():
     process_id = os.getpid() #get ID from KiGit-Process
@@ -89,7 +105,14 @@ def diff(
         show_filename: bool = typer.Option(False, help="Shows corresponding Filename in result"),
         output: renderer.OutputFormat = typer.Option(renderer.OutputFormat.TABLE, "--output", "-o", help="Output Format"),
         detail: str = typer.Option("none","--detail",help="Show all details or only a specific parameter."),
-        debug: bool = typer.Option(False, help="enables Debug options")
+        debug: bool = typer.Option(False, help="enables Debug options"),
+        docs: bool = typer.Option(
+            False,
+            "--docs",
+            callback=mk.diff_docs_callback,
+            is_eager=True,
+            help="opens webbrowser with mkdocs page for diff command",
+            )
         ):
     """Show changes between commits, commit and working tree and more for KiCad files"""
 
@@ -184,7 +207,13 @@ def diff(
             )
 
 @app.command()
-def status():
+def status(docs: bool = typer.Option(
+    False,
+    "--docs",
+    callback=mk.status_docs_callback,
+    is_eager=True,
+    help="opens webbrowser with mkdocs page for status command")
+    ):
     logger.info("starting \"status\"-command")
     renderer.call_status()
 #_ wird zu - in CLI
