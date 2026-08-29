@@ -53,4 +53,7 @@ When updates of KiGit are available, pull the changes and reinstall:
 ## Documentation
 Need more detailed guides or advanced configuration options for KiGit?  
 Check out our documentation built with **MkDocs** to learn more about the different output formats, detailed diff modes etc.:
-  blank
+1. Open a terminal in the `KiGit` directory:
+   ```bash
+   uv run mkdocs serve
+2. Open your browser and visit (http://127.0.0.1:8000) to view the documentation
