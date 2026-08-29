@@ -1,14 +1,56 @@
 # KiGit Tool
 *AutoIntern-3*
-
-## Install
-
-### With a Wheel File
-`uv tool install <path to .whl>`
-### In Project Folder KiGit
-`uv tool install .`
-
-## Updating
-Just use `--reinstall` at the end of one of the commands above
+> A CLI tool that helps the user track changes in KiCad projects with Git.
 
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+
+--- 
+
+## Motivation
+*Why KiGit?*
+Standard Git diffs for KiCad schematics and PCB files are unreadable. Therefore **KiGit** parses these complex KiCad S-Expression and turns these into clear, visual and customizable terminal outputs.
+
+---
+
+## Installation Guide
+Follow these steps to install KiGit on your system:
+
+### Prerequisites
+* Python 3.10+
+* [uv](https://github.com/astral-sh/uv) 
+
+### Standard Installation (via git clone)
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/RUB-SELAB-2026/AutoIntern-3.git
+   cd AutoIntern-3
+   cd KiGit
+2. install KiGit via uv:
+   ```bash
+   uv tool install .
+
+### Alternative Installation (via whl file)
+`uv tool install <path to .whl>`
+
+## Updating
+When updates of KiGit are available, pull the changes and reinstall:
+1.  ```bash
+    git pull
+    uv tool install --reinstall .
+
+---
+
+## Markdown
+* **`kigit status`**
+  Displays an overview of modified, deleted or untracked files in your working directory
+* **`kigit diff`**
+  Generates a summary of changes (added, removed or modified components
+* **`kigit diff -- details all`**
+  provides a deeper analysis into specific symbol and layout modifications
+
+---
+
+## Documentation
+Need more detailed guides or advanced configuration options for KiGit?  
+Check out our documentation built with **MkDocs** to learn more about the different output formats, detailed diff modes etc.:
+  blank
