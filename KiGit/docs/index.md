@@ -11,7 +11,7 @@ To remedy this issue Kigit serves as an automated comparison tool that will show
 ## Why Kigit?
 Kigit's main distinction between existing tools is...
 
-More differences can be found [here](./why_kigit.md). 
+More differences can be found [here](./getting_started/overview.md). 
 
 ## How to install
 
