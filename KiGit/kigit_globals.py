@@ -60,6 +60,12 @@ SEXP_BLOCK_CONTENTS = 3
 
 # here small things to keep track of mkdocs variables
 from dataclasses import dataclass
+from pathlib import Path
+from importlib import resources
+
+ROOT = Path(__file__).resolve().parent
+
+DOCS_DIR = Path(str(resources.files("kigit_site")))
 
 @dataclass
 class CMD:
@@ -88,8 +94,17 @@ class DOCS:
 	misc: MISCELLANEOUS
 
 # here define project folder paths to files
-docs = DOCS(index= "",
-			cmd=CMD("", ""), 
-			git_interface=GIT_INTERFACE("", ""),
-			misc=MISCELLANEOUS("", "")
+docs = DOCS(index= str(DOCS_DIR / "index.html"),
+			cmd=CMD(
+				diff=str(DOCS_DIR / "commands" / "diff.html"),
+		    	status=str(DOCS_DIR / "commands" / "status.html")
+				), 
+			git_interface=GIT_INTERFACE(
+				gitDiff=str(DOCS_DIR / "git_interface" / "git_diff.html"),
+				gitStatus=str(DOCS_DIR / "git_interface" / "git_status.html")
+			),
+			misc=MISCELLANEOUS(
+				license=str(DOCS_DIR / "Miscellaneous" / "license.html"),
+				releases=str(DOCS_DIR / "Miscellaneous" / "releases.html")
+			)
 			)
