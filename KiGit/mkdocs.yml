@@ -1,4 +1,5 @@
 site_name: Kigit Documentation
+use_directory_urls: false
 site_url: http://127.0.0.1:8000/ #local host for now
 site_description: Kigit Documentation
 site_author: Dennis Piotrowski
@@ -15,14 +16,14 @@ theme:
 
 nav:
   - Getting Started: 
-    - Welcome to Kigit: ./Getting_Started/index.md
-    - Why Kigit?: ./Getting_Started/why_kigit.md
-  - Kigit Commands:
-    - kigit Diff: ./Kigit_Commands/kigit Diff.md
-    - kigit Status: ./Kigit_Commands/kigit Status.md
-    - Internal git commands: 
-      - git Diff: ./Kigit_Commands/Internal_git_commands/git Diff.md
-      - git Status: ./Kigit_Commands/Internal_git_commands/git Status.md
+    - Welcome to Kigit: ./getting_started/index.md
+    - Why Kigit?: ./getting_started/why_kigit.md
+  - Commands:
+    - diff: ./commands/diff.md
+    - status: ./commands/status.md
+  - Git Interface: 
+    - diff: ./commands/git_interface/git_diff.md
+    - status: ./commands/git_interface/git_status.md
   - Supported File Types:
     - kicad_sch: ./Supported_File_Types/kicad_sch.md
     - kicad_pcb: ./Supported_File_Types/kicad_pcb.md

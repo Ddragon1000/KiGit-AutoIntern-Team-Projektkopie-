@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en_US" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Dennis Piotrowski" /><link rel="canonical" href="http://127.0.0.1:8000/Kigit_Commands/kigit%20Diff/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>kigit Diff - Kigit Documentation</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "kigit Diff";
+        var mkdocs_page_input_path = "Kigit_Commands\\kigit Diff.md";
+        var mkdocs_page_url = "/Kigit_Commands/kigit%20Diff/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python3.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Kigit Documentation
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="" href="../../Getting_Started/index.md">Welcome to Kigit</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../Getting_Started/why_kigit/">Why Kigit?</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Kigit Commands</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">kigit Diff</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#how-to-use">How to use</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../kigit%20Status/">kigit Status</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Internal git commands</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../Internal_git_commands/git%20Diff/">git Diff</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../Internal_git_commands/git%20Status/">git Status</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supported File Types</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../Supported_File_Types/kicad_sch/">kicad_sch</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../Supported_File_Types/kicad_pcb/">kicad_pcb</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Miscellaneous</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../Miscellaneous/releases/">Releases</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../Miscellaneous/license/">License</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Kigit Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Kigit Commands</li>
+      <li class="breadcrumb-item active">kigit Diff</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/RUB-SELAB-2026/AutoIntern-3/tree/main/KiGit/edit/master/docs/Kigit_Commands/kigit Diff.md">Edit on Kigit</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="kigit-diff">kigit Diff</h1>
+<h2 id="how-to-use">How to use</h2>
+<p>There are numerous ways to use kigit diff:</p>
+<ul>
+<li>In order to check uncommited changes to the last commit, use: <code>kigit diff</code></li>
+<li>In order to check uncommited changes of a certain file to the last commit, use: <code>kigit diff &lt;filename&gt;</code></li>
+<li>In order to check the latest commit to an earlier commit, use: <code>kigit diff &lt;commit&gt;</code></li>
+<li>In order to check the changes of only a certain file within the latest commit to the file within an earlier commit, use: <code>kigit diff &lt;commit&gt; &lt;filename&gt;</code></li>
+<li>In order to check the changes between two specific commits, use: <code>kigit diff &lt;commit&gt; &lt;commit&gt;</code></li>
+<li>You can also check changes between branches, tags, or a combination of tags, branches and commits, by using <code>kigit diff &lt;commit/branch/tag&gt; &lt;commit/branch/tag&gt;</code>, or simply <code>kigit diff &lt;commit/branch/tag&gt;</code></li>
+</ul>
+<!--path.to.module based on the path from the mkdocs.yml file-->
+
+<h1 id="autogenerated-documentation-via-mkdocstrings">Autogenerated Documentation via mkdocstrings</h1>
+<h2 id="kigit-diff-function">Kigit diff function</h2>
+<p>This is the function that is called when typing one of the four <code>kigit diff</code> variants.</p>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h0 id="main.diff" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">diff</span>
+
+
+</h0>
+<div class="doc-signature highlight"><pre><span></span><code><span class="nf">diff</span><span class="p">(</span>
+    <span class="n"><span title="main.diff(args)">args</span></span><span class="p">:</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n"><span title="main.diff(show_filename)">show_filename</span></span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="n"><span title="typer.Option">Option</span></span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n"><span title="typer.Option(help)">help</span></span><span class="o">=</span><span class="s2">&quot;Shows corresponding Filename in result&quot;</span><span class="p">),</span>
+    <span class="n"><span title="main.diff(output)">output</span></span><span class="p">:</span> <span class="n"><span title="scripts.DiffResRenderer.OutputFormat">OutputFormat</span></span> <span class="o">=</span> <span class="n"><span title="typer.Option">Option</span></span><span class="p">(</span><span class="n"><span title="scripts.DiffResRenderer.OutputFormat.TABLE">TABLE</span></span><span class="p">,</span> <span class="s2">&quot;--output&quot;</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="n"><span title="typer.Option(help)">help</span></span><span class="o">=</span><span class="s2">&quot;Output Format&quot;</span><span class="p">),</span>
+    <span class="n"><span title="main.diff(detail)">detail</span></span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="n"><span title="typer.Option">Option</span></span><span class="p">(</span>
+        <span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;--detail&quot;</span><span class="p">,</span> <span class="n"><span title="typer.Option(help)">help</span></span><span class="o">=</span><span class="s2">&quot;Show all details or only a specific parameter.&quot;</span>
+    <span class="p">),</span>
+    <span class="n"><span title="main.diff(debug)">debug</span></span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="n"><span title="typer.Option">Option</span></span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n"><span title="typer.Option(help)">help</span></span><span class="o">=</span><span class="s2">&quot;enables Debug options&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+        <p>Show changes between commits, commit and working tree and more for KiCad files</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>main.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">diff</span><span class="p">(</span>
+        <span class="n">args</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">typer</span><span class="o">.</span><span class="n">Argument</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;commit file or file or commit&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">show_filename</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Option</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Shows corresponding Filename in result&quot;</span><span class="p">),</span>
+        <span class="n">output</span><span class="p">:</span> <span class="n">renderer</span><span class="o">.</span><span class="n">OutputFormat</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Option</span><span class="p">(</span><span class="n">renderer</span><span class="o">.</span><span class="n">OutputFormat</span><span class="o">.</span><span class="n">TABLE</span><span class="p">,</span> <span class="s2">&quot;--output&quot;</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output Format&quot;</span><span class="p">),</span>
+        <span class="n">detail</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Option</span><span class="p">(</span><span class="s2">&quot;none&quot;</span><span class="p">,</span><span class="s2">&quot;--detail&quot;</span><span class="p">,</span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show all details or only a specific parameter.&quot;</span><span class="p">),</span>
+        <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Option</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;enables Debug options&quot;</span><span class="p">)</span>
+        <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Show changes between commits, commit and working tree and more for KiCad files&quot;&quot;&quot;</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;starting </span><span class="se">\&quot;</span><span class="s2">diff</span><span class="se">\&quot;</span><span class="s2">-command&quot;</span><span class="p">)</span>
+    <span class="c1">#default values</span>
+    <span class="n">commit</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;HEAD&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="n">file</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
+        <span class="c1">#remove magic values ==1 and ==2 ?</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\.kicad_.*$&quot;</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;/&quot;</span> <span class="ow">in</span> <span class="n">val</span><span class="p">:</span>
+                <span class="n">file</span> <span class="o">=</span> <span class="n">val</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">commit</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\.kicad_.*$&quot;</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;/&quot;</span> <span class="ow">in</span> <span class="n">val</span><span class="p">:</span>
+                <span class="n">commit</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">file</span> <span class="o">=</span> <span class="n">val</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">commit</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">commit</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">commit</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">commit</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">file</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="c1"># Validate the --detail input</span>
+    <span class="n">requested</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">detail</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span> <span class="k">else</span> <span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">detail</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">invalid</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">requested</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">Valid_details</span><span class="p">:</span>
+            <span class="n">valid</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">invalid</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+    <span class="c1"># Rebuild the detail string so we have only the valid parameters.</span>
+    <span class="n">detail</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span> <span class="k">if</span> <span class="n">valid</span> <span class="k">else</span> <span class="s2">&quot;none&quot;</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;parameters: commit=</span><span class="si">{</span><span class="n">commit</span><span class="si">}</span><span class="s2">, file=</span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1">#object creation</span>
+    <span class="n">gitmanager</span> <span class="o">=</span> <span class="n">GitManager</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;initialized Gitmanager for: </span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">KiCadDiffParser</span><span class="p">()</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;calling gitmanger.diff(</span><span class="si">{</span><span class="n">commit</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">), </span><span class="si">{</span><span class="n">commit</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">diff_result</span> <span class="o">=</span> <span class="n">gitmanager</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">commit</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">commit</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">file</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">diff_result</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[ERROR] Git: </span><span class="si">{</span><span class="n">diff_result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">typer</span><span class="o">.</span><span class="n">Exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Parsing git-diff results&quot;</span><span class="p">)</span>
+        <span class="n">stats</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">diff_result</span><span class="p">,</span> <span class="n">working_tree_dir</span><span class="o">=</span><span class="n">gitmanager</span><span class="o">.</span><span class="n">repo</span><span class="o">.</span><span class="n">working_tree_dir</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">stats</span><span class="o">.</span><span class="n">isEmpty</span><span class="p">():</span>
+        <span class="n">typer</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;No KiCad file changes detected&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">typer</span><span class="o">.</span><span class="n">Exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[DEBUG] </span><span class="si">{</span><span class="n">stats</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rendering results in format: </span><span class="si">{</span><span class="n">output</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">output</span> <span class="o">==</span> <span class="n">renderer</span><span class="o">.</span><span class="n">OutputFormat</span><span class="o">.</span><span class="n">TABLE</span><span class="p">:</span>
+        <span class="n">renderer</span><span class="o">.</span><span class="n">render_diff</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="n">renderer</span><span class="o">.</span><span class="n">TableDiffRenderer</span><span class="p">(</span><span class="n">show_filename</span><span class="p">,</span><span class="n">detail</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">output</span> <span class="o">==</span> <span class="n">renderer</span><span class="o">.</span><span class="n">OutputFormat</span><span class="o">.</span><span class="n">JSON</span><span class="p">:</span>
+        <span class="n">renderer</span><span class="o">.</span><span class="n">render_diff</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="n">renderer</span><span class="o">.</span><span class="n">JsonDiffRenderer</span><span class="p">(</span><span class="n">detail</span><span class="p">))</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">isPowerShell</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">isatty</span><span class="p">():</span> <span class="c1">#checks if output was redirected to a file</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                    <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[KiGit Warning] For Json Output</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="s2">&quot;If you just redirected this output to a file using &#39;&gt;&#39;, Windows might force a UTF-16 BOM.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="s2">&quot;For a clean UTF-8 file, use: kigit diff -o json | Out-File -Encoding utf8 filename.json</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">output</span> <span class="o">==</span> <span class="n">renderer</span><span class="o">.</span><span class="n">OutputFormat</span><span class="o">.</span><span class="n">HTML</span><span class="p">:</span>
+        <span class="n">renderer</span><span class="o">.</span><span class="n">render_diff</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="n">renderer</span><span class="o">.</span><span class="n">HTMLDiffRenderer</span><span class="p">(</span><span class="n">show_filename</span><span class="p">,</span><span class="n">detail</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">invalid</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Warning: The following detail parameter(s) are not supported and were ignored: &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">invalid</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">detail</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;No valid detail parameters were specified, therefore no parameter details were displayed.&quot;</span>
+            <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div><p><br /></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../Getting_Started/why_kigit/" class="btn btn-neutral float-left" title="Why Kigit?"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../kigit%20Status/" class="btn btn-neutral float-right" title="kigit Status">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/RUB-SELAB-2026/AutoIntern-3/tree/main/KiGit" class="fa fa-code-fork" style="color: #fcfcfc"> Kigit</a>
+        </span>
+    
+    
+      <span><a href="../../Getting_Started/why_kigit/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../kigit%20Status/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
