@@ -36,7 +36,7 @@ from scripts.logging_config import setup_logging
 from typing import Annotated
 import scripts.mkdocs as mk
 
-Valid_details = {"all","start","end","width","layer","net","pts","stroke"}
+Valid_details = {"all","start","end","width","layer","net","pts","stroke","modified"}
 
 app = typer.Typer(
     name="KiGit",
