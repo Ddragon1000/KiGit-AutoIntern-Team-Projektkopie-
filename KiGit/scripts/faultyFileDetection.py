@@ -35,7 +35,7 @@ def faultyFileDetection() -> bool:
 
             if not result:
                 subprocess_failed_output = FaultyOutput()
-                subprocess_failed_output.subprocess_faulty_output()
+                subprocess_failed_output.subprocess_faulty_file_detection_faulty_output()
                 break
 
             file_to_delete = ""
@@ -72,7 +72,7 @@ def erc_drc_func(erc_drc_output, diffres, output) -> bool:
 
             if not result:
                 subprocess_failed_output = FaultyOutput()
-                subprocess_failed_output.subprocess_faulty_output()
+                subprocess_failed_output.subprocess_erc_drc_faulty_output()
                 break
 
             if result.stderr:
@@ -139,16 +139,6 @@ def create_erc_drc_subprocess(func_args):
     return None
 
 
-def find_kicad_cli() -> str:
-    look_for = "kicad-cli.exe"
-
-    drives = [f'{letter}:\\' for letter in 'CDEFGHIJKLMNOPQRSTUVWXYZ']
-    for drive in drives:
-        if os.path.isdir(drive):
-            for root, dirs, files in os.walk(drive):
-                if look_for in files:
-                    return os.path.join(root, look_for)
-    return ""
 
 
 

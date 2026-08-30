@@ -92,7 +92,11 @@ def diff(
         print(f"[ERROR] Git: {diff_result}")
         raise typer.Exit(1)
     else:
-        stats = parser.parse(diff_result, working_tree_dir=gitmanager.repo.working_tree_dir)
+        try:
+            stats = parser.parse(diff_result, working_tree_dir=gitmanager.repo.working_tree_dir)
+        except:
+            print("Something went wrong with the parsing. Check if faulty files exist.")
+            raise typer.Exit(1)
 
     if stats.isEmpty():
         typer.echo("No KiCad file changes detected")

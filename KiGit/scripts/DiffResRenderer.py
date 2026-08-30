@@ -291,5 +291,8 @@ class FaultyOutput:
     def faulty_erc_drc_output(self):
         print("The erc or drc check failed!")
 
-    def subprocess_faulty_output(self):
-        print("Subprocess creation failed. Please check if kicad-cli is installed in PATH.")
+    def subprocess_faulty_file_detection_faulty_output(self):
+        print("Subprocess creation for the faulty file detection failed. Please check if kicad-cli is installed in PATH, this needs to be the case for the detection of faulty files to work.")
+
+    def subprocess_erc_drc_faulty_output(self):
+        print("Subprocess creation for erc and drc failed. Please check if kicad-cli is installed in PATH, this needs to be the case for the erc-drc to work.")
