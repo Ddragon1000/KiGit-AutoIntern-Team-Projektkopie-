@@ -35,6 +35,9 @@ from scripts.commands import GitManager
 from scripts.logging_config import setup_logging
 from typing import Annotated
 from scripts.faultyFileDetection import faultyFileDetection, erc_drc_func
+import scripts.mkdocs as mk
+
+Valid_details = {"all","start","end","width","layer","net","pts","stroke","modified"}
 
 app = typer.Typer(
     name="KiGit",
@@ -125,10 +128,17 @@ def diff(
         args: Annotated[list[str] | None, typer.Argument(help="commit file or file or commit")] = None,
         show_filename: bool = typer.Option(False, help="Shows corresponding Filename in result"),
         output: renderer.OutputFormat = typer.Option(renderer.OutputFormat.TABLE, "--output", "-o", help="Output Format"),
-        detail: str = typer.Option("", "--detail", help="Filters detail screen"),
-        faulty_file_check: bool = typer.Option(False, help="Detects whether files are faulty or not. Make sure that the KiCad files are not of a newer version than KiCad itself."),
-        erc_drc: bool = typer.Option(False, help="Enables ER and DR checks for Kicad schematic and PCB Files"),
-        debug: bool = typer.Option(False, help="enables Debug options")
+        detail: str = typer.Option("none","--detail",help="Show all details or only a specific parameter."),
+        faulty_file_check: bool = typer.Option(False, help = "Lets kigit check all Kicad files for possible corruption. kicad-cli has to be in PATH for this to work."),
+        erc_drc: bool = typer.Option(False, help = "Lets kigit perform an erc or drc check on all Kicad files. kicad-cli has to be in PATH for this to work."),
+        debug: bool = typer.Option(False, help="enables Debug options"),
+        docs: bool = typer.Option(
+            False,
+            "--docs",
+            callback=mk.diff_docs_callback,
+            is_eager=True,
+            help="opens webbrowser with mkdocs page for diff command",
+            )
         ):
     """Show changes between commits, commit and working tree and more for KiCad files"""
 
@@ -190,6 +200,7 @@ def diff(
             raise typer.Exit(1)
 
 
+    logger.debug(f"calling gitmanger.diff({commit[0]}), {commit[1]}, {file}")
     diff_result = gitmanager.diff(commit[0], commit[1], file)
 
     if isinstance(diff_result, str):
@@ -201,6 +212,8 @@ def diff(
         except:
             print("Something went wrong with the parsing. Check if faulty files exist.")
             raise typer.Exit(1)
+        logger.info("Parsing git-diff results")
+        stats = parser.parse(diff_result, working_tree_dir=gitmanager.repo.working_tree_dir)
 
     if stats.isEmpty():
         typer.echo("No KiCad file changes detected")

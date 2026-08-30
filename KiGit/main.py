@@ -129,6 +129,8 @@ def diff(
         show_filename: bool = typer.Option(False, help="Shows corresponding Filename in result"),
         output: renderer.OutputFormat = typer.Option(renderer.OutputFormat.TABLE, "--output", "-o", help="Output Format"),
         detail: str = typer.Option("none","--detail",help="Show all details or only a specific parameter."),
+        faulty_file_check: bool = typer.Option(False, help = "Lets kigit check all Kicad files for possible corruption. kicad-cli has to be in PATH for this to work."),
+        erc_drc: bool = typer.Option(False, help = "Lets kigit perform an erc or drc check on all Kicad files. kicad-cli has to be in PATH for this to work."),
         debug: bool = typer.Option(False, help="enables Debug options"),
         docs: bool = typer.Option(
             False,

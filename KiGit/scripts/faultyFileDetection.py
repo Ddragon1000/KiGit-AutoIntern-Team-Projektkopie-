@@ -130,9 +130,9 @@ def create_erc_drc_subprocess(func_args):
                 args = ["kicad-cli", "pcb", "drc", file, "--output", f"{file.rsplit(".", 1)[0]}-drc.json", "--format", "json"]
         elif output == OutputFormat.HTML:
             if schematic:
-                args = ["kicad-cli", "sch", "erc", file, "--output", f"{file.rsplit(".", 1)[0]}-erc.html"]
+                args = ["kicad-cli", "sch", "erc", file]
             elif pcb:
-                args = ["kicad-cli", "pcb", "drc", file, "--output", f"{file.rsplit(".", 1)[0]}-drc.html"]
+                args = ["kicad-cli", "pcb", "drc", file]
         return subprocess.run(args, capture_output=True, check=False, text=True)
     except:
         pass
