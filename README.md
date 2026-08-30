@@ -8,7 +8,9 @@
 
 ## Motivation
 *Why KiGit?*
-Standard Git diffs for KiCad schematics and PCB files are unreadable. Therefore **KiGit** parses these complex KiCad S-Expression and turns these into clear, visual and customizable terminal outputs.
+Standard GIt diffs for KiCad schematics (`.kicad_sch`) and PCB (`.kicad_pcb`) files consists of S-expressions that are virtually unreadable in plain text.
+
+**KiGit** solves this by parsing these file formats and condensing raw `git diff` output into clear, structured, and color-coded terminal tables. This enables the hardware developers to instantly spot modified, added, or deleted components and assess changes at a glance.
 
 ---
 
@@ -23,14 +25,16 @@ Follow these steps to install KiGit on your system:
 1. Clone the repository:
    ```bash
    git clone https://github.com/RUB-SELAB-2026/AutoIntern-3.git
-   cd AutoIntern-3
-   cd KiGit
+   cd AutoIntern-3/KiGit
 2. install KiGit via uv:
    ```bash
    uv tool install .
 
 ### Alternative Installation (via whl file)
-`uv tool install <path to .whl>`
+1. Download the newest `.whl` file from Releases.
+2. Open your terminal and install it via `uv`:
+   ```bash
+   `uv tool install <path-to-whl-file>`
 
 ## Updating
 When updates of KiGit are available, pull the changes and reinstall:
@@ -55,5 +59,4 @@ Need more detailed guides or advanced configuration options for KiGit?
 Check out our documentation built with **MkDocs** to learn more about the different output formats, detailed diff modes etc.:
 1. Open a terminal in the `KiGit` directory:
    ```bash
-   uv run mkdocs serve
-2. Open your browser and visit (http://127.0.0.1:8000) to view the documentation
+   kigit --docs
