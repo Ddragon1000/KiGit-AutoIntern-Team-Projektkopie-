@@ -9,7 +9,7 @@ To remedy this issue Kigit serves as an automated comparison tool that will show
 * Counting made changes to specified KiCad components (such as wires)
 
 ## Why Kigit?
-Kigit's main distinction between existing tools is...
+Kigit's focus is on Kicad files and only those, unlike some of the similar programs that are broader in what they can be applied to, but not as focused and detailed for KiCad specifically. 
 
 More differences can be found [here](./why_kigit.md). 
 
@@ -20,10 +20,19 @@ More differences can be found [here](./why_kigit.md).
 ####In Project Folder KiGit
 * `uv tool install .`
 
+In order to reinstall the program, simply type the option `--reinstall` at the end of the command.
+
 ## Brief overview of commands
 
 * [`kigit diff`](../Kigit_Commands/kigit Diff.md) - .
 * [`kigit status`](../Kigit_Commands/kigit Status.md) - .
+
+### Options
+Kigit also comes with 3 options that can be used without any further command:
+
+* `--verbose: int` for verbose output.
+* `--version: boolean` for outputting the version and developers of Kigit
+* `--docs: boolean` for redirecting the user to the Kigit docs main page.  
 
 ## Supported file types and components
 * [`kicad_sch`](../Supported_File_Types/kicad_sch.md)

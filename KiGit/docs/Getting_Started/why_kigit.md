@@ -2,8 +2,6 @@
 
 Kigit is by far not the first project that attempts to aid hardware developers to identify relevant changes in their KiCad projects.
 
-The main difference between Kigit and other tools is...
-
 ## Other tools for kicad diffs
 
 Here are some other noteworthy tools listed and how Kigit differs from them:
@@ -11,7 +9,7 @@ Here are some other noteworthy tools listed and how Kigit differs from them:
 <br />
 
 ### Plotkicadsch
-This project contains "Plotgitsch", a command line tool which generates visual Diffs for KiCad-Schematics. It uses Git to compare to different versions and opens the differences as color coded SVGs in a browser tab.
+This project contains "Plotgitsch", a command line tool which generates visual Diffs for KiCad-Schematics. It uses Git to compare two different versions and opens the differences as color coded SVGs in a browser tab.
 
 #### How Kigit differs from Plotkicadsch
 Kigit is practically fully committed to depicting changes (diffs) of KiCad files, where as the main functionality of Plotkicadsch is to export Kicad Schematic files to SVG pictures. But it also contains plotgitsch to visualize git diffs between two Kicad Schematic files.<br />
@@ -23,7 +21,7 @@ The biggest difference is the visualization of the diffs. Whereas Plotkicadsch e
 A python based tool developed to be especially compatible for KiCad 8 and higher. It generates simple visual diffs for boards by using kicad-cli to compare Layer-exports.
 
 #### How Kigit differs from Kicad-gitdiff-cli
-Kicad-gitdiff-cli is a tool to create pictures of KiCad schematic diffs. When installed, a git repository can be initialized with the tool, modifying the git diff command to instead output an image that shows the diffs. Unlike Kigit, it has minimal dependencies and is transparently integrated into git, meaning you can just use the git command like always, while Kicad-gitdiff-cli generates an image in the background. Kigit on the other hand comes with it's own kigit commands. KiGit supports PCB files as well, while Kicad-gitdiff-cli doesn't yet. And the output of KiGit is very different, the main output being a table of the wires or segments that have been changed.
+Kicad-gitdiff-cli is a tool to create pictures of KiCad schematic diffs. When installed, a git repository can be initialized with the tool, modifying the git diff command to instead output an image that shows the diffs. Unlike Kigit, it has minimal dependencies and is transparently integrated into git, meaning you can just use the git command like always, while Kicad-gitdiff-cli generates an image in the background. Kigit on the other hand comes with it's own kigit commands. KiGit supports PCB files as well, while Kicad-gitdiff-cli doesn't yet. And the output of KiGit is very different, the main output being a table of the compnents of KiCad files that have been changed.
 <br />
 <br />
 
@@ -31,7 +29,7 @@ Kicad-gitdiff-cli is a tool to create pictures of KiCad schematic diffs. When in
 A known Open-Source-Script which is usually integrated into Web-interfaces to make Layout-changes visible via ”Blinking” (fast change between old and new)
 
 #### How Kigit differs from KiCad-Diff
-KiCad-Diff is mostly used with Web-interfaces, generating images of the new and old pcb layout on top of each other, allowing the user to see changes by fast alternating between old and new, also called "blinking". This is very different to KiGit's main use, which counts the amount of wires or segments of Kicad schematic files and Kicad PCB files, that have been modified, added or removed, and outputs the result to a table. KiGit also supports both schematic and PCB files, whereas KiCad-Diff is solely for PCB files. 
+KiCad-Diff is mostly used with Web-interfaces, generating images of the new and old pcb layout on top of each other, allowing the user to see changes by fast alternating between old and new, also called "blinking". This is very different to KiGit's main use, which counts the amount of components of Kicad schematic files and Kicad PCB files, that have been modified, added or removed, and outputs the result to a table. KiGit also supports both schematic and PCB files, whereas KiCad-Diff is solely for PCB files. 
 <br />
 <br />
 
