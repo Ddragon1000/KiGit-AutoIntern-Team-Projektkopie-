@@ -57,7 +57,7 @@ After installation, navigate to your KiCad project directory. Make sure your pro
   Displays an overview of modified, deleted or untracked files in your working directory
 * **`kigit diff`**
   Generates a summary of changes (added, removed or modified components
-* **`kigit diff -- details all`**
+* **`kigit diff --details all`**
   provides a deeper analysis into specific symbol and layout modifications
 
 ---
