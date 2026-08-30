@@ -19,9 +19,9 @@ kigit = "main:app"
 [tool.setuptools]
 py-modules = ["main", "kigit_globals"]
 [tool.setuptools.packages.find]
-include = ["parser*", "scripts*", "kigit_docs*"]
+include = ["parser*", "scripts*", "kigit_site*"]
 [tool.setuptools.package-data]
-kigit_docs = ["**/*"]
+kigit_site = ["**/*"]
 
 [dependency-groups]
 dev = [
