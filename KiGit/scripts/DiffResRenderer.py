@@ -31,6 +31,7 @@ from enum import Enum
 from abc import ABC, abstractmethod
 from rich.table import Table
 from rich.console import Console
+from scripts.ERC_DRC_Files import ERC_DRC_Files
 cwd = os.getcwd()
 
 
@@ -363,3 +364,38 @@ def call_status(max_size: int = 20):
     else:
         print("No current updates at the moment.")
 
+
+
+class ERC_DRC_Output(ERC_DRC_Files):
+
+    def output(self):
+        #iterates through the schematic file list to output every file check
+        for file in self.schematic_files:
+            file_name = file[0]
+            erc_output = file[1]
+
+            print(f"ERC check of {file_name}: \n{erc_output}")
+
+
+        for file in self.pcb_files: 
+            #iterates through the pcb file list to output every file check
+            file_name = file[0]
+            drc_output = file[1]
+
+            print(f"DRC check of {file_name}: \n{drc_output}")
+
+
+class FaultyOutput:
+
+    def faulty_file_output(self):
+        print("Repository contains faulty files, or there is a mismatch between the Kicad version and the Kicad files. ")
+        print("Check the version of your KiCad. If no version mismatch, faulty files exist, revert to the last git commit to undo the faulty files. Command aborted!")
+
+    def faulty_erc_drc_output(self):
+        print("The erc or drc check failed!")
+
+    def subprocess_faulty_file_detection_faulty_output(self):
+        print("Subprocess creation for the faulty file detection failed. Please check if kicad-cli is installed in PATH, this needs to be the case for the detection of faulty files to work.")
+
+    def subprocess_erc_drc_faulty_output(self):
+        print("Subprocess creation for erc and drc failed. Please check if kicad-cli is installed in PATH, this needs to be the case for the erc-drc to work.")

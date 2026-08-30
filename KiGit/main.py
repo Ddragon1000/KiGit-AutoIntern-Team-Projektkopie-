@@ -34,6 +34,7 @@ from parser.diff_parser import KiCadDiffParser
 from scripts.commands import GitManager
 from scripts.logging_config import setup_logging
 from typing import Annotated
+from scripts.faultyFileDetection import faultyFileDetection, erc_drc_func
 import scripts.mkdocs as mk
 
 Valid_details = {"all","start","end","width","layer","net","pts","stroke","modified"}
@@ -184,7 +185,19 @@ def diff(
     logger.debug(f"initialized Gitmanager for: {cwd}")
 
     parser = KiCadDiffParser()
+
+
+    faulty_output = renderer.FaultyOutput()
     
+
+    if faulty_file_check or erc_drc:
+        ffresult = faultyFileDetection()
+
+        if ffresult:
+            faulty_output.faulty_file_output()
+            raise typer.Exit(1)
+
+
     logger.debug(f"calling gitmanger.diff({commit[0]}), {commit[1]}, {file}")
     diff_result = gitmanager.diff(commit[0], commit[1], file)
 
@@ -192,12 +205,28 @@ def diff(
         print(f"[ERROR] Git: {diff_result}")
         raise typer.Exit(1)
     else:
+        try:
+            stats = parser.parse(diff_result, working_tree_dir=gitmanager.repo.working_tree_dir)
+        except:
+            print("Something went wrong with the parsing. Check if faulty files exist.")
+            raise typer.Exit(1)
         logger.info("Parsing git-diff results")
         stats = parser.parse(diff_result, working_tree_dir=gitmanager.repo.working_tree_dir)
 
     if stats.isEmpty():
         typer.echo("No KiCad file changes detected")
         raise typer.Exit(1)
+
+
+
+    if erc_drc:
+        erc_drc_faulty = False
+        erc_drc_output = renderer.ERC_DRC_Output()
+        erc_drc_faulty = erc_drc_func(erc_drc_output, stats, output)
+        erc_drc_output.output()
+        if erc_drc_faulty:
+            faulty_output.faulty_erc_drc_output()
+            raise typer.Exit(1)
 
     if debug:
         print(f"[DEBUG] {stats}")
@@ -248,5 +277,9 @@ def quick_status():
     status = gitmanager.get_change_status()
     print("There are current changes" if status else "No changes at the moment")
 
+
+
+
 if __name__ == "__main__":
     app()
+

@@ -34,9 +34,7 @@ from parser.diff_parser import KiCadDiffParser
 from scripts.commands import GitManager
 from scripts.logging_config import setup_logging
 from typing import Annotated
-import scripts.mkdocs as mk
-
-Valid_details = {"all","start","end","width","layer","net","pts","stroke","modified"}
+from scripts.faultyFileDetection import faultyFileDetection, erc_drc_func
 
 app = typer.Typer(
     name="KiGit",
@@ -127,15 +125,10 @@ def diff(
         args: Annotated[list[str] | None, typer.Argument(help="commit file or file or commit")] = None,
         show_filename: bool = typer.Option(False, help="Shows corresponding Filename in result"),
         output: renderer.OutputFormat = typer.Option(renderer.OutputFormat.TABLE, "--output", "-o", help="Output Format"),
-        detail: str = typer.Option("none","--detail",help="Show all details or only a specific parameter."),
-        debug: bool = typer.Option(False, help="enables Debug options"),
-        docs: bool = typer.Option(
-            False,
-            "--docs",
-            callback=mk.diff_docs_callback,
-            is_eager=True,
-            help="opens webbrowser with mkdocs page for diff command",
-            )
+        detail: str = typer.Option("", "--detail", help="Filters detail screen"),
+        faulty_file_check: bool = typer.Option(False, help="Detects whether files are faulty or not. Make sure that the KiCad files are not of a newer version than KiCad itself."),
+        erc_drc: bool = typer.Option(False, help="Enables ER and DR checks for Kicad schematic and PCB Files"),
+        debug: bool = typer.Option(False, help="enables Debug options")
         ):
     """Show changes between commits, commit and working tree and more for KiCad files"""
 
@@ -184,20 +177,45 @@ def diff(
     logger.debug(f"initialized Gitmanager for: {cwd}")
 
     parser = KiCadDiffParser()
+
+
+    faulty_output = renderer.FaultyOutput()
     
-    logger.debug(f"calling gitmanger.diff({commit[0]}), {commit[1]}, {file}")
+
+    if faulty_file_check or erc_drc:
+        ffresult = faultyFileDetection()
+
+        if ffresult:
+            faulty_output.faulty_file_output()
+            raise typer.Exit(1)
+
+
     diff_result = gitmanager.diff(commit[0], commit[1], file)
 
     if isinstance(diff_result, str):
         print(f"[ERROR] Git: {diff_result}")
         raise typer.Exit(1)
     else:
-        logger.info("Parsing git-diff results")
-        stats = parser.parse(diff_result, working_tree_dir=gitmanager.repo.working_tree_dir)
+        try:
+            stats = parser.parse(diff_result, working_tree_dir=gitmanager.repo.working_tree_dir)
+        except:
+            print("Something went wrong with the parsing. Check if faulty files exist.")
+            raise typer.Exit(1)
 
     if stats.isEmpty():
         typer.echo("No KiCad file changes detected")
         raise typer.Exit(1)
+
+
+
+    if erc_drc:
+        erc_drc_faulty = False
+        erc_drc_output = renderer.ERC_DRC_Output()
+        erc_drc_faulty = erc_drc_func(erc_drc_output, stats, output)
+        erc_drc_output.output()
+        if erc_drc_faulty:
+            faulty_output.faulty_erc_drc_output()
+            raise typer.Exit(1)
 
     if debug:
         print(f"[DEBUG] {stats}")
@@ -248,5 +266,9 @@ def quick_status():
     status = gitmanager.get_change_status()
     print("There are current changes" if status else "No changes at the moment")
 
+
+
+
 if __name__ == "__main__":
     app()
+
