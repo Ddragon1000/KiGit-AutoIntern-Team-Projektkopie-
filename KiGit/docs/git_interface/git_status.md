@@ -1,4 +1,4 @@
-<!-->
+<!--
 MIT License
 
 Copyright (c) Jannick Tim Medda, Dennis Piotrowski, Marcel Wiemann, Ismail Koc, Daniel Quayes, Adrian Sturm
@@ -20,7 +20,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-<-->
+-->
 #git Status
 This page shows the internal function that is used to generate and return the git short status output, that is then parsed and used with the kigit status function, as well as the internal function that checks the dirty state of the current repository, returning a boolean, which is used by the quick-status function. 
 
