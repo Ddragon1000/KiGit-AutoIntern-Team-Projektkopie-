@@ -43,8 +43,16 @@ When updates of KiGit are available, pull the changes and reinstall:
     uv tool install --reinstall .
 
 ---
+## Quick Start
 
-## Markdown
+After installation, navigate to your KiCad project directory. Make sure your project is version-controlled with Git and has at least one commit.
+
+1. Open a terminal in your KiCad project directory and run:
+   ```bash
+   kigit status
+   kigit diff
+
+### Markdown
 * **`kigit status`**
   Displays an overview of modified, deleted or untracked files in your working directory
 * **`kigit diff`**
