@@ -10,7 +10,7 @@
 *Why KiGit?*
 Standard GIt diffs for KiCad schematics (`.kicad_sch`) and PCB (`.kicad_pcb`) files consists of S-expressions that are virtually unreadable in plain text.
 
-**KiGit** solves this by parsing these file formats and condensing raw `git diff` output into clear, structured, and color-coded terminal tables. This enables the hardware developers to instantly spot modified, added, or deleted components and assess changes at a glance.
+**KiGit** solves this by parsing these file formats and condensing the raw `git diff` output into clear, structured, and color-coded terminal tables. This enables hardware developers to instantly spot modified, added, or deleted components and assess changes at a glance.
 
 ---
 
