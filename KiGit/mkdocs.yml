@@ -17,14 +17,14 @@ theme:
 
 nav:
   - Getting Started: 
-    - Welcome to Kigit: ./getting_started/index.md
-    - Why Kigit?: ./getting_started/why_kigit.md
+    - Welcome to Kigit: ./index.md
+    - Why Kigit?: ./getting_started/overview.md
   - Commands:
     - diff: ./commands/diff.md
     - status: ./commands/status.md
   - Git Interface: 
-    - diff: ./commands/git_interface/git_diff.md
-    - status: ./commands/git_interface/git_status.md
+    - diff: ./git_interface/git_diff.md
+    - status: ./git_interface/git_status.md
   - Supported File Types:
     - kicad_sch: ./Supported_File_Types/kicad_sch.md
     - kicad_pcb: ./Supported_File_Types/kicad_pcb.md

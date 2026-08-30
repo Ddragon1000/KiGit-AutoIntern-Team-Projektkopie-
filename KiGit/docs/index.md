@@ -24,8 +24,8 @@ In order to reinstall the program, simply type the option `--reinstall` at the e
 
 ## Brief overview of commands
 
-* [`kigit diff`](../Kigit_Commands/kigit Diff.md) - .
-* [`kigit status`](../Kigit_Commands/kigit Status.md) - .
+* [`kigit diff`](./commands/diff.md) - .
+* [`kigit status`](./commands/status.md) - .
 
 ### Options
 Kigit also comes with 3 options that can be used without any further command:
@@ -35,8 +35,8 @@ Kigit also comes with 3 options that can be used without any further command:
 * `--docs: boolean` for redirecting the user to the Kigit docs main page.  
 
 ## Supported file types and components
-* [`kicad_sch`](../Supported_File_Types/kicad_sch.md)
-* [`kicad_pcb`](../Supported_File_Types/kicad_pcb.md)
+* [`kicad_sch`](./Supported_File_Types/kicad_sch.md)
+* [`kicad_pcb`](./Supported_File_Types/kicad_pcb.md)
 
 ## Project layout
 
