@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from scripts.helper import extract_parameters, format_parameters, filter_parameters
+from scripts.helper import extract_parameters, format_parameters, filter_parameters, get_modified_parameters
 import os
 import json
 import scripts.DiffRes as diffres
@@ -31,6 +31,7 @@ from enum import Enum
 from abc import ABC, abstractmethod
 from rich.table import Table
 from rich.console import Console
+from scripts.ERC_DRC_Files import ERC_DRC_Files
 cwd = os.getcwd()
 
 
@@ -85,19 +86,27 @@ class JsonDiffRenderer(DiffResRenderer):
         name = change.__class__.__name__
         match name: 
             case "ComponentAdded":
-                type = "added"
+                change_type = "added"
             case "ComponentRemoved":
-                type = "removed"
+                change_type = "removed"
             case _:
-                type = "modified"
+                change_type = "modified"
 
         change_json = {
-            "type": type,
+            "type": change_type,
             "element": change.reference
         }
-        params = filter_parameters(extract_parameters(change.component),self.detail)
-        if params:
-            change_json["parameters"] = params
+
+        if("modified" in self.detail and
+           isinstance(change, bc.ComponentModified)):
+            if hasattr(change,"old_component"):
+                modified= get_modified_parameters(change.old_component, change.new_component)
+                if modified:
+                    change_json["parameters"]= modified
+        else:
+            params = filter_parameters(extract_parameters(change.component),self.detail)
+            if params:
+                change_json["parameters"] = params
         
         return change_json
     
@@ -132,7 +141,12 @@ class HTMLDiffRenderer(DiffResRenderer):
 
         if not self.show_filename:
             for components in dr.groupByComponent():
-                html += f"  <tr><td>{components.changes[0].reference}</td><td>{len(components.getAdded())}</td><td>{len(components.getRemoved())}</td><td>{len(components.getModified())}</td></tr>\n"
+                html += f"  <tr><td>{components.changes[0].reference}</td><td>{len(components.getAdded())}</td><td>{len(components.getRemoved())}</td><td>{len(components.getModified())}"
+                if self.detail:
+                    html += "<br><pre>"
+                    html += format_parameters(components.changes,self.detail)
+                    html += "</pre>"
+                html += "</td></tr>\n"
         else:
             for file_components in dr.filterFile():
                 filename = file_components.changes[0].origin
@@ -160,6 +174,8 @@ class TableDiffRenderer(DiffResRenderer):
             table.add_column("Removed", justify="center", style="red")
             table.add_column("Modified", justify="center", style="yellow")
 
+            if self.detail:
+                table.add_column("Parameters", justify="left", style="Cyan")
             if self.show_filename:
                 table.add_column("Filename", justify="center", style="white")
 
@@ -168,21 +184,30 @@ class TableDiffRenderer(DiffResRenderer):
                 #components_iterable = dr_or_components.groupByComponent() if not self.show_filename else dr_or_components.filterFile()
             #else:
                 #components_iterable = dr_or_components
-
+            
             if self.show_filename:
                 for components in dr.filterFile():
                     for component in components.groupByComponent():
-                        table.add_row(str(component.changes[0].reference),
-                                        str(len(component.getAdded())),
-                                        str(len(component.getRemoved())),
-                                        str(len(component.getModified())))
+                        row = [
+                                str(component.changes[0].reference),
+                                str(len(component.getAdded())),
+                                str(len(component.getRemoved())),
+                                str(len(component.getModified()))
+                            ]
+                        if self.detail:
+                            row.append(format_parameters(component.changes,self.detail))
+                        table.add_row(*row)
             else:
                 for components in dr.groupByComponent():
-                    table.add_row(str(components.changes[0].reference),
-                                        str(len(components.getAdded())),
-                                        str(len(components.getRemoved())),
-                                        str(len(components.getModified())),
-                                        str(components.changes[0].origin))
+                    row = [
+                        str(components.changes[0].reference),
+                        str(len(components.getAdded())),
+                        str(len(components.getRemoved())),
+                        str(len(components.getModified()))
+                    ]
+                    if self.detail:
+                        row.append(format_parameters(components.changes,self.detail))
+                    table.add_row(*row)
             return table
 
 
@@ -339,3 +364,38 @@ def call_status(max_size: int = 20):
     else:
         print("No current updates at the moment.")
 
+
+
+class ERC_DRC_Output(ERC_DRC_Files):
+
+    def output(self):
+        #iterates through the schematic file list to output every file check
+        for file in self.schematic_files:
+            file_name = file[0]
+            erc_output = file[1]
+
+            print(f"ERC check of {file_name}: \n{erc_output}")
+
+
+        for file in self.pcb_files: 
+            #iterates through the pcb file list to output every file check
+            file_name = file[0]
+            drc_output = file[1]
+
+            print(f"DRC check of {file_name}: \n{drc_output}")
+
+
+class FaultyOutput:
+
+    def faulty_file_output(self):
+        print("Repository contains faulty files, or there is a mismatch between the Kicad version and the Kicad files. ")
+        print("Check the version of your KiCad. If no version mismatch, faulty files exist, revert to the last git commit to undo the faulty files. Command aborted!")
+
+    def faulty_erc_drc_output(self):
+        print("The erc or drc check failed!")
+
+    def subprocess_faulty_file_detection_faulty_output(self):
+        print("Subprocess creation for the faulty file detection failed. Please check if kicad-cli is installed in PATH, this needs to be the case for the detection of faulty files to work.")
+
+    def subprocess_erc_drc_faulty_output(self):
+        print("Subprocess creation for erc and drc failed. Please check if kicad-cli is installed in PATH, this needs to be the case for the erc-drc to work.")
