@@ -37,7 +37,7 @@ from typing import Annotated
 from scripts.faultyFileDetection import faultyFileDetection, erc_drc_func
 import scripts.mkdocs as mk
 
-Valid_details = {"all","start","end","width","layer","net","pts","stroke","modified"}
+Valid_details = {"all","start","end","width","layer","net","pts","stroke","modified","added","removed","at","diameter","color"}
 
 app = typer.Typer(
     name="KiGit",

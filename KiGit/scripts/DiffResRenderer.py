@@ -97,12 +97,16 @@ class JsonDiffRenderer(DiffResRenderer):
             "element": change.reference
         }
 
-        if("modified" in self.detail and
-           isinstance(change, bc.ComponentModified)):
-            if hasattr(change,"old_component"):
-                modified= get_modified_parameters(change.old_component, change.new_component)
-                if modified:
-                    change_json["parameters"]= modified
+        if("modified" in self.detail and isinstance(change, bc.ComponentModified)):
+            modified= get_modified_parameters(change.old_component, change.new_component)
+            special = {"modified","added","removed"}
+            req_params = [item for item in self.detail if item not in special]
+
+            if(req_params and "all" not in req_params):
+                modified = {key: value for key,value in modified.items() if key in req_params}
+
+            if modified:
+                change_json["parameters"]= modified
         else:
             params = filter_parameters(extract_parameters(change.component),self.detail)
             if params:

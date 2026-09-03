@@ -63,57 +63,62 @@ def format_parameters(changes, detail):
         return "-"
 
     all_params = []
+    added = "added" in detail
+    removed = "removed" in detail
+    mod = "modified" in detail
 
-    if "modified" in detail:
-        for change in changes:
-            if not isinstance(change, bc.ComponentModified):
-                continue
-            if not hasattr(change, "old_component"):
-                continue 
-            modified = get_modified_parameters(change.old_component,change.new_component)
-            if not modified:
-                continue
-            all_params.append("[Modified]")
+    #if none above show everything:
+    filter_types= (added or removed or mod)
+    special = {"modified","added","removed"}
+    req_params = [item for item in detail if item not in special]
 
-            for key, values in modified.items():
-                old_value = values["old"]
-                new_value = values["new"]
+    if(added or removed and not req_params):
+        req_params = ["all"]
 
-                all_params.append(
-                    f"{key}: {old_value} -> {new_value}"
-                )
-
-            all_params.append("")
-        return "\n".join(all_params) if all_params else "-"
-
-    #we go thorugh components
     for change in changes:
-        params = extract_parameters(change.component)
-        match_params = []
-        #we keep the requested detail parameters
-        for key, value in params.items():
-            if "all" in detail:
-                match_params.append(f"{key}={value}")
-            elif key in detail:
-                match_params.append(f"{key}={value}")
-        if not match_params:
-            continue
-        # separate wires/segments
-       # if all_params:
-        #    all_params.append("")
-        #add type 
-        if isinstance(change, bc.ComponentAdded):
-            all_params.append("[Added]")
-        elif isinstance(change, bc.ComponentRemoved):
-            all_params.append("[Removed]")
-        else:
-            all_params.append("[Modified]")  
-        all_params.extend(match_params)
+        is_added = isinstance(change,bc.ComponentAdded)
+        is_removed = isinstance(change,bc.ComponentRemoved)
+        is_modified= isinstance(change,bc.ComponentModified) 
+        if filter_types:
+            if is_added and not added:
+                continue
+            if is_removed and not removed:
+                continue
+            if is_modified and not mod:
+                continue
 
-        if all_params:
+        if is_modified and mod:
+            mod_params = get_modified_parameters(change.old_component,change.new_component)
+            if req_params and "all" not in req_params:
+                mod_params= {key : values for key,values in mod_params.items() if key in req_params}
+
+            if mod_params:
+                all_params.append("[Modified]")
+                for key,value in mod_params.items():
+                    all_params.append(f"{key}: {value['old']} -> {value['new']}")
+
+        if req_params:
+            params = extract_parameters(change.component)
+            match_params = []
+            for key,value in params.items():
+                if "all" in req_params:
+                    match_params.append(f"{key}={value}")
+
+                elif key in req_params:
+                    match_params.append(f"{key}={value}")
+
+            if match_params:
+                if added:
+                    all_params.append("[Added]")
+                elif removed:
+                    all_params.append("[Removed]")
+                all_params.extend(match_params)
+
+        if all_params and all_params[-1] != "":
             all_params.append("")
-    #formatted output getting returned 
     return "\n".join(all_params) if all_params else "-"
+
+
 
 def filter_parameters(params, detail):
     """
@@ -126,19 +131,15 @@ def filter_parameters(params, detail):
     #if no details
     if not detail:
         return {}
-    if "modified" in detail:
-        return {}
-    # Return the complete parameter set
-    if "all" in detail:
-        return params
-    # Return only the parameters requested in a dictionary
-    filtered_params = {}
-    # Iterate over all extracted parameters and keep requested ones
-    for key, value in params.items():
-        if key in detail:
-            filtered_params[key] = value
+    special = {"modified","added","removed"}
+    req_params= [item for item in detail if item not in special]
 
-    return filtered_params
+    if not req_params:
+        return {}
+
+    if "all" in req_params:
+        return params
+    return{key: value for key,value in params.items() if key in req_params}
 
 def get_modified_parameters(old_component: str, new_component: str)-> dict:
     old_params= extract_parameters(old_component)
