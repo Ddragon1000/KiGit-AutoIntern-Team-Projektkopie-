@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="Kigit Documentation" /><meta name="author" content="Dennis Piotrowski" /><link rel="canonical" href="http://127.0.0.1:8000/index.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Dennis Piotrowski" /><link rel="canonical" href="http://127.0.0.1:8000/index.html" />
       <link rel="shortcut icon" href="img/favicon.ico" />
-    <title>Kigit Documentation</title>
+    <title>Welcome to Kigit - Kigit Documentation</title>
     <link rel="stylesheet" href="css/theme.css" />
     <link rel="stylesheet" href="css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -38,10 +38,32 @@
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption"><span class="caption-text">Getting Started</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="" href="getting_started/index.md">Welcome to Kigit</a>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Welcome to Kigit</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#why-kigit">Why Kigit?</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#how-to-install">How to install</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#with-a-wheel-file">With a Wheel File</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#in-project-folder-kigit">In Project Folder KiGit</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#brief-overview-of-commands">Brief overview of commands</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#options">Options</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#supported-file-types-and-components">Supported file types and components</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#project-layout">Project layout</a>
+    </li>
+    </ul>
                   </li>
-                  <li class="toctree-l1"><a class="" href="getting_started/why_kigit.md">Why Kigit?</a>
+                  <li class="toctree-l1"><a class="reference internal" href="getting_started/overview.html">Why Kigit?</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Commands</span></p>
@@ -53,9 +75,9 @@
               </ul>
               <p class="caption"><span class="caption-text">Git Interface</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="" href="commands/git_interface/git_diff.md">diff</a>
+                  <li class="toctree-l1"><a class="reference internal" href="git_interface/git_diff.html">diff</a>
                   </li>
-                  <li class="toctree-l1"><a class="" href="commands/git_interface/git_status.md">status</a>
+                  <li class="toctree-l1"><a class="reference internal" href="git_interface/git_status.html">status</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Supported File Types</span></p>
@@ -86,6 +108,7 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Getting Started</li>
       <li class="breadcrumb-item active">Welcome to Kigit</li>
     <li class="wy-breadcrumbs-aside">
           <a href="https://github.com/RUB-SELAB-2026/AutoIntern-3/tree/main/KiGit/edit/master/docs/index.md">Edit on Kigit</a>
@@ -118,8 +141,8 @@
 <p>In order to reinstall the program, simply type the option <code>--reinstall</code> at the end of the command.</p>
 <h2 id="brief-overview-of-commands">Brief overview of commands</h2>
 <ul>
-<li><a href="../Kigit_Commands/kigit Diff.md"><code>kigit diff</code></a> - .</li>
-<li><a href="../Kigit_Commands/kigit Status.md"><code>kigit status</code></a> - .</li>
+<li><a href="commands/diff.html"><code>kigit diff</code></a> - .</li>
+<li><a href="commands/status.html"><code>kigit status</code></a> - .</li>
 </ul>
 <h3 id="options">Options</h3>
 <p>Kigit also comes with 3 options that can be used without any further command:</p>
@@ -130,8 +153,8 @@
 </ul>
 <h2 id="supported-file-types-and-components">Supported file types and components</h2>
 <ul>
-<li><a href="../Supported_File_Types/kicad_sch.md"><code>kicad_sch</code></a></li>
-<li><a href="../Supported_File_Types/kicad_pcb.md"><code>kicad_pcb</code></a></li>
+<li><a href="Supported_File_Types/kicad_sch.html"><code>kicad_sch</code></a></li>
+<li><a href="Supported_File_Types/kicad_pcb.html"><code>kicad_pcb</code></a></li>
 </ul>
 <h2 id="project-layout">Project layout</h2>
 <pre><code>mkdocs.yml    # The configuration file of MkDocs.
@@ -150,6 +173,9 @@ main.py
               
             </div>
           </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="getting_started/overview.html" class="btn btn-neutral float-right" title="Why Kigit?">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
 
   <hr/>
 
@@ -176,6 +202,8 @@ main.py
     
     
     
+      <span><a href="getting_started/overview.html" style="color: #fcfcfc">Next &raquo;</a></span>
+    
   </span>
 </div>
     <script src="js/jquery-3.6.0.min.js"></script>
@@ -190,8 +218,3 @@ main.py
 
 </body>
 </html>
-
-<!--
-MkDocs version : 1.6.1
-Build Date UTC : 2026-08-30 10:21:57.517974+00:00
--->

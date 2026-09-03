@@ -2,42 +2,42 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>http://127.0.0.1:8000/index.html</loc>
-         <lastmod>2026-08-30</lastmod>
+         <lastmod>2026-09-03</lastmod>
     </url>
     <url>
          <loc>http://127.0.0.1:8000/Miscellaneous/license.html</loc>
-         <lastmod>2026-08-30</lastmod>
+         <lastmod>2026-09-03</lastmod>
     </url>
     <url>
          <loc>http://127.0.0.1:8000/Miscellaneous/releases.html</loc>
-         <lastmod>2026-08-30</lastmod>
+         <lastmod>2026-09-03</lastmod>
     </url>
     <url>
          <loc>http://127.0.0.1:8000/Supported_File_Types/kicad_pcb.html</loc>
-         <lastmod>2026-08-30</lastmod>
+         <lastmod>2026-09-03</lastmod>
     </url>
     <url>
          <loc>http://127.0.0.1:8000/Supported_File_Types/kicad_sch.html</loc>
-         <lastmod>2026-08-30</lastmod>
+         <lastmod>2026-09-03</lastmod>
     </url>
     <url>
          <loc>http://127.0.0.1:8000/commands/diff.html</loc>
-         <lastmod>2026-08-30</lastmod>
+         <lastmod>2026-09-03</lastmod>
     </url>
     <url>
          <loc>http://127.0.0.1:8000/commands/status.html</loc>
-         <lastmod>2026-08-30</lastmod>
+         <lastmod>2026-09-03</lastmod>
     </url>
     <url>
          <loc>http://127.0.0.1:8000/getting_started/overview.html</loc>
-         <lastmod>2026-08-30</lastmod>
+         <lastmod>2026-09-03</lastmod>
     </url>
     <url>
          <loc>http://127.0.0.1:8000/git_interface/git_diff.html</loc>
-         <lastmod>2026-08-30</lastmod>
+         <lastmod>2026-09-03</lastmod>
     </url>
     <url>
          <loc>http://127.0.0.1:8000/git_interface/git_status.html</loc>
-         <lastmod>2026-08-30</lastmod>
+         <lastmod>2026-09-03</lastmod>
     </url>
 </urlset>
