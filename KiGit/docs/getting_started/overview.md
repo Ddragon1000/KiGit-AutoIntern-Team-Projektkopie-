@@ -8,12 +8,13 @@ Here are some other noteworthy tools listed and how Kigit differs from them:
 <br />
 <br />
 
-### Plotkicadsch
-This project contains "Plotgitsch", a command line tool which generates visual Diffs for KiCad-Schematics. It uses Git to compare two different versions and opens the differences as color coded SVGs in a browser tab.
 
-#### How Kigit differs from Plotkicadsch
-Kigit is practically fully committed to depicting changes (diffs) of KiCad files, where as the main functionality of Plotkicadsch is to export Kicad Schematic files to SVG pictures. But it also contains plotgitsch to visualize git diffs between two Kicad Schematic files.<br />
-The biggest difference is the visualization of the diffs. Whereas Plotkicadsch exports the diff to an SVG picture, that is then opened with a browser, Kigit's main output is a table in the console of the command line interface that is being used. 
+### Plotkicadsch
+Plotkicadsch contains "Plotgitsch", a command line tool which generates visual Diffs for KiCad-Schematics. It uses Git to compare two different versions and opens the differences as color coded SVGs in a browser tab.
+
+### How Kigit differs from Plotkicadsch
+Kigit is practically fully committed to depicting changes (diffs) of KiCad files, where as the main functionality of Plotkicadsch is to export Kicad Schematic files to SVG pictures. Plotkicadsch contains plotgitsch to visualize git diffs between two Kicad Schematic files.<br />
+The biggest difference is the visualization of the diffs. Whereas Plotkicadsch exports the diff to an SVG picture, that is then opened with a browser, Kigit's main output is a table in the console of the command line interface that is being used.
 <br />
 <br />
 
